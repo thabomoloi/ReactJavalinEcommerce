@@ -11,6 +11,28 @@ public class UserInputDto {
     private String password;
 
     /**
+     * No-argument constructor for creating a {@link UserInputDto} instance.
+     * This constructor allows for the creation of an empty DTO, which can
+     * be populated using setter methods.
+     */
+    public UserInputDto() {
+    }
+
+    /**
+     * Parameterized constructor for creating a {@link UserInputDto} instance
+     * with specified values for all fields.
+     *
+     * @param name     the user's name.
+     * @param email    the user's email.
+     * @param password the user's password.
+     */
+    public UserInputDto(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
+    /**
      * Gets the user's ID.
      *
      * @return the user's ID.
