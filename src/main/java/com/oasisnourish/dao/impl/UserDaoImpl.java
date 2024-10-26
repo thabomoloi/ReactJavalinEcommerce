@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -146,6 +148,25 @@ public class UserDaoImpl implements UserDao {
             throw new DatabaseAccessException("Failed to find user with email " + email, e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public void verifyEmail(String email) {
+        String sql = "UPDATE users SET email_verified = ? WHERE email = ?";
+
+        try (Connection connection = jdbcConnection.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql)) {
+            LocalDateTime emailVerified = LocalDateTime.now();
+            ps.setTimestamp(1, Timestamp.valueOf(emailVerified));
+            ps.setString(2, email);
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Verifying user failed, no rows affected.");
+            }
+        } catch (SQLException e) {
+            throw new DatabaseAccessException("Error verifying email: " + email, e);
+        }
     }
 
 }
