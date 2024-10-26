@@ -19,4 +19,11 @@ public interface UserDao extends Dao<User> {
      *         Optional if not found.
      */
     Optional<User> findByEmail(String email);
+
+    /**
+     * Verfies a user&apos;s email address (or account).
+     * 
+     * @param email the email address to verify.
+     */
+    void verifyEmail(String email);
 }
