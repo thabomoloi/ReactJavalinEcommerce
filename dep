@@ -1,0 +1,106 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< com.oasisnourish:OasisNourish >--------------------
+[INFO] Building OasisNourish 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.7.0:tree (default-cli) @ OasisNourish ---
+[INFO] com.oasisnourish:OasisNourish:jar:1.0-SNAPSHOT
+[INFO] +- org.junit.jupiter:junit-jupiter-api:jar:5.11.0:test
+[INFO] |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  +- org.junit.platform:junit-platform-commons:jar:1.11.0:test
+[INFO] |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] +- org.junit.jupiter:junit-jupiter-params:jar:5.11.0:test
+[INFO] +- org.mockito:mockito-core:jar:5.14.2:test
+[INFO] |  +- net.bytebuddy:byte-buddy:jar:1.15.4:test
+[INFO] |  +- net.bytebuddy:byte-buddy-agent:jar:1.15.4:test
+[INFO] |  \- org.objenesis:objenesis:jar:3.3:test
+[INFO] +- io.javalin:javalin-bundle:jar:6.3.0:compile
+[INFO] |  +- io.javalin:javalin:jar:6.3.0:compile
+[INFO] |  |  +- org.eclipse.jetty:jetty-server:jar:11.0.23:compile
+[INFO] |  |  |  \- org.eclipse.jetty:jetty-http:jar:11.0.23:compile
+[INFO] |  |  \- org.eclipse.jetty.websocket:websocket-jetty-server:jar:11.0.23:compile
+[INFO] |  |     +- org.eclipse.jetty:jetty-servlet:jar:11.0.23:compile
+[INFO] |  |     |  \- org.eclipse.jetty:jetty-security:jar:11.0.23:compile
+[INFO] |  |     +- org.eclipse.jetty:jetty-webapp:jar:11.0.23:compile
+[INFO] |  |     |  \- org.eclipse.jetty:jetty-xml:jar:11.0.23:compile
+[INFO] |  |     +- org.eclipse.jetty.websocket:websocket-jetty-api:jar:11.0.23:compile
+[INFO] |  |     +- org.eclipse.jetty.websocket:websocket-jetty-common:jar:11.0.23:compile
+[INFO] |  |     |  \- org.eclipse.jetty.websocket:websocket-core-common:jar:11.0.23:compile
+[INFO] |  |     \- org.eclipse.jetty.websocket:websocket-servlet:jar:11.0.23:compile
+[INFO] |  |        \- org.eclipse.jetty.websocket:websocket-core-server:jar:11.0.23:compile
+[INFO] |  +- io.javalin:javalin-context-mock:jar:6.3.0:compile
+[INFO] |  |  \- org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api:jar:5.0.2:compile
+[INFO] |  +- io.javalin:javalin-testtools:jar:6.3.0:compile
+[INFO] |  |  \- com.squareup.okhttp3:okhttp:jar:4.12.0:compile
+[INFO] |  |     \- com.squareup.okio:okio:jar:3.6.0:compile
+[INFO] |  |        \- com.squareup.okio:okio-jvm:jar:3.6.0:compile
+[INFO] |  |           \- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.9.10:compile
+[INFO] |  +- io.javalin:javalin-micrometer:jar:6.3.0:compile
+[INFO] |  |  +- io.micrometer:micrometer-core:jar:1.13.2:compile
+[INFO] |  |  |  +- org.hdrhistogram:HdrHistogram:jar:2.2.2:runtime
+[INFO] |  |  |  \- org.latencyutils:LatencyUtils:jar:2.0.3:runtime
+[INFO] |  |  \- io.micrometer:micrometer-jetty11:jar:1.13.2:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.17.2:compile
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.17.2:compile
+[INFO] |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.17.2:compile
+[INFO] |  +- com.fasterxml.jackson.module:jackson-module-kotlin:jar:2.17.2:compile
+[INFO] |  |  \- org.jetbrains.kotlin:kotlin-reflect:jar:1.7.22:compile
+[INFO] |  +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.17.2:compile
+[INFO] |  +- com.aayushatharva.brotli4j:brotli4j:jar:1.16.0:compile
+[INFO] |  |  +- com.aayushatharva.brotli4j:service:jar:1.16.0:compile
+[INFO] |  |  \- com.aayushatharva.brotli4j:native-linux-x86_64:jar:1.16.0:compile
+[INFO] |  +- org.eclipse.jetty.http2:http2-server:jar:11.0.23:compile
+[INFO] |  |  \- org.eclipse.jetty.http2:http2-common:jar:11.0.23:compile
+[INFO] |  |     \- org.eclipse.jetty.http2:http2-hpack:jar:11.0.23:compile
+[INFO] |  +- org.eclipse.jetty:jetty-alpn-conscrypt-server:jar:11.0.23:compile
+[INFO] |  |  +- org.conscrypt:conscrypt-openjdk-uber:jar:2.5.2:compile
+[INFO] |  |  +- org.eclipse.jetty:jetty-alpn-server:jar:11.0.23:compile
+[INFO] |  |  \- org.eclipse.jetty:jetty-io:jar:11.0.23:compile
+[INFO] |  |     \- org.eclipse.jetty:jetty-util:jar:11.0.23:compile
+[INFO] |  +- ch.qos.logback:logback-classic:jar:1.5.7:compile
+[INFO] |  |  \- ch.qos.logback:logback-core:jar:1.5.7:compile
+[INFO] |  \- org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar:1.9.25:compile
+[INFO] |     +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.9.25:compile
+[INFO] |     |  \- org.jetbrains:annotations:jar:13.0:compile
+[INFO] |     \- org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar:1.9.25:compile
+[INFO] +- org.slf4j:slf4j-simple:jar:2.0.16:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:2.0.16:compile
+[INFO] +- com.zaxxer:HikariCP:jar:5.1.0:compile
+[INFO] +- org.postgresql:postgresql:jar:42.7.4:compile
+[INFO] |  \- org.checkerframework:checker-qual:jar:3.42.0:runtime
+[INFO] +- org.hibernate.validator:hibernate-validator:jar:8.0.1.Final:compile
+[INFO] |  +- jakarta.validation:jakarta.validation-api:jar:3.0.2:compile
+[INFO] |  +- org.jboss.logging:jboss-logging:jar:3.4.3.Final:compile
+[INFO] |  \- com.fasterxml:classmate:jar:1.5.1:compile
+[INFO] +- org.springframework.security:spring-security-core:jar:6.3.3:compile
+[INFO] |  +- org.springframework.security:spring-security-crypto:jar:6.3.3:compile
+[INFO] |  +- org.springframework:spring-aop:jar:6.1.12:compile
+[INFO] |  +- org.springframework:spring-beans:jar:6.1.12:compile
+[INFO] |  +- org.springframework:spring-context:jar:6.1.12:compile
+[INFO] |  +- org.springframework:spring-core:jar:6.1.12:compile
+[INFO] |  |  \- org.springframework:spring-jcl:jar:6.1.12:compile
+[INFO] |  +- org.springframework:spring-expression:jar:6.1.12:compile
+[INFO] |  \- io.micrometer:micrometer-observation:jar:1.12.9:compile
+[INFO] |     \- io.micrometer:micrometer-commons:jar:1.12.9:compile
+[INFO] +- io.github.cdimascio:dotenv-java:jar:3.0.2:compile
+[INFO] +- redis.clients:jedis:jar:5.1.5:compile
+[INFO] |  +- org.apache.commons:commons-pool2:jar:2.12.0:compile
+[INFO] |  +- org.json:json:jar:20231013:compile
+[INFO] |  \- com.google.code.gson:gson:jar:2.10.1:compile
+[INFO] +- com.github.kmehrunes:javalin-jwt:jar:6.0.0:compile
+[INFO] |  \- com.auth0:java-jwt:jar:4.4.0:compile
+[INFO] +- org.thymeleaf:thymeleaf:jar:3.1.2.RELEASE:compile
+[INFO] |  +- ognl:ognl:jar:3.3.4:compile
+[INFO] |  |  \- org.javassist:javassist:jar:3.29.0-GA:compile
+[INFO] |  +- org.attoparser:attoparser:jar:2.0.7.RELEASE:compile
+[INFO] |  \- org.unbescape:unbescape:jar:1.1.6.RELEASE:compile
+[INFO] \- com.sun.mail:jakarta.mail:jar:2.0.1:compile
+[INFO]    \- com.sun.activation:jakarta.activation:jar:2.0.1:compile
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.100 s
+[INFO] Finished at: 2024-10-26T23:50:02+02:00
+[INFO] ------------------------------------------------------------------------
