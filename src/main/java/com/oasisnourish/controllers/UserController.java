@@ -76,10 +76,12 @@ public class UserController {
                 }, "Password is required.")
                 .check(obj -> {
                     String password = obj.getPassword();
-                    return password.length() >= 8 && password.length() <= 16;
+                    return password != null && password.length() >= 8 && password.length() <= 16;
                 }, "Password must be between 8 and 16 characters.")
-                .check(obj -> obj.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"),
-                        "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character (@, #, $, %, ^, &, +, =, !).")
+                .check(obj -> {
+                    String password = obj.getPassword();
+                    return password != null && password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$");
+                }, "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character (@, #, $, %, ^, &, +, =, !).")
                 .get();
         userService.createUser(userDto);
         ctx.status(HttpStatus.CREATED);
@@ -99,13 +101,13 @@ public class UserController {
                 .check(obj -> obj.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$"), "Invalid email address.")
                 .check(obj -> {
                     String password = obj.getPassword();
-                    return password != null && !password.trim().isEmpty() &&
-                            password.length() >= 8 && password.length() <= 16;
+                    return password == null || (password != null && !password.trim().isEmpty() &&
+                            password.length() >= 8 && password.length() <= 16);
                 }, "Password must be between 8 and 16 characters.")
                 .check(obj -> {
                     String password = obj.getPassword();
-                    return password != null && !password.trim().isEmpty() &&
-                            obj.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$");
+                    return password == null || (password != null && !password.trim().isEmpty() &&
+                            password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"));
                 }, "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character (@, #, $, %, ^, &, +, =, !).")
                 .get();
         userDto.setId(userId);
