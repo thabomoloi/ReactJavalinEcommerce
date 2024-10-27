@@ -49,12 +49,12 @@ public class UserServiceImpl implements UserService {
     public void updateUser(UserInputDto userDto) {
         Optional<User> exisitingUser = userDao.find(userDto.getId());
         if (exisitingUser.isEmpty()) {
-            throw new NotFoundException("User with id " + userDto.getId() + " cannot be found");
+            throw new NotFoundException("User with id " + userDto.getId() + " not found");
         }
         User user = exisitingUser.get();
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
-        if (user.getPassword() == null) {
+        if (user.getPassword() != null || !user.getPassword().trim().isEmpty()) {
             user.setPassword(userDto.getPassword());
         }
         userDao.update(user);
@@ -62,7 +62,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(int id) {
-        userDao.delete(id);
+        userDao.find(id).ifPresentOrElse(
+                user -> userDao.delete(id),
+                () -> {
+                    throw new NotFoundException("User with id " + id + " not found");
+                });
     }
 
     @Override
