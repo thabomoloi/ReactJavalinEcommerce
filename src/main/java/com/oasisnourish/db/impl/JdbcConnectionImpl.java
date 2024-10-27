@@ -30,9 +30,9 @@ public class JdbcConnectionImpl implements JdbcConnection {
      * @throws IllegalStateException if database environment variables are not set.
      */
     private static HikariDataSource setUpJdbcConnection() {
-        String url = dotenv.get("DB_URL");
-        String username = dotenv.get("DB_USERNAME");
-        String password = dotenv.get("DB_PASSWORD");
+        String url = dotenv.get("POSTGRES_DB_URL");
+        String username = dotenv.get("POSTGRES_USER");
+        String password = dotenv.get("POSTGRES_PASSWORD");
 
         if (url == null || username == null || password == null) {
             throw new IllegalStateException("Database environment variables are not set.");
