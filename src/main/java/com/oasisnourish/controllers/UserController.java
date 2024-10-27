@@ -49,10 +49,11 @@ public class UserController {
      * @param ctx the {@link Javalin} context object containing the HTTP request and
      *            response.
      */
-    private void findAllUsers(Context ctx) {
+    void findAllUsers(Context ctx) {
         List<UserResponseDto> users = userService.findAllUsers().stream()
                 .map(UserResponseDto::fromModel)
                 .collect(Collectors.toList());
+        ctx.status(HttpStatus.OK);
         ctx.json(users);
     }
 
@@ -63,10 +64,12 @@ public class UserController {
      *            response.
      * @throws NotFoundException if the user with the specified ID is not found.
      */
-    private void findUserById(Context ctx) {
+    void findUserById(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         User user = userService.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+
+        ctx.status(HttpStatus.OK);
         ctx.json(UserResponseDto.fromModel(user));
     }
 
@@ -76,7 +79,7 @@ public class UserController {
      * @param ctx the {@link Javalin} context object containing the HTTP request and
      *            response.
      */
-    private void createUser(Context ctx) {
+    void createUser(Context ctx) {
         UserInputDto userDto = ctx.bodyValidator(UserInputDto.class)
                 .check(obj -> obj.getName() != null && !obj.getName().trim().isEmpty(), "Name is required.")
                 .check(obj -> obj.getEmail() != null && !obj.getEmail().trim().isEmpty(), "Email is required.")
@@ -102,7 +105,7 @@ public class UserController {
      * @param ctx the {@link Javalin} context object containing the HTTP request and
      *            response.
      */
-    private void updateUser(Context ctx) {
+    void updateUser(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         UserInputDto userDto = ctx.bodyValidator(UserInputDto.class)
                 .check(obj -> obj.getName() != null && !obj.getName().trim().isEmpty(), "Name is required.")
@@ -130,7 +133,7 @@ public class UserController {
      * @param ctx the {@link Javalin} context object containing the HTTP request and
      *            response.
      */
-    private void deleteUser(Context ctx) {
+    void deleteUser(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         userService.deleteUser(userId);
         ctx.status(HttpStatus.NO_CONTENT);

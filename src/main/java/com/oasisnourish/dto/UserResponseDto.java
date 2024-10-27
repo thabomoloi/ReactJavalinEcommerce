@@ -119,6 +119,32 @@ public class UserResponseDto {
         this.emailVerified = emailVerified;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        UserResponseDto that = (UserResponseDto) obj;
+
+        return id == that.id &&
+                (name != null ? name.equals(that.name) : that.name == null) &&
+                (email != null ? email.equals(that.email) : that.email == null) &&
+                role == that.role &&
+                (emailVerified != null ? emailVerified.equals(that.emailVerified) : that.emailVerified == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        result = 31 * result + (role != null ? role.hashCode() : 0);
+        result = 31 * result + (emailVerified != null ? emailVerified.hashCode() : 0);
+        return result;
+    }
+
     /**
      * Converts the {@link User} object to {@link UserResponseDto}
      * 
