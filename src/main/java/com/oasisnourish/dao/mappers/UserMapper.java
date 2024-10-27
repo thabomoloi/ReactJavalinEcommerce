@@ -57,10 +57,7 @@ public class UserMapper {
         statement.setString(2, user.getEmail());
         statement.setString(3, user.getPassword());
         statement.setString(4, user.getRole().name());
-
-        if (user.getEmailVerified() != null) {
-            statement.setTimestamp(5, Timestamp.valueOf(user.getEmailVerified()));
-        }
+        statement.setTimestamp(5, user.getEmailVerified() == null ? null : Timestamp.valueOf(user.getEmailVerified()));
 
         if (includeId) {
             statement.setInt(6, user.getId());
