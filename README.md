@@ -3,7 +3,7 @@
 ## PostgresSQL Setup
 
 ```bash
--- Open PostgreSQL command line
+# Open PostgreSQL command line
 psql
 ```
 
