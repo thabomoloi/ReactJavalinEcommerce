@@ -1,1 +1,1 @@
-TRUNCATE TABLE users;
+DROP TABLE users;
