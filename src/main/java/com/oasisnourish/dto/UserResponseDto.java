@@ -1,6 +1,6 @@
 package com.oasisnourish.dto;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.models.User;
@@ -10,7 +10,7 @@ public class UserResponseDto {
     private String name;
     private String email;
     private Role role;
-    private LocalDateTime emailVerified;
+    private String emailVerified;
 
     /**
      * Constructs a {@link UserResponseDto} with the specified name, email,
@@ -21,7 +21,7 @@ public class UserResponseDto {
      * @param role          the role of the user
      * @param emailVerified the date the email was verified
      */
-    public UserResponseDto(String name, String email, Role role, LocalDateTime emailVerified) {
+    public UserResponseDto(String name, String email, Role role, String emailVerified) {
         this.name = name;
         this.email = email;
         this.role = role;
@@ -106,7 +106,7 @@ public class UserResponseDto {
      * @return the timestamp when the user's email was verified, or null if not
      *         verified
      */
-    public LocalDateTime getEmailVerified() {
+    public String getEmailVerified() {
         return emailVerified;
     }
 
@@ -115,7 +115,7 @@ public class UserResponseDto {
      *
      * @param emailVerified the timestamp to set when the user's email was verified
      */
-    public void setEmailVerified(LocalDateTime emailVerified) {
+    public void setEmailVerified(String emailVerified) {
         this.emailVerified = emailVerified;
     }
 
@@ -156,7 +156,8 @@ public class UserResponseDto {
                 user.getName(),
                 user.getEmail(),
                 user.getRole(),
-                user.getEmailVerified());
+                user.getEmailVerified() == null ? null
+                        : user.getEmailVerified().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         dto.setId(user.getId());
         return dto;
     }

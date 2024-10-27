@@ -52,6 +52,7 @@ public class UserDaoImplTest {
 
         when(mockJdbcConnection.getConnection()).thenReturn(mockConnection);
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+
     }
 
     /**
@@ -123,6 +124,7 @@ public class UserDaoImplTest {
      */
     @Test
     public void testSave_UserInserted() throws SQLException {
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenReturn(mockPreparedStatement);
 
         // Simulate the execution update
         when(mockPreparedStatement.executeUpdate()).thenReturn(1);

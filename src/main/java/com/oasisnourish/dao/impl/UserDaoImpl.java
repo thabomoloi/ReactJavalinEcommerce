@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -76,7 +77,7 @@ public class UserDaoImpl implements UserDao {
         String sql = "INSERT INTO users (name, email, password, role, email_verified) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection connection = jdbcConnection.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql)) {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             userMapper.mapToRow(ps, user, false);
             int affectedRows = ps.executeUpdate();
 
@@ -85,6 +86,7 @@ public class UserDaoImpl implements UserDao {
             }
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+
                 if (generatedKeys.next()) {
                     user.setId(generatedKeys.getInt(1));
                 } else {
