@@ -30,26 +30,12 @@ public class UserController {
     }
 
     /**
-     * Registers the routes for user-related actions.
-     *
-     * @param app the {@link Javalin} application instance where routes will be
-     *            registered.
-     */
-    public void registerRoutes(Javalin app) {
-        app.get("/users", this::findAllUsers);
-        app.get("/users/{userId}", this::findUserById);
-        app.post("/users", this::createUser);
-        app.put("/users/{userId}", this::updateUser);
-        app.delete("/users/{userId}", this::deleteUser);
-    }
-
-    /**
      * Handles the request to get all users.
      *
      * @param ctx the {@link Javalin} context object containing the HTTP request and
      *            response.
      */
-    void findAllUsers(Context ctx) {
+    public void findAllUsers(Context ctx) {
         List<UserResponseDto> users = userService.findAllUsers().stream()
                 .map(UserResponseDto::fromModel)
                 .collect(Collectors.toList());
@@ -64,7 +50,7 @@ public class UserController {
      *            response.
      * @throws NotFoundException if the user with the specified ID is not found.
      */
-    void findUserById(Context ctx) {
+    public void findUserById(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         User user = userService.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -79,7 +65,7 @@ public class UserController {
      * @param ctx the {@link Javalin} context object containing the HTTP request and
      *            response.
      */
-    void createUser(Context ctx) {
+    public void createUser(Context ctx) {
         UserInputDto userDto = ctx.bodyValidator(UserInputDto.class)
                 .check(obj -> obj.getName() != null && !obj.getName().trim().isEmpty(), "Name is required.")
                 .check(obj -> obj.getEmail() != null && !obj.getEmail().trim().isEmpty(), "Email is required.")
@@ -105,7 +91,7 @@ public class UserController {
      * @param ctx the {@link Javalin} context object containing the HTTP request and
      *            response.
      */
-    void updateUser(Context ctx) {
+    public void updateUser(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         UserInputDto userDto = ctx.bodyValidator(UserInputDto.class)
                 .check(obj -> obj.getName() != null && !obj.getName().trim().isEmpty(), "Name is required.")
@@ -133,7 +119,7 @@ public class UserController {
      * @param ctx the {@link Javalin} context object containing the HTTP request and
      *            response.
      */
-    void deleteUser(Context ctx) {
+    public void deleteUser(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         userService.deleteUser(userId);
         ctx.status(HttpStatus.NO_CONTENT);
