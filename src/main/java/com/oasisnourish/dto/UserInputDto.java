@@ -4,11 +4,9 @@ package com.oasisnourish.dto;
  * A Data Transfer Object (DTO) representing user input data for creating or
  * updating a user.
  */
-public class UserInputDto {
+public class UserInputDto extends UserAuthDto {
     private int id;
     private String name;
-    private String email;
-    private String password;
 
     /**
      * No-argument constructor for creating a {@link UserInputDto} instance.
@@ -16,6 +14,7 @@ public class UserInputDto {
      * be populated using setter methods.
      */
     public UserInputDto() {
+        super();
     }
 
     /**
@@ -27,9 +26,8 @@ public class UserInputDto {
      * @param password the user's password.
      */
     public UserInputDto(String name, String email, String password) {
+        super(email, password);
         this.name = name;
-        this.email = email;
-        this.password = password;
     }
 
     /**
@@ -66,41 +64,5 @@ public class UserInputDto {
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * Gets the user's email.
-     *
-     * @return the user's email.
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Sets the user's email.
-     *
-     * @param email the user's email to set.
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    /**
-     * Gets the user's password.
-     *
-     * @return the user's password.
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * Sets the user's password.
-     *
-     * @param password the user's password to set.
-     */
-    public void setPassword(String password) {
-        this.password = password;
     }
 }
