@@ -34,7 +34,7 @@ public class UserSeed implements DatabaseSeed {
             // Check if user already exists
             if (userDao.findByEmail(email).isEmpty()) {
                 User user = new User(name, email, password, role);
-                if (user.getRole() != Role.ANYONE && user.getRole() != Role.UNVERIFIED_USER) {
+                if (user.getRole() != Role.GUEST && user.getRole() != Role.UNVERIFIED_USER) {
                     user.setEmailVerified(LocalDateTime.now());
                 }
                 userDao.save(user);

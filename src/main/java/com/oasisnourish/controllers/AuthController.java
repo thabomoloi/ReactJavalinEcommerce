@@ -87,7 +87,7 @@ public class AuthController implements Handler {
         sessionManager.refreshToken(ctx, jwtService);
     }
 
-    public void signOut(Context ctx) {
+    public void signOutUser(Context ctx) {
         sessionManager.invalidateSession(ctx, jwtService);
         ctx.status(204).result("Sign out successful.");
     }
