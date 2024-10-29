@@ -25,8 +25,8 @@ public class DtoValidatorImpl<T> implements DtoValidator<T> {
     }
 
     @Override
-    public DtoValidator<T> check(Condition<T> condition, String message) {
-        validator.check("name", (user) -> condition.test(user), message);
+    public DtoValidator<T> check(String fieldName, Condition<T> condition, String message) {
+        validator.check(fieldName, (user) -> condition.test(user), message);
         return this;
     }
 }

@@ -17,11 +17,12 @@ public interface DtoValidator<T> {
     /**
      * Adds a validation check with a specified condition and error message.
      *
+     * @param fieldName the name of the field to validate
      * @param condition the condition to check
      * @param message   the error message if the condition fails
      * @return the current instance of the Validator for method chaining
      */
-    DtoValidator<T> check(Condition<T> condition, String message);
+    DtoValidator<T> check(String fieldName, Condition<T> condition, String message);
 
     /**
      * Functional interface representing a condition for validation.
