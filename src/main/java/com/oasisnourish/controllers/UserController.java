@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.UserResponseDto;
+import com.oasisnourish.dto.validation.ValidatorFactory;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.UserService;
@@ -66,22 +67,13 @@ public class UserController {
      *            response.
      */
     public void createUser(Context ctx) {
-        UserInputDto userDto = ctx.bodyValidator(UserInputDto.class)
-                .check(obj -> obj.getName() != null && !obj.getName().trim().isEmpty(), "Name is required.")
-                .check(obj -> obj.getEmail() != null && !obj.getEmail().trim().isEmpty(), "Email is required.")
-                .check(obj -> obj.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$"), "Invalid email address.")
-                .check(obj -> {
-                    String password = obj.getPassword();
-                    return password != null && !password.trim().isEmpty();
-                }, "Password is required.")
-                .check(obj -> {
-                    String password = obj.getPassword();
-                    return password != null && password.length() >= 8 && password.length() <= 16;
-                }, "Password must be between 8 and 16 characters.")
-                .check(obj -> {
-                    String password = obj.getPassword();
-                    return password != null && password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$");
-                }, "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character (@, #, $, %, ^, &, +, =, !).")
+        UserInputDto userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+                .isNameRequired()
+                .isEmailRequired()
+                .isEmailValid()
+                .isPasswordRequired()
+                .isPasswordLengthValid()
+                .isPasswordPatternValid()
                 .get();
         userService.createUser(userDto);
         ctx.status(HttpStatus.CREATED);

@@ -53,8 +53,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testCreateUser_EmailAlreadyExists() {
-        UserInputDto userDto = new UserInputDto("John Doe", "john.doe@test.com",
-                "password123");
+        UserInputDto userDto = new UserInputDto(0, "John Doe", "john.doe@test.com", "password123");
 
         when(userDao.findByEmail(anyString())).thenReturn(Optional.of(new User()));
 
@@ -63,8 +62,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testCreateUser_Success() {
-        UserInputDto userDto = new UserInputDto("John Doe", "john.doe@test.com",
-                "password123");
+        UserInputDto userDto = new UserInputDto(0, "John Doe", "john.doe@test.com", "password123");
 
         when(userDao.findByEmail(anyString())).thenReturn(Optional.empty());
         doAnswer(invocation -> {
@@ -80,11 +78,8 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateUser_UserExists() {
-        UserInputDto userDto = new UserInputDto("John Doe", "john.doe@test.com",
-                "newPassword");
-        userDto.setId(1);
-        User existingUser = new User("Old Name", "old.email@test.com",
-                "oldPassword");
+        UserInputDto userDto = new UserInputDto(1, "John Doe", "john.doe@test.com", "newPassword");
+        User existingUser = new User("Old Name", "old.email@test.com", "oldPassword");
         existingUser.setId(1);
         when(userDao.find(1)).thenReturn(Optional.of(existingUser));
 
@@ -96,8 +91,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testUpdateUser_UserDoesNotExist() {
-        UserInputDto userDto = new UserInputDto("John Doe", "john.doe@test.com",
-                "newPassword");
+        UserInputDto userDto = new UserInputDto(1, "John Doe", "john.doe@test.com", "newPassword");
 
         when(userDao.find(1)).thenReturn(Optional.empty());
 
@@ -106,8 +100,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testDeleteUser_UserExists() {
-        User existingUser = new User("John Doe", "john.doe@test.com",
-                "hashedPassword");
+        User existingUser = new User("John Doe", "john.doe@test.com", "hashedPassword");
         existingUser.setId(1);
 
         when(userDao.find(1)).thenReturn(Optional.of(existingUser));

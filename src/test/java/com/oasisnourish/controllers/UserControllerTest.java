@@ -116,7 +116,7 @@ public class UserControllerTest {
     @Test
     public void testCreateUser_Success() {
         // Arrange
-        UserInputDto userDto = new UserInputDto("Alice", "alice@test.com", "Password123!");
+        UserInputDto userDto = new UserInputDto(0, "Alice", "alice@test.com", "Password123!");
         when(ctx.bodyValidator(UserInputDto.class)).thenReturn(bodyValidator);
         when(bodyValidator.check(any(), anyString())).thenReturn(bodyValidator);
         when(bodyValidator.get()).thenReturn(userDto);
@@ -135,7 +135,7 @@ public class UserControllerTest {
     @Test
     public void testUpdateUser_Success() {
         // Arrange
-        UserInputDto userDto = new UserInputDto("Alice", "alice@test.com", "Password123!");
+        UserInputDto userDto = new UserInputDto(0, "Alice", "alice@test.com", "Password123!");
 
         when(ctx.pathParamAsClass("userId", Integer.class)).thenReturn(paramValidator);
         when(paramValidator.get()).thenReturn(1);

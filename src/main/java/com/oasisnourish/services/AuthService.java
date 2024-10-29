@@ -2,7 +2,7 @@ package com.oasisnourish.services;
 
 import java.util.Optional;
 
-import com.oasisnourish.dto.UserAuthDto;
+import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.models.User;
 
@@ -37,7 +37,7 @@ public interface AuthService {
      *         if authentication is successful, or an empty {@link Optional} if
      *         authentication fails due to incorrect credentials.
      */
-    Optional<User> signInUser(UserAuthDto userDto);
+    Optional<User> signInUser(UserInputDto userDto);
 
     /**
      * Sends a confirmation token to the user's email address.

@@ -2,7 +2,7 @@ package com.oasisnourish.services.impl;
 
 import java.util.Optional;
 
-import com.oasisnourish.dto.UserAuthDto;
+import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.AuthService;
@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Optional<User> signInUser(UserAuthDto userDto) {
+    public Optional<User> signInUser(UserInputDto userDto) {
         Optional<User> user = userService.findUserByEmail(userDto.getEmail());
         if (user.isPresent()) {
             if (PasswordUtil.checkPassword(userDto.getPassword(), user.get().getPassword())) {
