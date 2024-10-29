@@ -3,7 +3,6 @@ package com.oasisnourish.services.impl;
 import java.util.Optional;
 
 import com.oasisnourish.dto.UserInputDto;
-import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.AuthService;
 import com.oasisnourish.services.EmailService;
