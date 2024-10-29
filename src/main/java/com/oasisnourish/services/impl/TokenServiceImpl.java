@@ -1,23 +1,24 @@
 package com.oasisnourish.services.impl;
 
 import java.util.UUID;
+
+import com.oasisnourish.db.RedisConnection;
 import com.oasisnourish.exceptions.TooManyRequestsException;
 import com.oasisnourish.services.TokenService;
-
-import redis.clients.jedis.JedisPooled;
 
 public class TokenServiceImpl implements TokenService {
     private static final int MAX_TOKENS_PER_DAY = 5;
     private static final int RATE_LIMIT_WINDOW_SECONDS = 24 * 60 * 60; // 24 hours
     private static final int TOKEN_EXPIRES_SECONDS = 30 * 60; // 1 hour
-    private final JedisPooled jedis;
+    private final RedisConnection redisConnection;
 
-    public TokenServiceImpl(JedisPooled jedis) {
-        this.jedis = jedis;
+    public TokenServiceImpl(RedisConnection redisConnection) {
+        this.redisConnection = redisConnection;
     }
 
     @Override
     public String generateToken(int userId, String tokenType) throws TooManyRequestsException {
+        var jedis = redisConnection.getJedis();
         String rateLimitKey = "rate_limit:" + userId + ":" + tokenType;
         String tokenKey = "tokens:" + userId + ":" + tokenType;
 
@@ -45,6 +46,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public boolean verifyToken(int userId, String tokenType, String token) {
+        var jedis = redisConnection.getJedis();
         String tokenKey = "tokens:" + userId + ":" + tokenType;
         String storedToken = jedis.get(tokenKey);
         return token.equals(storedToken);
@@ -52,6 +54,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void revokeToken(int userId, String tokenType) {
+        var jedis = redisConnection.getJedis();
         String tokenKey = "tokens:" + userId + ":" + tokenType;
         jedis.del(tokenKey);
     }

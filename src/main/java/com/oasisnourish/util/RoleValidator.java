@@ -26,7 +26,7 @@ public class RoleValidator {
         String userRole = Optional.ofNullable(jwt)
                 .map(token -> token.getClaim("role").asString())
                 .orElse("");
-        Role role = rolesMapping.getOrDefault(userRole, Role.ANYONE);
+        Role role = rolesMapping.getOrDefault(userRole, Role.GUEST);
         Set<RouteRole> permittedRoles = ctx.routeRoles();
 
         if (!permittedRoles.contains(role)) {
