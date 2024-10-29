@@ -4,9 +4,11 @@ package com.oasisnourish.dto;
  * A Data Transfer Object (DTO) representing user input data for creating or
  * updating a user.
  */
-public class UserInputDto extends UserAuthDto {
+public class UserInputDto {
     private int id;
     private String name;
+    private String email;
+    private String password;
 
     /**
      * No-argument constructor for creating a {@link UserInputDto} instance.
@@ -14,20 +16,22 @@ public class UserInputDto extends UserAuthDto {
      * be populated using setter methods.
      */
     public UserInputDto() {
-        super();
     }
 
     /**
      * Parameterized constructor for creating a {@link UserInputDto} instance
      * with specified values for all fields.
      *
+     * @param id       the user's id
      * @param name     the user's name.
      * @param email    the user's email.
      * @param password the user's password.
      */
-    public UserInputDto(String name, String email, String password) {
-        super(email, password);
+    public UserInputDto(int id, String name, String email, String password) {
+        this.id = id;
         this.name = name;
+        this.email = email;
+        this.password = password;
     }
 
     /**
@@ -64,5 +68,41 @@ public class UserInputDto extends UserAuthDto {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Gets the user's email.
+     *
+     * @return the user's email.
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Sets the user's email.
+     *
+     * @param email the user's email to set.
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * Gets the user's password.
+     *
+     * @return the user's password.
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * Sets the user's password.
+     *
+     * @param password the user's password to set.
+     */
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

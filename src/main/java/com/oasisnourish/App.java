@@ -32,7 +32,7 @@ public class App {
 
     // Load env variables
     Dotenv dotenv = EnvConfig.getDotenv();
-    String appEnv = dotenv.get("APP_ENV", "development");
+    String env = dotenv.get("ENV", "development");
 
     // DAOs and DB connections
     JdbcConnection jdbcConnection = new JdbcConnectionImpl();
@@ -45,7 +45,7 @@ public class App {
     UserController userController = new UserController(userService);
 
     public App() {
-        if ("development".equals(appEnv)) {
+        if ("development".equals(env)) {
             DatabaseSeed userSeed = new UserSeed(userDao);
             userSeed.seed();
         }
