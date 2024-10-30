@@ -29,7 +29,8 @@ public class RoleValidator {
         Role role = rolesMapping.getOrDefault(userRole, Role.GUEST);
         Set<RouteRole> permittedRoles = ctx.routeRoles();
 
-        if (!permittedRoles.contains(role)) {
+        // If permittedRoles is empty, everyone is allowed
+        if (!permittedRoles.isEmpty() && !permittedRoles.contains(role)) {
             throw new UnauthorizedResponse();
         }
     }

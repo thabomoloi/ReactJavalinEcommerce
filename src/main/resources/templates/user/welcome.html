@@ -1,0 +1,25 @@
+<!-- welcome.html -->
+<!DOCTYPE html>
+<html th:replace="~{base:: layout(~{::title}, ~{::section})}">
+  <head>
+    <title>Welcome to Oasis Nourish</title>
+  </head>
+  <body>
+    <section>
+      <p>Dear <span th:text="${user.getName()}">User</span>,</p>
+      <p>
+        Welcome to Oasis Nourish! We&apos;re thrilled to have you join our
+        community. To complete your registration, please confirm your email
+        address.
+      </p>
+      <p style="text-align: center; margin: 20px 0">
+        <a th:href="${baseUrl} + '/confirm/' + ${token}" class="button"
+          >Confirm Email Address</a
+        >
+      </p>
+      <p>This link will expire in <strong>1 hour</strong>.</p>
+      <p>Thank you for being part of our community!</p>
+      <p>Warm regards,<br /><strong>The Oasis Nourish Team</strong></p>
+    </section>
+  </body>
+</html>

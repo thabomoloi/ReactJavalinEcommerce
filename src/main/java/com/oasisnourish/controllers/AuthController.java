@@ -62,7 +62,6 @@ public class AuthController implements Handler {
 
         authService.signUpUser(userDto).ifPresent(user -> {
             authService.sendWelcomeEmail(user);
-            authService.sendConfirmationToken(user);
             ctx.status(201).json("Account created. Check your email for the confirmation link.");
         });
     }

@@ -4,6 +4,7 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.thymeleaf.TemplateEngine;
 
 import com.oasisnourish.config.EnvConfig;
 import com.oasisnourish.config.TemplateEngineConfig;
@@ -67,6 +68,16 @@ public class App {
     }
 
     public void router() {
+        get("/", (ctx) -> {
+            TemplateEngine templateEngine = TemplateEngineConfig.getTemplateEngine();
+            org.thymeleaf.context.Context context = new org.thymeleaf.context.Context();
+            context.setVariable("user", userService.findAllUsers().getFirst());
+            context.setVariable("token",
+                    tokenService.generateToken(userService.findAllUsers().getFirst().getId(), "confirmation"));
+            context.setVariable("baseUrl", dotenv.get("BASE_URL", "http://localhost:7070"));
+            String html = templateEngine.process("user/welcome", context);
+            ctx.html(html);
+        });
         path("/api", () -> {
             path("/users", () -> {
                 get(userController::findAllUsers);
@@ -96,6 +107,7 @@ public class App {
 
         var app = Javalin.create(config -> {
             config.router.apiBuilder(() -> application.router());
+            config.staticFiles.add("/public"); // Serve files from 'src/main/resources/public'
         }).start(7070);
 
         application.before(app);
