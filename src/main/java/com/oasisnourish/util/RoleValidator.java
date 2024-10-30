@@ -18,14 +18,16 @@ import io.javalin.security.RouteRole;
  */
 public class RoleValidator {
     private final static Map<String, Role> rolesMapping = Map.of(
+            "guest", Role.GUEST,
+            "unverified_user", Role.UNVERIFIED_USER,
             "user", Role.USER,
             "admin", Role.ADMIN);
 
     public void validateRole(Context ctx, SessionManager sessionManager, JWTService jwtService) {
         DecodedJWT jwt = sessionManager.getJwtFromSession(ctx);
         String userRole = Optional.ofNullable(jwt)
-                .map(token -> token.getClaim("role").asString())
-                .orElse("");
+                .map(token -> token.getClaim("role").asString().toLowerCase())
+                .orElse("guest");
         Role role = rolesMapping.getOrDefault(userRole, Role.GUEST);
         Set<RouteRole> permittedRoles = ctx.routeRoles();
 

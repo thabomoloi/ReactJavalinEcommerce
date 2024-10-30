@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.UserResponseDto;
 import com.oasisnourish.dto.validation.ValidatorFactory;
+import com.oasisnourish.enums.Role;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.UserService;
@@ -13,6 +14,7 @@ import com.oasisnourish.services.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.UnauthorizedResponse;
 
 /**
  * Controller for managing user-related endpoints.
@@ -86,6 +88,7 @@ public class UserController {
      *            response.
      */
     public void updateUser(Context ctx) {
+        User currentUser = ctx.sessionAttribute("currentUser");
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         UserInputDto userDto = ctx.bodyValidator(UserInputDto.class)
                 .check(obj -> obj.getName() != null && !obj.getName().trim().isEmpty(), "Name is required.")
@@ -102,9 +105,13 @@ public class UserController {
                             password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"));
                 }, "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character (@, #, $, %, ^, &, +, =, !).")
                 .get();
-        userDto.setId(userId);
-        userService.updateUser(userDto);
-        ctx.status(HttpStatus.OK);
+        if (currentUser != null && (currentUser.getId() == userId || currentUser.getRole() == Role.ADMIN)) {
+            userDto.setId(userId);
+            userService.updateUser(userDto);
+            ctx.status(HttpStatus.OK).result("Account was updated successfully.");
+        } else {
+            throw new UnauthorizedResponse();
+        }
     }
 
     /**
@@ -114,8 +121,16 @@ public class UserController {
      *            response.
      */
     public void deleteUser(Context ctx) {
+        User currentUser = ctx.sessionAttribute("currentUser");
+
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
-        userService.deleteUser(userId);
-        ctx.status(HttpStatus.NO_CONTENT);
+
+        if (currentUser != null && (currentUser.getId() == userId || currentUser.getRole() == Role.ADMIN)) {
+            userService.deleteUser(userId);
+            ctx.status(HttpStatus.NO_CONTENT);
+        } else {
+            throw new UnauthorizedResponse();
+        }
+
     }
 }
