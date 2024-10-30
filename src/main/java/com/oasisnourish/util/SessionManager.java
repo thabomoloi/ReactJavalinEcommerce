@@ -65,7 +65,7 @@ public class SessionManager {
 
     public void getCurrentUser(Context ctx) {
         User user = ctx.sessionAttribute("currentUser");
-        if (user == null) {
+        if (user != null) {
             ctx.json(UserResponseDto.fromModel(user));
         } else {
             ctx.status(404).result("No user is currently logged in.");

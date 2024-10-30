@@ -80,19 +80,20 @@ public class App {
         });
         path("/api", () -> {
             path("/users", () -> {
-                get(userController::findAllUsers);
-                post(userController::createUser);
+                get(userController::findAllUsers, Role.ADMIN);
+                post(userController::createUser, Role.ADMIN);
                 path("/{userId}", () -> {
-                    get(userController::findUserById);
-                    patch(userController::updateUser);
-                    delete(userController::deleteUser);
+                    get(userController::findUserById, Role.ADMIN);
+                    patch(userController::updateUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
+                    delete(userController::deleteUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
                 });
             });
             path("/auth", () -> {
                 post("/signup", authController::signUpUser, Role.GUEST);
-                post("/signin", authController::signInUser);
-                delete("/signout", authController::signOutUser);
-                post("/refresh", authController::refreshToken);
+                post("/signin", authController::signInUser, Role.GUEST);
+                delete("/signout", authController::signOutUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
+                post("/refresh", authController::refreshToken, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
+                get("/current-user", authController::getCurrentUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
             });
         });
     }

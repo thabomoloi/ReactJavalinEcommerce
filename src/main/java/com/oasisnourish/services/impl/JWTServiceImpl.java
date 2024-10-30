@@ -92,10 +92,10 @@ public class JWTServiceImpl implements JWTService {
         return map;
     }
 
-    private void saveTokenToRedis(String token, int userId, int expiresInMinutes) {
+    private void saveTokenToRedis(String token, int userId, int expires) {
         var jedis = redisConnection.getJedis();
         jedis.set(token, Integer.toString(userId));
-        jedis.expire(token, expiresInMinutes * 60); // Expiry in seconds
+        jedis.expire(token, expires);
     }
 
     @Override
