@@ -63,7 +63,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void sendWelcomeEmail(User user) {
-        var context = emailContentBuilder.buildWelcomeContext(user);
+        String token = tokenService.generateToken(user.getId(), "confirmation");
+        var context = emailContentBuilder.buildConfirmationContext(user, token);
         emailService.sendEmail(user.getEmail(), "Welcome to Oasis Nourish", "user/welcome", context);
     }
 

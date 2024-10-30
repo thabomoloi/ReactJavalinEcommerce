@@ -1,0 +1,9 @@
+a {
+    color: hsl(122 39% 41%);
+    font-weight: 600;
+}
+
+a::hover {
+    font-weight: 400;
+    text-decoration: underline;
+}

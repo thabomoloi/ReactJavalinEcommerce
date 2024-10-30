@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html th:replace="~{base:: layout(~{::title}, ~{::section})}">
+  <head>
+    <title>Confirm Your Email</title>
+  </head>
+  <body>
+    <section>
+      <p>Dear <span th:text="${user.getName()}">User</span>,</p>
+      <p>Please confirm your email address by clicking the link below.</p>
+      <p style="text-align: center; margin: 20px 0">
+        <a th:href="${baseUrl} + '/confirm/' + ${token}" class="button"
+          >Confirm Email Address</a
+        >
+      </p>
+      <p>This link will expire in <strong>1 hour</strong>.</p>
+      <p>If you did not create this account, please disregard this email.</p>
+      <p>Best regards,<br /><strong>The Oasis Nourish Team</strong></p>
+    </section>
+  </body>
+</html>
