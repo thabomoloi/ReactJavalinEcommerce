@@ -9,59 +9,46 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:replace="${title}">Email Notification</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        font-family: "Inter Tight", sans-serif;
-        font-optical-sizing: auto;
-        background-color: #f4f4f4;
-        padding: 20px;
-      }
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 8px;
-      }
-      .button {
-        display: inline-block;
-        background-color: #4caf50;
-        color: #ffffff;
-        padding: 10px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-      }
-    </style>
   </head>
   <body>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-      <tr>
-        <td>
-          <div class="container">
-            <div style="text-align: center; margin-bottom: 24px">
-              <img
-                th:src="${baseUrl} + '/images/logo.png'"
-                alt="Oasis Nourish Logo"
-                width="240"
-              />
-            </div>
+    <div
+      style="
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+      "
+    >
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+          <td>
+            <div
+              style="
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #ffffff;
+                padding: 20px;
+                border-radius: 8px;
+              "
+            >
+              <div style="text-align: center; margin-bottom: 24px">
+                <img
+                  th:src="@{${baseUrl} + '/images/logo.png'}"
+                  alt="Oasis Nourish Logo"
+                  width="250"
+                />
+              </div>
 
-            <div th:replace="${content}"></div>
+              <div th:replace="${content}"></div>
 
-            <div>
-              <p style="text-align: center; font-size: 12px; color: #888">
-                &copy; 2023 Oasis Nourish. All rights reserved.
-              </p>
+              <div>
+                <p style="text-align: center; font-size: 14px; color: #888">
+                  &copy; 2023 Oasis Nourish. All rights reserved.
+                </p>
+              </div>
             </div>
-          </div>
-        </td>
-      </tr>
-    </table>
+          </td>
+        </tr>
+      </table>
+    </div>
   </body>
 </html>

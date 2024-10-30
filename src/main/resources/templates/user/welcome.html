@@ -13,7 +13,16 @@
         address.
       </p>
       <p style="text-align: center; margin: 20px 0">
-        <a th:href="${baseUrl} + '/confirm/' + ${token}" class="button"
+        <a
+          th:href="@{${baseUrl} + '/auth/confirm/' + ${token}}"
+          style="
+            display: inline-block;
+            background-color: #217327;
+            color: #e2f9e3;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+          "
           >Confirm Email Address</a
         >
       </p>
