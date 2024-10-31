@@ -1,7 +1,14 @@
 import axios from "axios";
 import { Role, User } from "../models/types";
-import { CURRENT_USER_URL, REFRESH_TOKEN_URL } from "@/lib/urls";
+import {
+  CURRENT_USER_URL,
+  REFRESH_TOKEN_URL,
+  SIGN_IN_URL,
+  SIGN_OUT_URL,
+  SIGN_UP_URL,
+} from "@/lib/urls";
 import { stringToRole, UserImpl } from "../models/user";
+import { SignInSchemaType, SignUpSchemaType } from "../schemas/user";
 
 async function getCurrentUser(): Promise<User | null> {
   const response = await axios.get(CURRENT_USER_URL);
@@ -21,4 +28,19 @@ async function refreshJWT(): Promise<void> {
   await axios.post(REFRESH_TOKEN_URL);
 }
 
-export { getCurrentUser, refreshJWT };
+async function signUp(data: SignUpSchemaType): Promise<string> {
+  const response = await axios.post(SIGN_UP_URL, data);
+  return response.data as string;
+}
+
+async function signIn(data: SignInSchemaType): Promise<string> {
+  const response = await axios.post(SIGN_IN_URL, data);
+  return response.data as string;
+}
+
+async function signOut(): Promise<string> {
+  const response = await axios.delete(SIGN_OUT_URL);
+  return response.data as string;
+}
+
+export { getCurrentUser, refreshJWT, signUp, signIn, signOut };
