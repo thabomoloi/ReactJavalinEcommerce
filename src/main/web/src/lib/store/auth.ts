@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { User } from "./data/models/types";
-import { getCurrentUser, refreshJWT } from "./data/api/auth";
+import { User } from "@/lib/data/models/types";
+import { getCurrentUser, refreshJWT } from "@/lib/data/api/auth";
 import { AxiosError } from "axios";
 
 interface AuthState {
@@ -29,13 +29,12 @@ export const useAuth = create<AuthState>((set) => ({
             await refreshJWT();
             await useAuth.getState().fetchCurrentUser();
             return;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (refreshError) {
-            console.error("Token refresh failed", refreshError);
             set({ currentUser: null, isAuthenticated: false });
           }
         }
       }
-      console.error("Unexpected error", error);
       throw error;
     }
   },
