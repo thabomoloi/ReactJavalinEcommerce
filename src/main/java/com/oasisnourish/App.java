@@ -82,6 +82,7 @@ public class App {
             path("/users", () -> {
                 get(userController::findAllUsers, Role.ADMIN);
                 post(userController::createUser, Role.ADMIN);
+                get("/me", authController::getCurrentUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
                 path("/{userId}", () -> {
                     get(userController::findUserById, Role.ADMIN);
                     patch(userController::updateUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
@@ -93,7 +94,6 @@ public class App {
                 post("/signin", authController::signInUser, Role.GUEST);
                 delete("/signout", authController::signOutUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
                 post("/refresh", authController::refreshToken, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
-                get("/current-user", authController::getCurrentUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
             });
         });
     }

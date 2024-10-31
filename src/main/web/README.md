@@ -48,3 +48,65 @@ export default tseslint.config({
   },
 })
 ```
+## Testing Setup
+```bash
+# Install vitest
+pnpm add -D vitest
+```
+
+`package.json`
+```json
+{
+  /*...*/
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest",
+    "preview": "vite preview"
+  },
+  /*...*/
+}
+```
+
+```bash
+# Install jsdom
+pnpm add -D jsdom
+```
+
+```bash
+pnpm add -D @testing-library/react @testing-library/jest-dom
+```
+
+`tests/setup.js`
+```js
+import { expect, afterEach } from 'vitest';
+import { cleanup } from '@testing-library/react';
+import * as matchers from "@testing-library/jest-dom/matchers";
+
+expect.extend(matchers);
+
+afterEach(() => {
+  cleanup();
+});
+```
+
+`vite.config.ts`
+```js
+/// <reference types="vitest" />
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './tests/setup.js',
+  },
+});
+```
+
+```bash
+pnpm add -D install @testing-library/user-event 
+```
