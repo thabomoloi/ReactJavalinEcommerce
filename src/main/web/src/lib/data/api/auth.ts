@@ -20,4 +20,5 @@ async function getCurrentUser(): Promise<User | null> {
 async function refreshJWT(): Promise<void> {
   await axios.post(REFRESH_TOKEN_URL);
 }
+
 export { getCurrentUser, refreshJWT };
