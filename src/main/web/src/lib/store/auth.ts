@@ -28,14 +28,14 @@ export const useAuth = create<AuthState>((set) => ({
           try {
             await refreshJWT();
             await useAuth.getState().fetchCurrentUser();
-            return;
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (refreshError) {
             set({ currentUser: null, isAuthenticated: false });
           }
         }
+      } else {
+        set({ currentUser: null, isAuthenticated: false });
       }
-      throw error;
     }
   },
 }));
