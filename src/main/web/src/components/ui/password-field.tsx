@@ -39,12 +39,10 @@ const PasswordField = React.forwardRef<HTMLDivElement, PasswordFieldProps>(
               className="flex items-center justify-center w-9 h-9 -ml-9 rounded"
               onClick={toggleVisiblity}
             >
-              <PasswordIcon className="text-neutral-6" />
+              <PasswordIcon className="text-muted-foreground" />
             </TooltipTrigger>
             <TooltipContent>
-              <p data-testid="password-visibility">
-                {visible ? "Hide " : "Show "} password
-              </p>
+              <p>{visible ? "Hide " : "Show "} password</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

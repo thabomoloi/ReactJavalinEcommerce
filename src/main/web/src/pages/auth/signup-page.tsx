@@ -61,7 +61,7 @@ export default function SignUpPage() {
                         required
                         {...field}
                         type="text"
-                        className="bg-neutral-1"
+                        className="bg-secondary"
                         autoComplete="name"
                       />
                     </FormControl>
@@ -80,7 +80,7 @@ export default function SignUpPage() {
                         required
                         {...field}
                         type="email"
-                        className="bg-neutral-1"
+                        className="bg-secondary"
                         autoComplete="email"
                       />
                     </FormControl>
@@ -100,7 +100,7 @@ export default function SignUpPage() {
                           required
                           {...field}
                           type="password"
-                          className="bg-neutral-1"
+                          className="bg-secondary"
                         />
                       </PasswordField>
                     </FormControl>
@@ -119,17 +119,17 @@ export default function SignUpPage() {
       <CardFooter className="flex-col gap-3 text-sm text-center">
         <p className="text-center text-xs text-neutral-6">
           By signing up, you agree to our{" "}
-          <Link to="/terms" className="font-semibold text-primary1">
+          <Link to="/terms" className="font-semibold text-green-700">
             Terms of Service
           </Link>
           {" and "}
-          <Link to="/privacy" className="font-semibold text-primary1">
+          <Link to="/privacy" className="font-semibold text-green-700">
             Privacy Policy
           </Link>
         </p>
         <p>
           Already have an account?{" "}
-          <Link to="/auth/signin" className="font-bold text-primary1">
+          <Link to="/auth/signin" className="font-bold text-green-700">
             Sign in
           </Link>
           .

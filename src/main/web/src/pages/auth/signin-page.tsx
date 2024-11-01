@@ -60,7 +60,7 @@ export default function SignInPage() {
                         required
                         {...field}
                         type="email"
-                        className="bg-neutral-1"
+                        className="bg-secondary"
                         autoComplete="email"
                       />
                     </FormControl>
@@ -80,7 +80,7 @@ export default function SignInPage() {
                           required
                           {...field}
                           type="password"
-                          className="bg-neutral-1"
+                          className="bg-secondary"
                           autoComplete="current-password"
                         />
                       </PasswordField>
@@ -98,13 +98,16 @@ export default function SignInPage() {
       </CardContent>
       <CardFooter className="flex-col text-sm text-center">
         <p>
-          <Link to="#/auth/forgot-password" className="font-bold text-primary1">
+          <Link
+            to="#/auth/forgot-password"
+            className="font-bold text-green-700"
+          >
             Forgot Password?
           </Link>
         </p>
         <p>
           Don't have an account?{" "}
-          <Link to="/auth/signup" className="font-bold text-primary1">
+          <Link to="/auth/signup" className="font-bold text-green-700">
             Sign up
           </Link>
           .
