@@ -80,31 +80,35 @@ describe("useAuth Store", () => {
     });
 
     it("sets isAuthenticated to false if refreshJWT fails", async () => {
-      vi.mocked(getCurrentUser).mockRejectedValueOnce(
-        new AxiosError("Unauthorized")
-      );
+      const axiosError = new AxiosError("", "", undefined, null, {
+        status: 401,
+      } as AxiosResponse);
+
+      vi.mocked(getCurrentUser).mockRejectedValueOnce(axiosError);
       vi.mocked(refreshJWT).mockRejectedValueOnce(
         new Error("Token refresh failed")
       );
 
-      await act(async () => {
-        await expect(
-          async () => await useAuth.getState().verifyAuthentication()
-        ).rejects.toThrow("Unauthorized");
-      });
+      await act(async () => await useAuth.getState().verifyAuthentication());
 
       const state = useAuth.getState();
+      expect(getCurrentUser).toHaveBeenCalled();
+      expect(refreshJWT).toHaveBeenCalled();
       expect(state.isAuthenticated).toBe(false);
       expect(state.currentUser).toBeNull();
     });
 
-    it("throws unexpected errors", async () => {
+    it("sets isAuthenticated to false if unexpected error", async () => {
       const error = new Error("Network error");
       vi.mocked(getCurrentUser).mockRejectedValueOnce(error);
 
-      await expect(
-        async () => await useAuth.getState().verifyAuthentication()
-      ).rejects.toThrow("Network error");
+      await act(async () => await useAuth.getState().verifyAuthentication());
+
+      const state = useAuth.getState();
+      expect(getCurrentUser).toHaveBeenCalled();
+      expect(refreshJWT).not.toHaveBeenCalled();
+      expect(state.isAuthenticated).toBe(false);
+      expect(state.currentUser).toBeNull();
     });
   });
 });
