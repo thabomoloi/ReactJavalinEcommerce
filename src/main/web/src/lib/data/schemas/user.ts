@@ -28,5 +28,11 @@ export const SignInSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const UserUpdateSchema = z.object({
+  name,
+  email,
+});
+
 export type SignInSchemaType = z.infer<typeof SignInSchema>;
 export type SignUpSchemaType = z.infer<typeof SignUpSchema>;
+export type UserUpdateSchemaType = z.infer<typeof UserUpdateSchema>;
