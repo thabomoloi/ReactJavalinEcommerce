@@ -16,13 +16,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordField } from "@/components/ui/password-field";
+import { useToast } from "@/hooks/use-toast";
 import { SignInSchema, SignInSchemaType } from "@/lib/data/schemas/user";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useSubmit } from "react-router-dom";
+import { Link, useSubmit, useActionData, useNavigate } from "react-router-dom";
 
 export default function SignInPage() {
+  const { toast } = useToast();
   const submit = useSubmit();
+  const navigate = useNavigate();
+
+  const actionData = useActionData() as
+    | undefined
+    | { error: boolean; message: string };
 
   const form = useForm<SignInSchemaType>({
     resolver: zodResolver(SignInSchema),
@@ -39,6 +47,23 @@ export default function SignInPage() {
       encType: "application/json",
     });
   };
+
+  useEffect(() => {
+    if (actionData?.error === true) {
+      toast({
+        title: actionData?.message,
+        variant: "destructive",
+      });
+    }
+
+    if (actionData?.error === false) {
+      toast({
+        title: actionData?.message,
+        variant: "success",
+      });
+      navigate("/");
+    }
+  }, [actionData, navigate, toast]);
 
   return (
     <Card className="w-full max-w-md">
