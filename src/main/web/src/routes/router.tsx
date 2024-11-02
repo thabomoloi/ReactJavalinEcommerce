@@ -5,12 +5,21 @@ import HomePage from "@/pages/home/home-page";
 import RootLayout from "@/pages/root-layout";
 import { createBrowserRouter } from "react-router-dom";
 import { signInAction, signUpAction } from "./actions";
+import ProfilePage from "@/pages/account/profile-page";
+import AccountLayout from "@/pages/account/account-layout";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
-    children: [{ index: true, element: <HomePage /> }],
+    children: [
+      { index: true, element: <HomePage /> },
+      {
+        path: "/account",
+        element: <AccountLayout />,
+        children: [{ path: "profile", element: <ProfilePage /> }],
+      },
+    ],
   },
   {
     path: "/auth",
