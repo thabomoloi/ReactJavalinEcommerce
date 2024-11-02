@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import { router } from "@/routes/router";
 import { RouterProvider } from "react-router-dom";
 import { useAuth } from "@/lib/store/auth";
@@ -8,7 +9,12 @@ function App() {
   useEffect(() => {
     verifyAuthentication();
   }, [verifyAuthentication]);
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster />
+    </>
+  );
 }
 
 export default App;
