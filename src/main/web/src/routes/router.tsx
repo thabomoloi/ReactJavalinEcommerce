@@ -4,7 +4,12 @@ import SignUpPage from "@/pages/auth/signup-page";
 import HomePage from "@/pages/home/home-page";
 import RootLayout from "@/pages/root-layout";
 import { createBrowserRouter } from "react-router-dom";
-import { signInAction, signUpAction } from "./actions";
+import {
+  deleteAccountAction,
+  profileAction,
+  signInAction,
+  signUpAction,
+} from "./actions";
 import ProfilePage from "@/pages/account/profile-page";
 import AccountLayout from "@/pages/account/account-layout";
 
@@ -17,7 +22,14 @@ export const router = createBrowserRouter([
       {
         path: "/account",
         element: <AccountLayout />,
-        children: [{ path: "profile", element: <ProfilePage /> }],
+        children: [
+          { path: "profile", element: <ProfilePage />, action: profileAction },
+          {
+            path: "profile/:userId/delete",
+            element: <ProfilePage />,
+            action: deleteAccountAction,
+          },
+        ],
       },
     ],
   },

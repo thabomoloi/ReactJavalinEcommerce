@@ -1,6 +1,6 @@
 import axios from "axios";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { getCurrentUser, refreshJWT, signIn, signOut, signUp } from "./auth";
+import { getCurrentUser, refreshJWT, signIn, signOut, signUp } from "./user";
 import { UserImpl } from "../models/user";
 import { Role } from "../models/types";
 import {

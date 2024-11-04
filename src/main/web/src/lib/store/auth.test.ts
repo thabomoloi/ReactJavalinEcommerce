@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useAuth } from "./auth";
-import { getCurrentUser, refreshJWT } from "../data/api/auth";
+import { getCurrentUser, refreshJWT } from "../data/api/user";
 import { Role, User } from "../data/models/types";
 import { act } from "react";
 import { AxiosError, AxiosResponse } from "axios";
