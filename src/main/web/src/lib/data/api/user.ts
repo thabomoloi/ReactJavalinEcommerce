@@ -6,9 +6,14 @@ import {
   SIGN_IN_URL,
   SIGN_OUT_URL,
   SIGN_UP_URL,
+  USERS_URL,
 } from "@/lib/urls";
 import { stringToRole, UserImpl } from "../models/user";
-import { SignInSchemaType, SignUpSchemaType } from "../schemas/user";
+import {
+  SignInSchemaType,
+  SignUpSchemaType,
+  UserUpdateSchemaType,
+} from "../schemas/user";
 
 async function getCurrentUser(): Promise<User | null> {
   const response = await axios.get(CURRENT_USER_URL);
@@ -43,4 +48,21 @@ async function signOut(): Promise<string> {
   return response.data as string;
 }
 
-export { getCurrentUser, refreshJWT, signUp, signIn, signOut };
+async function updateProfile(data: UserUpdateSchemaType): Promise<string> {
+  const response = await axios.patch(USERS_URL + "/" + data.id, data);
+  return response.data as string;
+}
+
+async function deleteAccount(id: number) {
+  const response = await axios.delete(USERS_URL + "/" + id);
+  return response.data as string;
+}
+export {
+  getCurrentUser,
+  refreshJWT,
+  signUp,
+  signIn,
+  signOut,
+  updateProfile,
+  deleteAccount,
+};

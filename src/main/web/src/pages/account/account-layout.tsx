@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 export default function AccountLayout() {
   return (
     <div className="flex gap-6">
-      <div className="w-72">
+      <div className="w-72 hidden md:block">
         <AccountMenu />
       </div>
       <div className="flex-grow">

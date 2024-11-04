@@ -29,6 +29,7 @@ export const SignInSchema = z.object({
 });
 
 export const UserUpdateSchema = z.object({
+  id: z.coerce.number().int().min(1),
   name,
   email,
 });

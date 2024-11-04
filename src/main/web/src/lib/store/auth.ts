@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { User } from "@/lib/data/models/types";
-import { getCurrentUser, refreshJWT } from "@/lib/data/api/auth";
+import { getCurrentUser, refreshJWT } from "@/lib/data/api/user";
 import { AxiosError } from "axios";
 
 interface AuthState {
