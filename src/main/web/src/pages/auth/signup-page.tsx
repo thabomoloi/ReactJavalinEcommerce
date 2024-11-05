@@ -18,10 +18,17 @@ import { Input } from "@/components/ui/input";
 import { PasswordField } from "@/components/ui/password-field";
 import { useToast } from "@/hooks/use-toast";
 import { SignUpSchema, SignUpSchemaType } from "@/lib/data/schemas/user";
+import { useAuth } from "@/lib/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useActionData, useNavigate, useSubmit } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  useActionData,
+  useNavigate,
+  useSubmit,
+} from "react-router-dom";
 
 export default function SignUpPage() {
   const { toast } = useToast();
@@ -30,6 +37,8 @@ export default function SignUpPage() {
   const actionData = useActionData() as
     | undefined
     | { error: boolean; message: string };
+
+  const auth = useAuth();
 
   const form = useForm<SignUpSchemaType>({
     resolver: zodResolver(SignUpSchema),
@@ -65,6 +74,9 @@ export default function SignUpPage() {
     }
   }, [actionData, navigate, toast]);
 
+  if (auth.isAuthenticated) {
+    return <Navigate to="/account/profile" replace />;
+  }
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
