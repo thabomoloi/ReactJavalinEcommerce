@@ -1,6 +1,7 @@
 import {
   deleteAccount,
   signIn,
+  signOut,
   signUp,
   updateProfile,
 } from "@/lib/data/api/user";
@@ -47,6 +48,20 @@ export async function signInAction({ request }: ActionFunctionArgs) {
       }
     }
     throw error;
+  }
+}
+
+export async function signOutAction({ request }: ActionFunctionArgs) {
+  if (request.method !== "DELETE") {
+    return json({ error: "Method Not Allowed" }, { status: 405 });
+  }
+
+  try {
+    await signOut();
+    return redirect("/");
+  } catch (error) {
+    console.error("Sign-out error:", error);
+    return redirect("/");
   }
 }
 

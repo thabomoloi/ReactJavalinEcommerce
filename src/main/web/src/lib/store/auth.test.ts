@@ -5,7 +5,7 @@ import { Role, User } from "../data/models/types";
 import { act } from "react";
 import { AxiosError, AxiosResponse } from "axios";
 
-vi.mock("../data/api/auth");
+vi.mock("../data/api/user");
 
 describe("useAuth Store", () => {
   beforeEach(() => {
@@ -17,9 +17,9 @@ describe("useAuth Store", () => {
     vi.resetAllMocks();
   });
 
-  describe("fetchCurrentUser", () => {
+  describe("verifyAuthentication", () => {
     it("sets user data and isAuthenticated to true when getCurrentUser is successful", async () => {
-      const mockUser = {
+      const mockUser: User = {
         id: 1,
         name: "John Doe",
         email: "john.doe@test.com",
@@ -29,7 +29,7 @@ describe("useAuth Store", () => {
       vi.mocked(getCurrentUser).mockResolvedValueOnce(mockUser);
 
       await act(async () => {
-        await useAuth.getState().fetchCurrentUser();
+        await useAuth.getState().verifyAuthentication();
       });
 
       const state = useAuth.getState();
@@ -41,16 +41,14 @@ describe("useAuth Store", () => {
       vi.mocked(getCurrentUser).mockResolvedValueOnce(null);
 
       await act(async () => {
-        await useAuth.getState().fetchCurrentUser();
+        await useAuth.getState().verifyAuthentication();
       });
 
       const state = useAuth.getState();
       expect(state.currentUser).toBeNull();
       expect(state.isAuthenticated).toBe(false);
     });
-  });
 
-  describe("verifyAuthentication", () => {
     it("calls refreshJWT and fetchCurrentUser on 401 error, and sets isAuthenticated to true", async () => {
       const mockUser: User = {
         id: 1,
@@ -75,7 +73,6 @@ describe("useAuth Store", () => {
       const state = useAuth.getState();
       expect(refreshJWT).toHaveBeenCalled();
       expect(state.isAuthenticated).toBe(true);
-      expect(state.currentUser).not.toBeNull();
       expect(state.currentUser).toStrictEqual(mockUser);
     });
 
@@ -89,7 +86,9 @@ describe("useAuth Store", () => {
         new Error("Token refresh failed")
       );
 
-      await act(async () => await useAuth.getState().verifyAuthentication());
+      await act(async () => {
+        await useAuth.getState().verifyAuthentication();
+      });
 
       const state = useAuth.getState();
       expect(getCurrentUser).toHaveBeenCalled();
@@ -98,11 +97,13 @@ describe("useAuth Store", () => {
       expect(state.currentUser).toBeNull();
     });
 
-    it("sets isAuthenticated to false if unexpected error", async () => {
+    it("sets isAuthenticated to false if unexpected error occurs", async () => {
       const error = new Error("Network error");
       vi.mocked(getCurrentUser).mockRejectedValueOnce(error);
 
-      await act(async () => await useAuth.getState().verifyAuthentication());
+      await act(async () => {
+        await useAuth.getState().verifyAuthentication();
+      });
 
       const state = useAuth.getState();
       expect(getCurrentUser).toHaveBeenCalled();

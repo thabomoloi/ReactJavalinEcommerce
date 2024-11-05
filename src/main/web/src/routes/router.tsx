@@ -3,15 +3,17 @@ import SignInPage from "@/pages/auth/signin-page";
 import SignUpPage from "@/pages/auth/signup-page";
 import HomePage from "@/pages/home/home-page";
 import RootLayout from "@/pages/root-layout";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import {
   deleteAccountAction,
   profileAction,
   signInAction,
+  signOutAction,
   signUpAction,
 } from "./actions";
 import ProfilePage from "@/pages/account/profile-page";
 import AccountLayout from "@/pages/account/account-layout";
+import { ProtectedPage } from "@/components/protected-page";
 
 export const router = createBrowserRouter([
   {
@@ -23,10 +25,22 @@ export const router = createBrowserRouter([
         path: "/account",
         element: <AccountLayout />,
         children: [
-          { path: "profile", element: <ProfilePage />, action: profileAction },
+          {
+            path: "profile",
+            element: (
+              <ProtectedPage fallback={<HomePage />}>
+                <ProfilePage />
+              </ProtectedPage>
+            ),
+            action: profileAction,
+          },
           {
             path: "profile/:userId/delete",
-            element: <ProfilePage />,
+            element: (
+              <ProtectedPage fallback={<HomePage />}>
+                <ProfilePage />
+              </ProtectedPage>
+            ),
             action: deleteAccountAction,
           },
         ],
@@ -39,6 +53,11 @@ export const router = createBrowserRouter([
     children: [
       { path: "signup", element: <SignUpPage />, action: signUpAction },
       { path: "signin", element: <SignInPage />, action: signInAction },
+      {
+        path: "signout",
+        element: <Navigate to="/" replace />,
+        action: signOutAction,
+      },
     ],
   },
 ]);
