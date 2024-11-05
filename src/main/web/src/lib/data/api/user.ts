@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Role, User } from "../models/types";
 import {
+  CONFIRM_URL,
   CURRENT_USER_URL,
   REFRESH_TOKEN_URL,
   SIGN_IN_URL,
@@ -57,6 +58,12 @@ async function deleteAccount(id: number) {
   const response = await axios.delete(USERS_URL + "/" + id);
   return response.data as string;
 }
+
+async function sendConfirmationLink(id: number) {
+  const response = await axios.post(CONFIRM_URL + "/" + id);
+  return response.data as string;
+}
+
 export {
   getCurrentUser,
   refreshJWT,
@@ -65,4 +72,5 @@ export {
   signOut,
   updateProfile,
   deleteAccount,
+  sendConfirmationLink,
 };

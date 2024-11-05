@@ -16,10 +16,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordField } from "@/components/ui/password-field";
+import { useLoading } from "@/hooks/use-loading";
 import { useToast } from "@/hooks/use-toast";
 import { SignUpSchema, SignUpSchemaType } from "@/lib/data/schemas/user";
 import { useAuth } from "@/lib/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircleIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -39,6 +41,7 @@ export default function SignUpPage() {
     | { error: boolean; message: string };
 
   const auth = useAuth();
+  const loading = useLoading();
 
   const form = useForm<SignUpSchemaType>({
     resolver: zodResolver(SignUpSchema),
@@ -99,6 +102,7 @@ export default function SignUpPage() {
                         type="text"
                         className="bg-secondary"
                         autoComplete="name"
+                        disabled={loading.isLoading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -118,6 +122,7 @@ export default function SignUpPage() {
                         type="email"
                         className="bg-secondary"
                         autoComplete="email"
+                        disabled={loading.isLoading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -137,6 +142,7 @@ export default function SignUpPage() {
                           {...field}
                           type="password"
                           className="bg-secondary"
+                          disabled={loading.isLoading}
                         />
                       </PasswordField>
                     </FormControl>
@@ -146,7 +152,14 @@ export default function SignUpPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full mt-6">
+            <Button
+              type="submit"
+              className="w-full mt-6"
+              disabled={loading.isLoading}
+            >
+              {loading.isSubmitting && (
+                <LoaderCircleIcon className="animate-spin mr-2" />
+              )}
               Sign up
             </Button>
           </form>

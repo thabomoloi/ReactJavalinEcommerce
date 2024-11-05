@@ -94,6 +94,7 @@ public class App {
                 post("/signin", authController::signInUser, Role.GUEST);
                 delete("/signout", authController::signOutUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
                 post("/refresh", authController::refreshToken, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
+                post("/confirm/{userId}", authController::generateConfirmationToken, Role.UNVERIFIED_USER);
             });
         });
     }
@@ -103,6 +104,7 @@ public class App {
         app.before(authController::decodeJWTFromCookie);
     }
 
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
         var application = new App();
 

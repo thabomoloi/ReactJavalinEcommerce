@@ -30,7 +30,7 @@ export function ProtectedPage({
   if (
     isAuthenticated &&
     role != Role.UNVERIFIED_USER &&
-    "/auth/confirm" == pathname
+    "/auth/unverified" == pathname
   ) {
     return <Navigate to="/account/profile" replace />;
   }

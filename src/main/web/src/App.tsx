@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 function App() {
   const { verifyAuthentication } = useAuth();
+
   useEffect(() => {
     verifyAuthentication();
   }, [verifyAuthentication]);
