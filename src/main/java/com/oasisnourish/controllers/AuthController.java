@@ -59,8 +59,8 @@ public class AuthController implements Handler {
      */
     @Override
     public void handle(@NotNull Context ctx) {
-        roleValidator.validateRole(ctx, sessionManager, jwtService);
         sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
+        roleValidator.validateRole(ctx, jwtService, sessionManager.getJwtFromSession(ctx));
     }
 
     /**
@@ -140,7 +140,7 @@ public class AuthController implements Handler {
      * @param ctx Javalin HTTP context.
      */
     public void signOutUser(Context ctx) {
-        sessionManager.invalidateSession(ctx, jwtService);
+        sessionManager.invalidateSession(ctx);
         ctx.status(204).result("Sign out successful.");
     }
 }

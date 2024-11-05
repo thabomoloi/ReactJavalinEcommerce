@@ -110,7 +110,7 @@ public class UserController {
             userService.updateUser(userDto);
             ctx.status(HttpStatus.OK).result("Account was updated successfully.");
         } else {
-            throw new UnauthorizedResponse();
+            throw new UnauthorizedResponse("You have no permission to update this user.");
         }
     }
 
@@ -129,7 +129,7 @@ public class UserController {
             userService.deleteUser(userId);
             ctx.status(HttpStatus.NO_CONTENT);
         } else {
-            throw new UnauthorizedResponse();
+            throw new UnauthorizedResponse("You have no permission to delete this user.");
         }
 
     }
