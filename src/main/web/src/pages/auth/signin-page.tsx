@@ -16,10 +16,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordField } from "@/components/ui/password-field";
+import { useLoading } from "@/hooks/use-loading";
 import { useToast } from "@/hooks/use-toast";
 import { SignInSchema, SignInSchemaType } from "@/lib/data/schemas/user";
 import { useAuth } from "@/lib/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircleIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -34,6 +36,7 @@ export default function SignInPage() {
   const { toast } = useToast();
   const submit = useSubmit();
   const navigate = useNavigate();
+  const loading = useLoading();
 
   const actionData = useActionData() as
     | undefined
@@ -100,6 +103,7 @@ export default function SignInPage() {
                         type="email"
                         className="bg-secondary"
                         autoComplete="email"
+                        disabled={loading.isLoading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -120,6 +124,7 @@ export default function SignInPage() {
                           type="password"
                           className="bg-secondary"
                           autoComplete="current-password"
+                          disabled={loading.isLoading}
                         />
                       </PasswordField>
                     </FormControl>
@@ -128,7 +133,14 @@ export default function SignInPage() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full mt-6">
+            <Button
+              type="submit"
+              className="w-full mt-6"
+              disabled={loading.isLoading}
+            >
+              {loading.isSubmitting && (
+                <LoaderCircleIcon className="animate-spin mr-2" />
+              )}
               Sign in
             </Button>
           </form>

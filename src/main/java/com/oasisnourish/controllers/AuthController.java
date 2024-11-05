@@ -143,4 +143,13 @@ public class AuthController implements Handler {
         sessionManager.invalidateSession(ctx);
         ctx.status(204).result("Sign out successful.");
     }
+
+    public void generateConfirmationToken(Context ctx) throws EmailExistsException {
+        int userId = ctx.pathParamAsClass("userId", Integer.class).get();
+
+        userService.findUserById(userId).ifPresent(user -> {
+            authService.sendConfirmationToken(user);
+            ctx.status(201).json("Confirmation token created. Check your email for the confirmation link.");
+        });
+    }
 }

@@ -10,10 +10,12 @@ import {
   signInAction,
   signOutAction,
   signUpAction,
+  verifyAccountAction,
 } from "./actions";
 import ProfilePage from "@/pages/account/profile-page";
 import AccountLayout from "@/pages/account/account-layout";
 import { ProtectedPage } from "@/components/protected-page";
+import UnverifiedPage from "@/pages/auth/unverified-page";
 
 export const router = createBrowserRouter([
   {
@@ -57,6 +59,11 @@ export const router = createBrowserRouter([
         path: "signout",
         element: <Navigate to="/" replace />,
         action: signOutAction,
+      },
+      {
+        path: "unverified",
+        element: <UnverifiedPage />,
+        action: verifyAccountAction,
       },
     ],
   },

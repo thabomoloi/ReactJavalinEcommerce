@@ -1,5 +1,6 @@
 import {
   deleteAccount,
+  sendConfirmationLink,
   signIn,
   signOut,
   signUp,
@@ -89,6 +90,27 @@ export async function deleteAccountAction({ params }: ActionFunctionArgs) {
       return redirect("/");
     }
     return redirect("/account/profile");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      if (data?.title && status && status >= 400 && status < 500) {
+        return json({ error: true, message: data.title });
+      }
+    }
+    throw error;
+  }
+}
+
+export async function verifyAccountAction({ request }: ActionFunctionArgs) {
+  try {
+    const formData = await request.formData();
+    const userId = formData.get("userId")?.toString();
+    if (userId) {
+      const message = await sendConfirmationLink(parseInt(userId));
+      return json({ error: false, message });
+    }
+    return null;
   } catch (error) {
     if (error instanceof AxiosError) {
       const status = error.response?.status;
