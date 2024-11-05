@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.oasisnourish.enums.Role;
-
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.services.JWTService;
 
@@ -23,17 +22,16 @@ public class RoleValidator {
             "user", Role.USER,
             "admin", Role.ADMIN);
 
-    public void validateRole(Context ctx, SessionManager sessionManager, JWTService jwtService) {
-        DecodedJWT jwt = sessionManager.getJwtFromSession(ctx);
+    public void validateRole(Context ctx, JWTService jwtService, DecodedJWT jwt) {
         String userRole = Optional.ofNullable(jwt)
                 .map(token -> token.getClaim("role").asString().toLowerCase())
                 .orElse("guest");
+
         Role role = rolesMapping.getOrDefault(userRole, Role.GUEST);
         Set<RouteRole> permittedRoles = ctx.routeRoles();
 
-        // If permittedRoles is empty, everyone is allowed
         if (!permittedRoles.isEmpty() && !permittedRoles.contains(role)) {
-            throw new UnauthorizedResponse();
+            throw new UnauthorizedResponse("You are not allowed to access this route");
         }
     }
 }

@@ -21,13 +21,22 @@ public class SessionManager {
     private static final Dotenv dotenv = EnvConfig.getDotenv();
 
     public void decodeJWTFromCookie(Context ctx, JWTService jwtService) {
-        Optional.ofNullable(ctx.cookie(JWT_ACCESS_KEY))
-                .flatMap(jwtService::getToken)
-                .ifPresent(jwt -> ctx.sessionAttribute(JWT_ACCESS_KEY, jwt));
 
-        Optional.ofNullable(ctx.cookie(JWT_REFRESH_KEY))
-                .flatMap(jwtService::getToken)
-                .ifPresent(jwt -> ctx.sessionAttribute(JWT_REFRESH_KEY, jwt));
+        String access = ctx.cookie(JWT_ACCESS_KEY);
+        if (access != null) {
+            jwtService.getToken(access).ifPresentOrElse((jwt) -> ctx.sessionAttribute(JWT_ACCESS_KEY, jwt),
+                    () -> ctx.sessionAttribute(JWT_ACCESS_KEY, null));
+        } else {
+            ctx.sessionAttribute(JWT_ACCESS_KEY, null);
+        }
+
+        String refresh = ctx.cookie(JWT_REFRESH_KEY);
+        if (refresh != null) {
+            jwtService.getToken(refresh).ifPresentOrElse((jwt) -> ctx.sessionAttribute(JWT_REFRESH_KEY, jwt),
+                    () -> ctx.sessionAttribute(JWT_REFRESH_KEY, null));
+        } else {
+            ctx.sessionAttribute(JWT_REFRESH_KEY, null);
+        }
     }
 
     public DecodedJWT getJwtFromSession(Context ctx) {
@@ -43,21 +52,21 @@ public class SessionManager {
         long version = jwt.getClaim("version").asLong();
 
         if (version != jwtService.getTokenVersion(userId)) {
-            invalidateSession(ctx, jwtService);
-            throw new UnauthorizedResponse();
+            invalidateSession(ctx);
+            throw new UnauthorizedResponse("Outdated token version");
         }
 
-        User user = ctx.sessionAttribute("currentUser");
-        if (user == null || user.getId() != userId) {
-            userService.findUserById(userId).ifPresentOrElse(u -> {
-                ctx.sessionAttribute("currentUser", u);
-            }, () -> {
-                throw new UnauthorizedResponse();
-            });
-        }
+        userService.findUserById(userId).ifPresentOrElse(
+                user -> ctx.sessionAttribute("currentUser", user),
+                () -> clearSessionIfUserDeleted(ctx));
     }
 
-    public void invalidateSession(Context ctx, JWTService jwtService) {
+    private void clearSessionIfUserDeleted(Context ctx) {
+        invalidateSession(ctx);
+        throw new UnauthorizedResponse("User does not exist, session cleared");
+    }
+
+    public void invalidateSession(Context ctx) {
         ctx.sessionAttribute("currentUser", null);
         ctx.removeCookie(JWT_ACCESS_KEY);
         ctx.removeCookie(JWT_REFRESH_KEY);
@@ -83,7 +92,7 @@ public class SessionManager {
         User user = ctx.sessionAttribute("currentUser");
 
         if (version != jwtService.getTokenVersion(userId) || user == null) {
-            throw new UnauthorizedResponse();
+            throw new UnauthorizedResponse("Cannot refresh token: version outdated");
         }
 
         Map<String, String> tokens = jwtService.generateTokens(user);
