@@ -79,4 +79,6 @@ public interface JWTService {
      * @param token The JWT string to delete.
      */
     void deleteToken(String token);
+
+    void updateFreshSignInTime();
 }
