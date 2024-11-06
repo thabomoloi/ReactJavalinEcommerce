@@ -14,6 +14,7 @@ import java.util.Optional;
 import com.oasisnourish.dao.UserDao;
 import com.oasisnourish.dao.mappers.UserMapper;
 import com.oasisnourish.db.JdbcConnection;
+import com.oasisnourish.enums.Role;
 import com.oasisnourish.exceptions.DatabaseAccessException;
 import com.oasisnourish.models.User;
 
@@ -154,13 +155,14 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void verifyEmail(String email) {
-        String sql = "UPDATE users SET email_verified = ? WHERE email = ?";
+        String sql = "UPDATE users SET role = ?, email_verified = ? WHERE email = ?";
 
         try (Connection connection = jdbcConnection.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql)) {
             LocalDateTime emailVerified = LocalDateTime.now();
-            ps.setTimestamp(1, Timestamp.valueOf(emailVerified));
-            ps.setString(2, email);
+            ps.setString(1, Role.USER.name());
+            ps.setTimestamp(2, Timestamp.valueOf(emailVerified));
+            ps.setString(3, email);
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {

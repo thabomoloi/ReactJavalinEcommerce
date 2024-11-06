@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.oasisnourish.dao.UserDao;
 import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.enums.Role;
 import com.oasisnourish.exceptions.EmailExistsException;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.User;
@@ -52,6 +53,10 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("User with id " + userDto.getId() + " not found");
         }
         User user = exisitingUser.get();
+        if (!user.getEmail().equals(userDto.getEmail())) {
+            user.setRole(Role.UNVERIFIED_USER);
+            user.setEmailVerified(null);
+        }
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
         if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
@@ -63,7 +68,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(int id) {
         userDao.find(id).ifPresentOrElse(
-                user -> userDao.delete(id),
+                user -> userDao.delete(user.getId()),
                 () -> {
                     throw new NotFoundException("User with id " + id + " not found");
                 });

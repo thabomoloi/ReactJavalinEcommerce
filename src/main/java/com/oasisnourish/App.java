@@ -27,6 +27,7 @@ import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.http.UnauthorizedResponse;
 
 public class App {
 
@@ -94,7 +95,10 @@ public class App {
                 post("/signin", authController::signInUser, Role.GUEST);
                 delete("/signout", authController::signOutUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
                 post("/refresh", authController::refreshToken, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
-                post("/confirm/{userId}", authController::generateConfirmationToken, Role.UNVERIFIED_USER);
+                path("/confirm/{userId}", () -> {
+                    post(authController::generateConfirmationToken, Role.UNVERIFIED_USER);
+                    patch("/{token}", authController::confirmAccountToken, Role.UNVERIFIED_USER);
+                });
             });
         });
     }
@@ -102,6 +106,10 @@ public class App {
     public void before(Javalin app) {
         app.beforeMatched(authController);
         app.before(authController::decodeJWTFromCookie);
+    }
+
+    public void after(Javalin app) {
+        app.after(authController::updateUserIfChanged);
     }
 
     public void events(Javalin app) {
@@ -131,6 +139,10 @@ public class App {
         application.before(app);
         application.events(app);
 
+        app.exception(InvalidTokenException.class, (e, ctx) -> {
+            LOGGER.error(e.getMessage(), e);
+            throw new UnauthorizedResponse(e.getMessage());
+        });
         app.exception(EmailExistsException.class, (e, ctx) -> {
             LOGGER.error(e.getMessage(), e);
             throw new BadRequestResponse(e.getMessage());

@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.validation.ValidatorFactory;
 import com.oasisnourish.exceptions.EmailExistsException;
+import com.oasisnourish.exceptions.NotFoundException;
+import com.oasisnourish.models.User;
 import com.oasisnourish.services.AuthService;
 import com.oasisnourish.services.JWTService;
 import com.oasisnourish.services.UserService;
@@ -144,12 +146,38 @@ public class AuthController implements Handler {
         ctx.status(204).result("Sign out successful.");
     }
 
-    public void generateConfirmationToken(Context ctx) throws EmailExistsException {
+    public void generateConfirmationToken(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
 
-        userService.findUserById(userId).ifPresent(user -> {
+        userService.findUserById(userId).ifPresentOrElse(user -> {
             authService.sendConfirmationToken(user);
-            ctx.status(201).json("Confirmation token created. Check your email for the confirmation link.");
+            ctx.status(201).result("Confirmation token created. Check your email for the confirmation link.");
+        }, () -> {
+            throw new NotFoundException("User Not Found");
         });
+
     }
+
+    public void confirmAccountToken(Context ctx) {
+        int userId = ctx.pathParamAsClass("userId", Integer.class).get();
+        String token = ctx.pathParamAsClass("token", String.class).get();
+        authService.confirmAccount(userId, token);
+        ctx.result("Your account has been verified");
+    }
+
+    public void updateUserIfChanged(Context ctx) {
+        User currUser = ctx.sessionAttribute("currentUser");
+        if (currUser != null) {
+            userService.findUserById(currUser.getId()).ifPresent((user) -> {
+                if (!currUser.equals(user)) {
+                    Map<String, String> tokens = jwtService.generateTokens(user);
+                    sessionManager.setTokensInCookies(ctx, tokens, jwtService);
+                    sessionManager.decodeJWTFromCookie(ctx, jwtService);
+                    sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
+                }
+            });
+
+        }
+    }
+
 }

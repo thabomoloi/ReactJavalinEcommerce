@@ -54,13 +54,18 @@ async function updateProfile(data: UserUpdateSchemaType): Promise<string> {
   return response.data as string;
 }
 
-async function deleteAccount(id: number) {
-  const response = await axios.delete(USERS_URL + "/" + id);
+async function deleteAccount(userId: number) {
+  const response = await axios.delete(USERS_URL + "/" + userId);
   return response.data as string;
 }
 
-async function sendConfirmationLink(id: number) {
-  const response = await axios.post(CONFIRM_URL + "/" + id);
+async function sendConfirmationLink(userId: number) {
+  const response = await axios.post(CONFIRM_URL + "/" + userId);
+  return response.data as string;
+}
+
+async function verifyAccount(userId: number, token: string) {
+  const response = await axios.patch(CONFIRM_URL + "/" + userId + "/" + token);
   return response.data as string;
 }
 
@@ -73,4 +78,5 @@ export {
   updateProfile,
   deleteAccount,
   sendConfirmationLink,
+  verifyAccount,
 };

@@ -12,12 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/store/auth";
 import { LoaderCircleIcon } from "lucide-react";
 import { useEffect } from "react";
-import { Form, useActionData } from "react-router-dom";
+import { Form, useActionData, useNavigate } from "react-router-dom";
 
 export default function UnverifiedPage() {
   const { toast } = useToast();
   const loading = useLoading();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
   const actionData = useActionData() as
     | undefined
     | { error: boolean; message: string };
@@ -35,8 +37,9 @@ export default function UnverifiedPage() {
         title: actionData?.message,
         variant: "success",
       });
+      navigate("/account/profile");
     }
-  }, [actionData, toast]);
+  }, [actionData, navigate, toast]);
 
   return (
     <Card className="max-w-lg">

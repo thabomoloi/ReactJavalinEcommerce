@@ -7,6 +7,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import {
   deleteAccountAction,
   profileAction,
+  sendConfirmationLinkAction,
   signInAction,
   signOutAction,
   signUpAction,
@@ -16,6 +17,7 @@ import ProfilePage from "@/pages/account/profile-page";
 import AccountLayout from "@/pages/account/account-layout";
 import { ProtectedPage } from "@/components/protected-page";
 import UnverifiedPage from "@/pages/auth/unverified-page";
+import VerifyAccountPage from "@/pages/auth/verify-account-page";
 
 export const router = createBrowserRouter([
   {
@@ -62,7 +64,21 @@ export const router = createBrowserRouter([
       },
       {
         path: "unverified",
-        element: <UnverifiedPage />,
+        element: (
+          <ProtectedPage fallback={<HomePage />}>
+            <UnverifiedPage />
+          </ProtectedPage>
+        ),
+        action: sendConfirmationLinkAction,
+      },
+      {
+        path: "confirm/:userId/:token",
+
+        element: (
+          <ProtectedPage fallback={<HomePage />}>
+            <VerifyAccountPage />
+          </ProtectedPage>
+        ),
         action: verifyAccountAction,
       },
     ],
