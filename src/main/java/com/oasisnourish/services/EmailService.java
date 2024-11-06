@@ -18,4 +18,6 @@ public interface EmailService {
      * @param context      The context containing variables for the email template.
      */
     void sendEmail(String to, String subject, String templateName, IContext context);
+
+    void shutdown();
 }

@@ -104,16 +104,32 @@ public class App {
         app.before(authController::decodeJWTFromCookie);
     }
 
+    public void events(Javalin app) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            app.stop();
+        }));
+        app.events(event -> {
+            event.serverStopping(() -> {
+                emailService.shutdown();
+                System.out.println("Email ExecutorService shut down.");
+            });
+        });
+    }
+
     @SuppressWarnings("unused")
     public static void main(String[] args) {
         var application = new App();
 
         var app = Javalin.create(config -> {
+
             config.router.apiBuilder(() -> application.router());
             config.staticFiles.add("/public"); // Serve files from 'src/main/resources/public'
+            config.jetty.modifyServer(server -> server.setStopTimeout(5_000)); // wait 5 seconds for existing requests
+                                                                               // to finish
         }).start(7070);
 
         application.before(app);
+        application.events(app);
 
         app.exception(EmailExistsException.class, (e, ctx) -> {
             LOGGER.error(e.getMessage(), e);
