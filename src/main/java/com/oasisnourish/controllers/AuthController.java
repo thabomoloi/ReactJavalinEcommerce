@@ -71,7 +71,7 @@ public class AuthController implements Handler {
      * @param ctx Javalin HTTP context.
      */
     public void decodeJWTFromCookie(Context ctx) {
-        sessionManager.decodeJWTFromCookie(ctx, jwtService);
+        sessionManager.decodeJWTFromCookie(ctx, jwtService, userService);
     }
 
     /**
@@ -119,6 +119,7 @@ public class AuthController implements Handler {
                 .get();
 
         authService.signInUser(userDto).ifPresentOrElse(user -> {
+            jwtService.updateFreshSignInTime();
             Map<String, String> tokens = jwtService.generateTokens(user);
             sessionManager.setTokensInCookies(ctx, tokens, jwtService);
             ctx.status(200).result("Login successful.");
@@ -172,7 +173,7 @@ public class AuthController implements Handler {
                 if (!currUser.equals(user)) {
                     Map<String, String> tokens = jwtService.generateTokens(user);
                     sessionManager.setTokensInCookies(ctx, tokens, jwtService);
-                    sessionManager.decodeJWTFromCookie(ctx, jwtService);
+                    sessionManager.decodeJWTFromCookie(ctx, jwtService, userService);
                     sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
                 }
             });

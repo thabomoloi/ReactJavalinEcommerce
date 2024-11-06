@@ -20,22 +20,33 @@ public class SessionManager {
     private static final String JWT_REFRESH_KEY = "JWTRefreshToken";
     private static final Dotenv dotenv = EnvConfig.getDotenv();
 
-    public void decodeJWTFromCookie(Context ctx, JWTService jwtService) {
-
+    public void decodeJWTFromCookie(Context ctx, JWTService jwtService, UserService userService) {
         String access = ctx.cookie(JWT_ACCESS_KEY);
+        String refresh = ctx.cookie(JWT_REFRESH_KEY);
+
         if (access != null) {
-            jwtService.getToken(access).ifPresentOrElse((jwt) -> ctx.sessionAttribute(JWT_ACCESS_KEY, jwt),
-                    () -> ctx.sessionAttribute(JWT_ACCESS_KEY, null));
-        } else {
-            ctx.sessionAttribute(JWT_ACCESS_KEY, null);
+            Optional<DecodedJWT> decodedAccess = jwtService.getToken(access);
+            if (decodedAccess.isPresent()) {
+                ctx.sessionAttribute(JWT_ACCESS_KEY, decodedAccess.get());
+            } else {
+                ctx.sessionAttribute(JWT_ACCESS_KEY, null);
+            }
         }
 
-        String refresh = ctx.cookie(JWT_REFRESH_KEY);
-        if (refresh != null) {
-            jwtService.getToken(refresh).ifPresentOrElse((jwt) -> ctx.sessionAttribute(JWT_REFRESH_KEY, jwt),
-                    () -> ctx.sessionAttribute(JWT_REFRESH_KEY, null));
-        } else {
-            ctx.sessionAttribute(JWT_REFRESH_KEY, null);
+        if (refresh != null && (access == null || !jwtService.getToken(access).isPresent())) {
+            Optional<DecodedJWT> decodedRefresh = jwtService.getToken(refresh);
+            decodedRefresh.ifPresentOrElse(jwt -> {
+                ctx.sessionAttribute(JWT_REFRESH_KEY, jwt);
+                int userId = jwt.getClaim("userId").asInt();
+                Optional<User> user = userService.findUserById(userId);
+                if (user.isPresent()) {
+                    Map<String, String> newTokens = jwtService.generateTokens(user.get());
+                    setTokensInCookies(ctx, newTokens, jwtService);
+                    ctx.sessionAttribute(JWT_ACCESS_KEY, jwtService.getToken(newTokens.get(JWT_ACCESS_KEY)).get());
+                } else {
+                    clearSessionIfUserDeleted(ctx);
+                }
+            }, () -> ctx.sessionAttribute(JWT_REFRESH_KEY, null));
         }
     }
 
@@ -111,7 +122,7 @@ public class SessionManager {
         cookie.setHttpOnly(true);
         cookie.setSecure("development".equals(environment));
         cookie.setSameSite(io.javalin.http.SameSite.STRICT);
-        cookie.setMaxAge(jwtService.getTokenExpires(tokenType) * 60);
+        cookie.setMaxAge(jwtService.getTokenExpires(tokenType));
         return cookie;
     }
 }
