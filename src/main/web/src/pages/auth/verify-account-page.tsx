@@ -14,7 +14,7 @@ import { LoaderCircleIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Form, useActionData, useNavigate } from "react-router-dom";
 
-export default function UnverifiedPage() {
+export default function VerifyAccountPage() {
   const { toast } = useToast();
   const loading = useLoading();
   const { currentUser } = useAuth();
@@ -24,43 +24,40 @@ export default function UnverifiedPage() {
     | undefined
     | { error: boolean; message: string };
 
-  useEffect(() => {
-    if (actionData?.error === true) {
-      toast({
-        title: actionData?.message,
-        variant: "destructive",
-      });
-    }
+  console.log(actionData);
 
-    if (actionData?.error === false) {
+  useEffect(() => {
+    if (actionData) {
       toast({
-        title: actionData?.message,
-        variant: "success",
+        title: actionData.message,
+        variant: actionData.error ? "destructive" : "success",
       });
-      navigate("/account/profile");
+
+      if (!actionData.error) {
+        navigate("/account/profile");
+      }
     }
   }, [actionData, navigate, toast]);
 
   return (
     <Card className="max-w-lg">
       <CardHeader>
-        <CardTitle className="text-center">Verify your Account</CardTitle>
+        <CardTitle className="text-center">Account Verification</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-center">
-          Your account has not yet been verified. Please check your email for a
-          verification link, or resend verification link if you didn't receive
-          it.
+          Please click the button below to complete the verification of your
+          account.
         </p>
       </CardContent>
       <CardFooter className="justify-center">
-        <Form method="post" action="/auth/unverified">
+        <Form method="post">
           <Input type="hidden" name="userId" value={currentUser?.id ?? ""} />
           <Button disabled={loading.isLoading} type="submit">
             {loading.isSubmitting && (
               <LoaderCircleIcon className="animate-spin mr-2" />
             )}
-            Resend Verification Link
+            Verify Account
           </Button>
         </Form>
       </CardFooter>

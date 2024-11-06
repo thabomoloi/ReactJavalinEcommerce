@@ -5,6 +5,7 @@ import {
   signOut,
   signUp,
   updateProfile,
+  verifyAccount,
 } from "@/lib/data/api/user";
 import {
   SignInSchemaType,
@@ -102,7 +103,9 @@ export async function deleteAccountAction({ params }: ActionFunctionArgs) {
   }
 }
 
-export async function verifyAccountAction({ request }: ActionFunctionArgs) {
+export async function sendConfirmationLinkAction({
+  request,
+}: ActionFunctionArgs) {
   try {
     const formData = await request.formData();
     const userId = formData.get("userId")?.toString();
@@ -110,7 +113,27 @@ export async function verifyAccountAction({ request }: ActionFunctionArgs) {
       const message = await sendConfirmationLink(parseInt(userId));
       return json({ error: false, message });
     }
-    return null;
+    return { error: true, message: "Missing userId." };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      if (data?.title && status && status >= 400 && status < 500) {
+        return json({ error: true, message: data.title });
+      }
+    }
+    throw error;
+  }
+}
+
+export async function verifyAccountAction({ params }: ActionFunctionArgs) {
+  try {
+    if (params.userId && params.token) {
+      const userId = parseInt(params.userId);
+      const message = await verifyAccount(userId, params.token);
+      return json({ error: false, message });
+    }
+    return { error: true, message: "Missing userId or token." };
   } catch (error) {
     if (error instanceof AxiosError) {
       const status = error.response?.status;

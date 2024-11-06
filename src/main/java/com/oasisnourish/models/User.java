@@ -1,6 +1,7 @@
 package com.oasisnourish.models;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import com.oasisnourish.enums.Role;
 
@@ -47,6 +48,25 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        User user = (User) obj;
+        return id == user.id &&
+                Objects.equals(name, user.name) &&
+                Objects.equals(email, user.email) &&
+                role == user.role &&
+                Objects.equals(emailVerified, user.emailVerified);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, email, role, emailVerified);
     }
 
     /**

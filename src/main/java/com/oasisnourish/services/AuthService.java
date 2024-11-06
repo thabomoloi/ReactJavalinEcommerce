@@ -51,4 +51,6 @@ public interface AuthService {
      * @param user The new user.
      */
     void sendWelcomeEmail(User user);
+
+    void confirmAccount(int userId, String token);
 }
