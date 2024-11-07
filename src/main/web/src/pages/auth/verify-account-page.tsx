@@ -24,8 +24,6 @@ export default function VerifyAccountPage() {
     | undefined
     | { error: boolean; message: string };
 
-  console.log(actionData);
-
   useEffect(() => {
     if (actionData) {
       toast({

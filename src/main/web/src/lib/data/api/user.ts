@@ -4,6 +4,7 @@ import {
   CONFIRM_URL,
   CURRENT_USER_URL,
   REFRESH_TOKEN_URL,
+  RESET_PASSWORD_URL,
   SIGN_IN_URL,
   SIGN_OUT_URL,
   SIGN_UP_URL,
@@ -11,6 +12,8 @@ import {
 } from "@/lib/urls";
 import { stringToRole, UserImpl } from "../models/user";
 import {
+  ForgotPasswordSchemaType,
+  ResetPasswordSchemaType,
   SignInSchemaType,
   SignUpSchemaType,
   UserUpdateSchemaType,
@@ -69,6 +72,23 @@ async function verifyAccount(userId: number, token: string) {
   return response.data as string;
 }
 
+async function sendResetPasswordLink(data: ForgotPasswordSchemaType) {
+  const response = await axios.post(RESET_PASSWORD_URL, data);
+  return response.data as string;
+}
+
+async function resetPassword(
+  userId: number,
+  token: string,
+  data: ResetPasswordSchemaType
+) {
+  const response = await axios.patch(
+    RESET_PASSWORD_URL + "/" + userId + "/" + token,
+    data
+  );
+  return response.data as string;
+}
+
 export {
   getCurrentUser,
   refreshJWT,
@@ -79,4 +99,6 @@ export {
   deleteAccount,
   sendConfirmationLink,
   verifyAccount,
+  sendResetPasswordLink,
+  resetPassword,
 };

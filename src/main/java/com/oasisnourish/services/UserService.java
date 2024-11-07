@@ -64,4 +64,6 @@ public interface UserService {
      */
     void verifyEmail(String email);
 
+    void updatePassword(User user);
+
 }

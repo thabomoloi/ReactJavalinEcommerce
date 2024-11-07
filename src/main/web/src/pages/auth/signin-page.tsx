@@ -148,10 +148,7 @@ export default function SignInPage() {
       </CardContent>
       <CardFooter className="flex-col text-sm text-center">
         <p>
-          <Link
-            to="#/auth/forgot-password"
-            className="font-bold text-green-700"
-          >
+          <Link to="/auth/forgot-password" className="font-bold text-green-700">
             Forgot Password?
           </Link>
         </p>

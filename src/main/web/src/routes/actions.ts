@@ -1,6 +1,8 @@
 import {
   deleteAccount,
+  resetPassword,
   sendConfirmationLink,
+  sendResetPasswordLink,
   signIn,
   signOut,
   signUp,
@@ -8,6 +10,8 @@ import {
   verifyAccount,
 } from "@/lib/data/api/user";
 import {
+  ForgotPasswordSchemaType,
+  ResetPasswordSchemaType,
   SignInSchemaType,
   SignUpSchemaType,
   UserUpdateSchemaType,
@@ -131,6 +135,49 @@ export async function verifyAccountAction({ params }: ActionFunctionArgs) {
     if (params.userId && params.token) {
       const userId = parseInt(params.userId);
       const message = await verifyAccount(userId, params.token);
+      return json({ error: false, message });
+    }
+    return { error: true, message: "Missing userId or token." };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      if (data?.title && status && status >= 400 && status < 500) {
+        return json({ error: true, message: data.title });
+      }
+    }
+    throw error;
+  }
+}
+
+export async function sendResetPasswordLinkAction({
+  request,
+}: ActionFunctionArgs) {
+  try {
+    const data = (await request.json()) as ForgotPasswordSchemaType;
+    const message = await sendResetPasswordLink(data);
+    return json({ error: false, message });
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      if (data?.title && status && status >= 400 && status < 500) {
+        return json({ error: true, message: data.title });
+      }
+    }
+    throw error;
+  }
+}
+
+export async function resetPasswordAction({
+  params,
+  request,
+}: ActionFunctionArgs) {
+  try {
+    if (params.userId && params.token) {
+      const userId = parseInt(params.userId);
+      const data = (await request.json()) as ResetPasswordSchemaType;
+      const message = await resetPassword(userId, params.token, data);
       return json({ error: false, message });
     }
     return { error: true, message: "Missing userId or token." };

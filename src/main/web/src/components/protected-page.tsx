@@ -6,12 +6,14 @@ import { Navigate, useLocation } from "react-router-dom";
 
 interface ProtectedPageProps {
   rolesRequired?: Role[];
+  signInRequired?: boolean;
   children?: React.ReactNode;
   fallback: React.ReactNode;
 }
 
 export function ProtectedPage({
   rolesRequired = [Role.USER, Role.UNVERIFIED_USER, Role.ADMIN],
+  signInRequired = true,
   children,
   fallback,
 }: ProtectedPageProps) {
@@ -23,8 +25,17 @@ export function ProtectedPage({
 
   const role = currentUser?.role ?? Role.GUEST;
 
-  if (!isAuthenticated) {
+  if (signInRequired && !isAuthenticated) {
     return <Navigate to="/auth/signin" replace />;
+  }
+
+  if (
+    !signInRequired &&
+    isAuthenticated &&
+    rolesRequired.length == 1 &&
+    rolesRequired[0] == Role.GUEST
+  ) {
+    return <Navigate to="/account/profile" replace />;
   }
 
   if (

@@ -7,7 +7,9 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import {
   deleteAccountAction,
   profileAction,
+  resetPasswordAction,
   sendConfirmationLinkAction,
+  sendResetPasswordLinkAction,
   signInAction,
   signOutAction,
   signUpAction,
@@ -18,6 +20,9 @@ import AccountLayout from "@/pages/account/account-layout";
 import { ProtectedPage } from "@/components/protected-page";
 import UnverifiedPage from "@/pages/auth/unverified-page";
 import VerifyAccountPage from "@/pages/auth/verify-account-page";
+import ForgotPasswordPage from "@/pages/auth/forgot-password-page";
+import ResetPasswordPage from "@/pages/auth/reset-password-page";
+import { Role } from "@/lib/data/models/types";
 
 export const router = createBrowserRouter([
   {
@@ -80,6 +85,32 @@ export const router = createBrowserRouter([
           </ProtectedPage>
         ),
         action: verifyAccountAction,
+      },
+      {
+        path: "forgot-password",
+        element: (
+          <ProtectedPage
+            fallback={<HomePage />}
+            signInRequired={false}
+            rolesRequired={[Role.GUEST]}
+          >
+            <ForgotPasswordPage />
+          </ProtectedPage>
+        ),
+        action: sendResetPasswordLinkAction,
+      },
+      {
+        path: "reset-password/:userId/:token",
+        element: (
+          <ProtectedPage
+            fallback={<HomePage />}
+            signInRequired={false}
+            rolesRequired={[Role.GUEST]}
+          >
+            <ResetPasswordPage />
+          </ProtectedPage>
+        ),
+        action: resetPasswordAction,
       },
     ],
   },

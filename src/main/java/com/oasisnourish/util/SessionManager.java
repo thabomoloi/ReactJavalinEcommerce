@@ -20,6 +20,15 @@ public class SessionManager {
     private static final String JWT_REFRESH_KEY = "JWTRefreshToken";
     private static final Dotenv dotenv = EnvConfig.getDotenv();
 
+    public void updateJwtInSession(Map<String, String> tokens, Context ctx, JWTService jwtService) {
+        jwtService.getToken(tokens.get(JWT_ACCESS_KEY)).ifPresent((jwt) -> {
+            ctx.sessionAttribute(JWT_ACCESS_KEY, jwt);
+        });
+        jwtService.getToken(tokens.get(JWT_REFRESH_KEY)).ifPresent((jwt) -> {
+            ctx.sessionAttribute(JWT_REFRESH_KEY, jwt);
+        });
+    }
+
     public void decodeJWTFromCookie(Context ctx, JWTService jwtService, UserService userService) {
         String access = ctx.cookie(JWT_ACCESS_KEY);
         String refresh = ctx.cookie(JWT_REFRESH_KEY);
@@ -103,6 +112,7 @@ public class SessionManager {
         User user = ctx.sessionAttribute("currentUser");
 
         if (version != jwtService.getTokenVersion(userId) || user == null) {
+            invalidateSession(ctx);
             throw new UnauthorizedResponse("Cannot refresh token: version outdated");
         }
 
@@ -120,7 +130,7 @@ public class SessionManager {
         String environment = dotenv.get("ENV", "development");
         Cookie cookie = new Cookie("access".equals(tokenType) ? JWT_ACCESS_KEY : JWT_REFRESH_KEY, token);
         cookie.setHttpOnly(true);
-        cookie.setSecure("development".equals(environment));
+        cookie.setSecure("production".equals(environment));
         cookie.setSameSite(io.javalin.http.SameSite.STRICT);
         cookie.setMaxAge(jwtService.getTokenExpires(tokenType));
         return cookie;
