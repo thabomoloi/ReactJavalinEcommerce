@@ -21,7 +21,7 @@ public class User {
      * Default constructor initializing a user with empty name, email, and password.
      */
     public User() {
-        this("", "", "");
+        this(0, "", "", "");
     }
 
     /**
@@ -44,6 +44,18 @@ public class User {
      * @param role     the role of the user
      */
     public User(String name, String email, String password, Role role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
+    public User(int id, String name, String email, String password) {
+        this(id, name, email, password, Role.UNVERIFIED_USER);
+    }
+
+    public User(int id, String name, String email, String password, Role role) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
