@@ -1,19 +1,19 @@
 package com.oasisnourish.dao.mappers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.oasisnourish.dao.UserMockResultHelper;
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.models.User;
 
@@ -26,9 +26,8 @@ import com.oasisnourish.models.User;
  * methods.
  * </p>
  */
-public class UserMapperTest {
-    private UserMapper userMapper;
-    private ResultSet mockResultSet;
+public class UserRowMapperTest extends UserMockResultHelper {
+    private UserRowMapper userRowMapper;
     private PreparedStatement mockPreparedStatement;
 
     /**
@@ -41,38 +40,27 @@ public class UserMapperTest {
      */
     @BeforeEach
     public void setUp() throws SQLException {
-        userMapper = new UserMapper();
+        userRowMapper = new UserRowMapper();
         mockResultSet = mock(ResultSet.class);
         mockPreparedStatement = mock(PreparedStatement.class);
     }
 
     /**
-     * Tests the {@link UserMapper#mapToUser(ResultSet)} method to ensure that
+     * Tests the {@link UserMapper#mapToEntity(ResultSet)} method to ensure that
      * a {@link User} object is correctly populated from a {@link ResultSet}.
      *
      * @throws SQLException if there is an error accessing the mock
      *                      {@link ResultSet}.
      */
     @Test
-    public void testMapToUser() throws SQLException {
-        // Prepare mock ResultSet data
-        when(mockResultSet.getInt("id")).thenReturn(1);
-        when(mockResultSet.getString("name")).thenReturn("John Doe");
-        when(mockResultSet.getString("email")).thenReturn("john.doe@test.com");
-        when(mockResultSet.getString("password")).thenReturn("password123");
-        when(mockResultSet.getString("role")).thenReturn("USER");
-        when(mockResultSet.getTimestamp("email_verified")).thenReturn(Timestamp.valueOf("2024-10-26 12:00:00"));
+    public void testMapToEntity() throws SQLException {
+        User expectedUser = new User(1, "John Doe", "john.doe@test.com", "password123", Role.USER);
+        expectedUser.setEmailVerified(LocalDateTime.of(2024, 1, 1, 0, 0));
 
-        // Call method under test
-        User user = userMapper.mapToUser(mockResultSet);
+        mockUserResultSet(expectedUser);
 
-        // Assertions
-        assertEquals(1, user.getId());
-        assertEquals("John Doe", user.getName());
-        assertEquals("john.doe@test.com", user.getEmail());
-        assertEquals("password123", user.getPassword());
-        assertEquals(Role.USER, user.getRole());
-        assertNotNull(user.getEmailVerified());
+        User actualUser = userRowMapper.mapToEntity(mockResultSet);
+        assertEquals(expectedUser, actualUser);
     }
 
     /**
@@ -85,18 +73,11 @@ public class UserMapperTest {
      */
     @Test
     public void testMapToRow_Insert() throws SQLException {
-        User user = new User(
-                "Jane Doe",
-                "jane.doe@test.com",
-                "password456",
-                Role.ADMIN);
-
+        User user = new User(0, "Jane Doe", "jane.doe@test.com", "password456", Role.ADMIN);
         user.setEmailVerified(Timestamp.valueOf("2024-10-26 12:00:00").toLocalDateTime());
 
-        // Call method under test
-        userMapper.mapToRow(mockPreparedStatement, user, false);
+        userRowMapper.mapToRow(mockPreparedStatement, user, false);
 
-        // Verify that the PreparedStatement was set correctly
         verify(mockPreparedStatement).setString(1, "Jane Doe");
         verify(mockPreparedStatement).setString(2, "jane.doe@test.com");
         verify(mockPreparedStatement).setString(3, "password456");
@@ -114,18 +95,11 @@ public class UserMapperTest {
      */
     @Test
     public void testMapToRow_Update() throws SQLException {
-        User user = new User(
-                "Jane Doe",
-                "jane.doe@test.com",
-                "password456",
-                Role.ADMIN);
-        user.setId(2);
+        User user = new User(2, "Jane Doe", "jane.doe@test.com", "password456", Role.ADMIN);
         user.setEmailVerified(Timestamp.valueOf("2024-10-26 12:00:00").toLocalDateTime());
 
-        // Call method under test
-        userMapper.mapToRow(mockPreparedStatement, user, true);
+        userRowMapper.mapToRow(mockPreparedStatement, user, true);
 
-        // Verify that the PreparedStatement was set correctly, including ID
         verify(mockPreparedStatement).setString(1, "Jane Doe");
         verify(mockPreparedStatement).setString(2, "jane.doe@test.com");
         verify(mockPreparedStatement).setString(3, "password456");
