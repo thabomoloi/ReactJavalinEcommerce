@@ -84,4 +84,9 @@ public class UserServiceImpl implements UserService {
         userDao.verifyEmail(email);
     }
 
+    @Override
+    public void updatePassword(User user) {
+        userDao.update(user);
+    }
+
 }

@@ -53,4 +53,8 @@ public interface AuthService {
     void sendWelcomeEmail(User user);
 
     void confirmAccount(int userId, String token);
+
+    void resetPassword(int userId, String token, String password);
+
+    void sendResetPasswordToken(User user);
 }

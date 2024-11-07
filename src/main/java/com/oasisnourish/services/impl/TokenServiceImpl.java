@@ -7,7 +7,7 @@ import com.oasisnourish.exceptions.TooManyRequestsException;
 import com.oasisnourish.services.TokenService;
 
 public class TokenServiceImpl implements TokenService {
-    private static final int MAX_TOKENS_PER_DAY = 5;
+    private static final int MAX_TOKENS_PER_DAY = 3;
     private static final int RATE_LIMIT_WINDOW_SECONDS = 24 * 60 * 60; // 24 hours
     private static final int TOKEN_EXPIRES_SECONDS = 30 * 60; // 1 hour
     private final RedisConnection redisConnection;
@@ -23,12 +23,10 @@ public class TokenServiceImpl implements TokenService {
         String tokenKey = "tokens:" + userId + ":" + tokenType;
 
         // Check if user has hit the daily rate limit
-        // String requestCount = jedis.get(rateLimitKey);
-        // if (requestCount != null && Integer.parseInt(requestCount) >=
-        // MAX_TOKENS_PER_DAY) {
-        // throw new TooManyRequestsException("Too many requests. Try again after 24
-        // hours.");
-        // }
+        String requestCount = jedis.get(rateLimitKey);
+        if (requestCount != null && Integer.parseInt(requestCount) >= MAX_TOKENS_PER_DAY) {
+            throw new TooManyRequestsException("Too many requests. Try again after 24 hours.");
+        }
 
         // Generate a new token
         String token = UUID.randomUUID().toString();

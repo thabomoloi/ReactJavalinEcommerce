@@ -5,3 +5,4 @@ export const SIGN_IN_URL = "/api/auth/signin";
 export const SIGN_OUT_URL = "/api/auth/signout";
 export const USERS_URL = "/api/users";
 export const CONFIRM_URL = "/api/auth/confirm";
+export const RESET_PASSWORD_URL = "/api/auth/reset-password";

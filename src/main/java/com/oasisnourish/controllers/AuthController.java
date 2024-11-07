@@ -143,7 +143,9 @@ public class AuthController implements Handler {
      * @param ctx Javalin HTTP context.
      */
     public void signOutUser(Context ctx) {
+
         sessionManager.invalidateSession(ctx);
+        ctx.req().getSession().invalidate();
         ctx.status(204).result("Sign out successful.");
     }
 
@@ -166,6 +168,28 @@ public class AuthController implements Handler {
         ctx.result("Your account has been verified");
     }
 
+    public void generateResetPasswordToken(Context ctx) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> body = ctx.bodyAsClass(Map.class);
+        String email = (String) body.get("email");
+
+        userService.findUserByEmail(email).ifPresent(user -> {
+            authService.sendResetPasswordToken(user);
+        });
+
+        ctx.status(201).result("If an account with that email exists, a password reset link has been sent.");
+    }
+
+    public void resetPassword(Context ctx) {
+        int userId = ctx.pathParamAsClass("userId", Integer.class).get();
+        String token = ctx.pathParamAsClass("token", String.class).get();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> body = ctx.bodyAsClass(Map.class);
+        String password = (String) body.get("password");
+        authService.resetPassword(userId, token, password);
+        ctx.result("Your password has been reset");
+    }
+
     public void updateUserIfChanged(Context ctx) {
         User currUser = ctx.sessionAttribute("currentUser");
         if (currUser != null) {
@@ -173,7 +197,7 @@ public class AuthController implements Handler {
                 if (!currUser.equals(user)) {
                     Map<String, String> tokens = jwtService.generateTokens(user);
                     sessionManager.setTokensInCookies(ctx, tokens, jwtService);
-                    sessionManager.decodeJWTFromCookie(ctx, jwtService, userService);
+                    sessionManager.updateJwtInSession(tokens, ctx, jwtService);
                     sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
                 }
             });

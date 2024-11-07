@@ -27,6 +27,7 @@ import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.http.TooManyRequestsResponse;
 import io.javalin.http.UnauthorizedResponse;
 
 public class App {
@@ -99,6 +100,10 @@ public class App {
                     post(authController::generateConfirmationToken, Role.UNVERIFIED_USER);
                     patch("/{token}", authController::confirmAccountToken, Role.UNVERIFIED_USER);
                 });
+                path("/reset-password", () -> {
+                    post(authController::generateResetPasswordToken, Role.GUEST);
+                    patch("/{userId}/{token}", authController::resetPassword, Role.GUEST);
+                });
             });
         });
     }
@@ -137,8 +142,13 @@ public class App {
         }).start(7070);
 
         application.before(app);
+        application.after(app);
         application.events(app);
 
+        app.exception(TooManyRequestsException.class, (e, ctx) -> {
+            LOGGER.error(e.getMessage(), e);
+            throw new TooManyRequestsResponse(e.getMessage());
+        });
         app.exception(InvalidTokenException.class, (e, ctx) -> {
             LOGGER.error(e.getMessage(), e);
             throw new UnauthorizedResponse(e.getMessage());

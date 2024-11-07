@@ -2,7 +2,6 @@ package com.oasisnourish.services.impl;
 
 import java.util.Optional;
 
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.exceptions.InvalidTokenException;
 import com.oasisnourish.models.User;
@@ -82,6 +81,29 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidTokenException(
                     "The confirmation token is either invalid or has expired. Please requested another one.");
         }
+    }
+
+    @Override
+    public void resetPassword(int userId, String token, String password) {
+        boolean validToken = tokenService.verifyToken(userId, "reset-password", token);
+        if (validToken) {
+            userService.findUserById(userId).ifPresent(user -> {
+                user.setPassword(PasswordUtil.hashPassword(password));
+                userService.updatePassword(user);
+
+            });
+            tokenService.revokeToken(userId, "reset-password");
+        } else {
+            throw new InvalidTokenException(
+                    "The reset-password token is either invalid or has expired. Please requested another one.");
+        }
+    }
+
+    @Override
+    public void sendResetPasswordToken(User user) {
+        String token = tokenService.generateToken(user.getId(), "reset-password");
+        var context = emailContentBuilder.buildConfirmationContext(user, token);
+        emailService.sendEmail(user.getEmail(), "Reset your password", "user/reset-password", context);
     }
 
 }

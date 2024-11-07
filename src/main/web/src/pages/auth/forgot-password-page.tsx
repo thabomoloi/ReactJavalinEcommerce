@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -15,47 +9,38 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { PasswordField } from "@/components/ui/password-field";
 import { useLoading } from "@/hooks/use-loading";
 import { useToast } from "@/hooks/use-toast";
-import { SignInSchema, SignInSchemaType } from "@/lib/data/schemas/user";
-import { useAuth } from "@/lib/store/auth";
+import {
+  ForgotPasswordSchema,
+  ForgotPasswordSchemaType,
+} from "@/lib/data/schemas/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Link,
-  useSubmit,
-  useActionData,
-  useNavigate,
-  Navigate,
-} from "react-router-dom";
+import { useSubmit, useActionData } from "react-router-dom";
 
-export default function SignInPage() {
-  const { toast } = useToast();
+export default function ForgotPasswordPage() {
   const submit = useSubmit();
-  const navigate = useNavigate();
   const loading = useLoading();
+  const { toast } = useToast();
 
   const actionData = useActionData() as
     | undefined
     | { error: boolean; message: string };
 
-  const auth = useAuth();
-
-  const form = useForm<SignInSchemaType>({
-    resolver: zodResolver(SignInSchema),
+  const form = useForm<ForgotPasswordSchemaType>({
+    resolver: zodResolver(ForgotPasswordSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = (data: SignInSchemaType) => {
+  const onSubmit = (data: ForgotPasswordSchemaType) => {
     submit(data, {
       method: "post",
-      action: "/auth/signin",
+      action: "/auth/forgot-password",
       encType: "application/json",
     });
   };
@@ -73,18 +58,13 @@ export default function SignInPage() {
         title: actionData?.message,
         variant: "success",
       });
-      navigate("/");
     }
-  }, [actionData, navigate, toast]);
-
-  if (auth.isAuthenticated) {
-    return <Navigate to="/account/profile" replace />;
-  }
+  }, [actionData, toast]);
 
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle className="text-xl text-center">Welcome Back!</CardTitle>
+        <CardTitle className="text-xl text-center">Forgot Password</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -95,7 +75,7 @@ export default function SignInPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Enter Your Email</FormLabel>
                     <FormControl>
                       <Input
                         required
@@ -110,28 +90,6 @@ export default function SignInPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <PasswordField>
-                        <Input
-                          required
-                          {...field}
-                          type="password"
-                          className="bg-secondary"
-                          autoComplete="current-password"
-                          disabled={loading.isLoading}
-                        />
-                      </PasswordField>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
             <Button
               type="submit"
@@ -141,25 +99,11 @@ export default function SignInPage() {
               {loading.isSubmitting && (
                 <LoaderCircleIcon className="animate-spin mr-2" />
               )}
-              Sign in
+              Send password reset link
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex-col text-sm text-center">
-        <p>
-          <Link to="/auth/forgot-password" className="font-bold text-green-700">
-            Forgot Password?
-          </Link>
-        </p>
-        <p>
-          Don't have an account?{" "}
-          <Link to="/auth/signup" className="font-bold text-green-700">
-            Sign up
-          </Link>
-          .
-        </p>
-      </CardFooter>
     </Card>
   );
 }
