@@ -2,17 +2,20 @@ package com.oasisnourish.seeds;
 
 import java.time.LocalDateTime;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.oasisnourish.dao.UserDao;
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.models.User;
-import com.oasisnourish.util.PasswordUtil;
 
 public class UserSeed implements DatabaseSeed {
 
     private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserSeed(UserDao userDao) {
+    public UserSeed(UserDao userDao, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class UserSeed implements DatabaseSeed {
         for (String[] userData : users) {
             String name = userData[0];
             String email = userData[1];
-            String password = PasswordUtil.hashPassword(userData[2]);
+            String password = passwordEncoder.encode(userData[2]);
             Role role = Role.valueOf(userData[3]);
 
             // Check if user already exists
