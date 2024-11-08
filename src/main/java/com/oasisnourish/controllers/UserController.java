@@ -88,30 +88,26 @@ public class UserController {
      *            response.
      */
     public void updateUser(Context ctx) {
+        // Only current user of admin can update
         User currentUser = ctx.sessionAttribute("currentUser");
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
-        UserInputDto userDto = ctx.bodyValidator(UserInputDto.class)
-                .check(obj -> obj.getName() != null && !obj.getName().trim().isEmpty(), "Name is required.")
-                .check(obj -> obj.getEmail() != null && !obj.getEmail().trim().isEmpty(), "Email is required.")
-                .check(obj -> obj.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$"), "Invalid email address.")
-                .check(obj -> {
-                    String password = obj.getPassword();
-                    return password == null || (password != null && !password.trim().isEmpty() &&
-                            password.length() >= 8 && password.length() <= 16);
-                }, "Password must be between 8 and 16 characters.")
-                .check(obj -> {
-                    String password = obj.getPassword();
-                    return password == null || (password != null && !password.trim().isEmpty() &&
-                            password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"));
-                }, "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character (@, #, $, %, ^, &, +, =, !).")
-                .get();
-        if (currentUser != null && (currentUser.getId() == userId || currentUser.getRole() == Role.ADMIN)) {
-            userDto.setId(userId);
-            userService.updateUser(userDto);
-            ctx.status(HttpStatus.OK).result("Account was updated successfully.");
-        } else {
+
+        if (currentUser == null || !(currentUser.getId() == userId || currentUser.getRole() == Role.ADMIN)) {
             throw new UnauthorizedResponse("You have no permission to update this user.");
         }
+
+        var userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+                .isNameRequired()
+                .isEmailRequired()
+                .isEmailValid()
+                .isPasswordRequired()
+                .isPasswordLengthValid()
+                .isPasswordPatternValid()
+                .get();
+
+        userDto.setId(userId);
+        userService.updateUser(userDto);
+        ctx.status(HttpStatus.OK).result("User was updated successfully.");
     }
 
     /**
@@ -122,15 +118,13 @@ public class UserController {
      */
     public void deleteUser(Context ctx) {
         User currentUser = ctx.sessionAttribute("currentUser");
-
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
 
-        if (currentUser != null && (currentUser.getId() == userId || currentUser.getRole() == Role.ADMIN)) {
-            userService.deleteUser(userId);
-            ctx.status(HttpStatus.NO_CONTENT);
-        } else {
+        if (currentUser == null || !(currentUser.getId() == userId || currentUser.getRole() == Role.ADMIN)) {
             throw new UnauthorizedResponse("You have no permission to delete this user.");
         }
 
+        userService.deleteUser(userId);
+        ctx.status(HttpStatus.NO_CONTENT);
     }
 }
