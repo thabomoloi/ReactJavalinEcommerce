@@ -4,6 +4,8 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.TemplateEngine;
 
 import com.oasisnourish.config.EnvConfig;
@@ -39,6 +41,8 @@ public class App {
     String env = dotenv.get("ENV", "development");
 
     // Util
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     EmailContentBuilder emailContentBuilder = new EmailContentBuilder();
     RoleValidator roleValidator = new RoleValidator();
     SessionManager sessionManager = new SessionManager();
@@ -51,11 +55,13 @@ public class App {
     UserDao userDao = new UserDaoImpl(jdbcConnection);
 
     // Serivces
-    UserService userService = new UserServiceImpl(userDao);
+    UserService userService = new UserServiceImpl(userDao, passwordEncoder);
     TokenService tokenService = new TokenServiceImpl(redisConnection);
-    EmailService emailService = new EmailServiceImpl(TemplateEngineConfig.getTemplateEngine());
-    AuthService authService = new AuthServiceImpl(userService, emailService, tokenService, emailContentBuilder);
     JWTService jwtService = new JWTServiceImpl(redisConnection);
+
+    EmailService emailService = new EmailServiceImpl(TemplateEngineConfig.getTemplateEngine());
+    AuthService authService = new AuthServiceImpl(userService, emailService, tokenService, jwtService, passwordEncoder,
+            emailContentBuilder);
 
     // Controllers
     UserController userController = new UserController(userService);
@@ -64,7 +70,7 @@ public class App {
 
     public App() {
         if ("development".equals(env)) {
-            DatabaseSeed userSeed = new UserSeed(userDao);
+            DatabaseSeed userSeed = new UserSeed(userDao, passwordEncoder);
             userSeed.seed();
         }
     }

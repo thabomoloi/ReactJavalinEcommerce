@@ -1,5 +1,6 @@
 package com.oasisnourish.services;
 
+import com.oasisnourish.exceptions.InvalidTokenException;
 import com.oasisnourish.exceptions.TooManyRequestsException;
 
 public interface TokenService {
@@ -33,4 +34,15 @@ public interface TokenService {
      * @param tokenType - The type of token to revoke.
      */
     void revokeToken(int userId, String tokenType);
+
+    /**
+     * Verifies the token and throws InvalidTokenException if it's invalid.
+     *
+     * @param userId    the ID of the user
+     * @param tokenType the type of token (confirmation, reset-password)
+     * @param token     the token to verify
+     * @throws InvalidTokenException Throws this exception when the token is invalid
+     *                               or has expired.
+     */
+    public void verifyTokenOrThrow(int userId, String tokenType, String token) throws InvalidTokenException;
 }
