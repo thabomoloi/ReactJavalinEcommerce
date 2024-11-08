@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.oasisnourish.dao.UserDao;
-import com.oasisnourish.dao.mappers.UserRowMapper;
+import com.oasisnourish.dao.mappers.EntityRowMapper;
 import com.oasisnourish.db.JdbcConnection;
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.models.User;
@@ -30,8 +30,8 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
      *
      * @param connection the JDBC connection to use for database operations.
      */
-    public UserDaoImpl(JdbcConnection jdbcConnection) {
-        super(jdbcConnection, new UserRowMapper());
+    public UserDaoImpl(JdbcConnection jdbcConnection, EntityRowMapper<User> userRowMapper) {
+        super(jdbcConnection, userRowMapper);
     }
 
     @Override

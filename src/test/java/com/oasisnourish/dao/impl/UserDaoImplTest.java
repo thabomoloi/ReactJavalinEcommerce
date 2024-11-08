@@ -15,9 +15,12 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalAnswers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import com.oasisnourish.dao.UserDao;
-import com.oasisnourish.dao.UserMockResultHelper;
+import com.oasisnourish.dao.mappers.EntityRowMapper;
 import com.oasisnourish.db.JdbcConnection;
 import com.oasisnourish.models.User;
 import com.oasisnourish.enums.Role;
@@ -30,7 +33,7 @@ import com.oasisnourish.enums.Role;
  * {@link UserDaoImpl} class.
  * </p>
  */
-public class UserDaoImplTest extends UserMockResultHelper {
+public class UserDaoImplTest {
 
     private static final String FIND_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
     private static final String FIND_ALL_USERS = "SELECT * FROM users";
@@ -40,10 +43,23 @@ public class UserDaoImplTest extends UserMockResultHelper {
     private static final String FIND_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
     private static final String VERIFY_EMAIL = "UPDATE users SET role = ?, email_verified = ? WHERE email = ?";
 
-    private JdbcConnection mockJdbcConnection;
-    private UserDao userDao;
-    private Connection mockConnection;
-    private PreparedStatement mockPreparedStatement;
+    @Mock
+    private JdbcConnection jdbcConnection;
+
+    @Mock
+    private Connection connection;
+
+    @Mock
+    private PreparedStatement preparedStatement;
+
+    @Mock
+    private ResultSet resultSet;
+
+    @Mock
+    private EntityRowMapper<User> userRowMapper;
+
+    @InjectMocks
+    private UserDaoImpl userDao;
 
     /**
      * Initializes mock dependencies and the {@link UserDaoImpl} instance before
@@ -53,15 +69,8 @@ public class UserDaoImplTest extends UserMockResultHelper {
      */
     @BeforeEach
     public void setUp() throws SQLException {
-        mockJdbcConnection = mock(JdbcConnection.class);
-        mockConnection = mock(Connection.class);
-        mockPreparedStatement = mock(PreparedStatement.class);
-        mockResultSet = mock(ResultSet.class);
-
-        when(mockJdbcConnection.getConnection()).thenReturn(mockConnection);
-
-        userDao = new UserDaoImpl(mockJdbcConnection);
-
+        MockitoAnnotations.openMocks(this);
+        when(jdbcConnection.getConnection()).thenReturn(connection);
     }
 
     /**
@@ -71,22 +80,18 @@ public class UserDaoImplTest extends UserMockResultHelper {
      */
     @Test
     public void testFindById() throws SQLException {
-        when(mockConnection.prepareStatement(FIND_USER_BY_ID)).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        int userId = 1;
+        User mockUser = new User(userId, "John Doe", "john.doe@test.com", "password123", Role.USER);
+        mockUser.setEmailVerified(LocalDateTime.of(2024, 1, 1, 0, 0));
 
-        User expectedUser = new User(1, "John Doe", "john.doe@test.com", "password123", Role.USER);
-        expectedUser.setEmailVerified(LocalDateTime.of(2024, 1, 1, 0, 0));
+        when(connection.prepareStatement(FIND_USER_BY_ID)).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(userRowMapper.mapToEntity(resultSet)).thenReturn(mockUser);
 
-        when(mockResultSet.next()).thenReturn(true);
-        mockUserResultSet(expectedUser);
-
-        Optional<User> actualUser = userDao.find(1);
-
-        assertTrue(actualUser.isPresent());
-        assertEquals(expectedUser, actualUser.get());
-
-        verify(mockPreparedStatement).setInt(1, 1);
-        verify(mockPreparedStatement).executeQuery();
+        Optional<User> result = userDao.find(userId);
+        assertTrue(result.isPresent());
+        assertEquals(mockUser, result.get());
     }
 
     /**
@@ -96,15 +101,15 @@ public class UserDaoImplTest extends UserMockResultHelper {
      */
     @Test
     public void testFindAll() throws SQLException {
-        when(mockConnection.prepareStatement(FIND_ALL_USERS)).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(connection.prepareStatement(FIND_ALL_USERS)).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
 
         List<User> expectedUsers = Arrays.asList(
                 new User(1, "John Doe", "john.doe@test.com", "password123", Role.USER),
                 new User(2, "Jane Doe", "jane.doe@test.com", "password456", Role.ADMIN));
 
-        when(mockResultSet.next()).thenReturn(true, true, false);
-        mockUserResultSet(expectedUsers);
+        when(resultSet.next()).thenReturn(true, true, false);
+        when(userRowMapper.mapToEntity(resultSet)).thenAnswer(AdditionalAnswers.returnsElementsOf(expectedUsers));
 
         List<User> actualUsers = userDao.findAll();
 
@@ -119,19 +124,19 @@ public class UserDaoImplTest extends UserMockResultHelper {
      */
     @Test
     public void testSave() throws SQLException {
-        when(mockConnection.prepareStatement(INSERT_USER, Statement.RETURN_GENERATED_KEYS))
-                .thenReturn(mockPreparedStatement);
+        User user = new User(0, "John Doe", "john.doe@testcom", "password123", Role.USER);
 
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        when(connection.prepareStatement(INSERT_USER, PreparedStatement.RETURN_GENERATED_KEYS))
+                .thenReturn(preparedStatement);
+        when(preparedStatement.getGeneratedKeys()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(1)).thenReturn(1);
 
-        when(mockPreparedStatement.getGeneratedKeys()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true);
-        when(mockResultSet.getInt(1)).thenReturn(1);
+        when(preparedStatement.executeUpdate()).thenReturn(1);
 
-        User user = new User(0, "John Doe", "john.doe@example.com", "password123", Role.USER);
         userDao.save(user);
 
-        verify(mockPreparedStatement).executeUpdate();
+        verify(userRowMapper).mapToRow(preparedStatement, user, false);
         assertEquals(1, user.getId());
     }
 
@@ -142,14 +147,15 @@ public class UserDaoImplTest extends UserMockResultHelper {
      */
     @Test
     public void testUpdate() throws SQLException {
-        when(mockConnection.prepareStatement(UPDATE_USER, Statement.RETURN_GENERATED_KEYS))
-                .thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
 
         User user = new User(1, "John Doe", "john.doe@test.com", "password123", Role.USER);
-        userDao.update(user);
 
-        verify(mockPreparedStatement).executeUpdate();
+        when(connection.prepareStatement(UPDATE_USER, Statement.RETURN_GENERATED_KEYS)).thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(1);
+
+        userDao.update(user);
+        verify(userRowMapper).mapToRow(preparedStatement, user, true);
+        verify(preparedStatement, times(1)).executeUpdate();
     }
 
     /**
@@ -159,13 +165,13 @@ public class UserDaoImplTest extends UserMockResultHelper {
      */
     @Test
     public void testDelete() throws SQLException {
-        when(mockConnection.prepareStatement(DELETE_USER_BY_ID, Statement.RETURN_GENERATED_KEYS))
-                .thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        when(connection.prepareStatement(DELETE_USER_BY_ID, Statement.RETURN_GENERATED_KEYS))
+                .thenReturn(preparedStatement);
+        when(preparedStatement.executeUpdate()).thenReturn(1);
 
         userDao.delete(1);
 
-        verify(mockPreparedStatement).executeUpdate();
+        verify(preparedStatement, times(1)).executeUpdate();
     }
 
     /**
@@ -175,17 +181,17 @@ public class UserDaoImplTest extends UserMockResultHelper {
      */
     @Test
     public void testFindByEmail() throws SQLException {
-        when(mockConnection.prepareStatement(FIND_USER_BY_EMAIL)).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        User mockUser = new User(1, "John Doe", "john.doe@test.com", "password123", Role.USER);
+        mockUser.setEmailVerified(LocalDateTime.of(2024, 1, 1, 0, 0));
 
-        User expectedUser = new User(1, "John Doe", "john.doe@test.com", "password123", Role.USER);
-        when(mockResultSet.next()).thenReturn(true);
-        mockUserResultSet(expectedUser);
+        when(connection.prepareStatement(FIND_USER_BY_EMAIL)).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(userRowMapper.mapToEntity(resultSet)).thenReturn(mockUser);
 
-        Optional<User> actualUser = userDao.findByEmail("john.doe@test.com");
-
-        assertTrue(actualUser.isPresent());
-        assertEquals(expectedUser, actualUser.get());
+        Optional<User> result = userDao.findByEmail(mockUser.getEmail());
+        assertTrue(result.isPresent());
+        assertEquals(mockUser, result.get());
     }
 
     /**
@@ -195,12 +201,13 @@ public class UserDaoImplTest extends UserMockResultHelper {
      */
     @Test
     public void testVerifyEmail() throws SQLException {
-        when(mockConnection.prepareStatement(VERIFY_EMAIL, Statement.RETURN_GENERATED_KEYS))
-                .thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        when(connection.prepareStatement(VERIFY_EMAIL, Statement.RETURN_GENERATED_KEYS))
+                .thenReturn(preparedStatement);
+
+        when(preparedStatement.executeUpdate()).thenReturn(1);
 
         userDao.verifyEmail("john.doe@test.com");
 
-        verify(mockPreparedStatement).executeUpdate();
+        verify(preparedStatement, times(1)).executeUpdate();
     }
 }

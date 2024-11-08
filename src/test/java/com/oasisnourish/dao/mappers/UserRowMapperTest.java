@@ -3,6 +3,7 @@ package com.oasisnourish.dao.mappers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.oasisnourish.dao.UserMockResultHelper;
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.models.User;
 
@@ -26,9 +26,10 @@ import com.oasisnourish.models.User;
  * methods.
  * </p>
  */
-public class UserRowMapperTest extends UserMockResultHelper {
+public class UserRowMapperTest {
     private UserRowMapper userRowMapper;
     private PreparedStatement mockPreparedStatement;
+    private ResultSet mockResultSet;
 
     /**
      * Sets up the test environment by initializing a new {@link UserMapper}
@@ -57,7 +58,14 @@ public class UserRowMapperTest extends UserMockResultHelper {
         User expectedUser = new User(1, "John Doe", "john.doe@test.com", "password123", Role.USER);
         expectedUser.setEmailVerified(LocalDateTime.of(2024, 1, 1, 0, 0));
 
-        mockUserResultSet(expectedUser);
+        when(mockResultSet.getInt("id")).thenReturn(expectedUser.getId());
+        when(mockResultSet.getString("name")).thenReturn(expectedUser.getName());
+        when(mockResultSet.getString("email")).thenReturn(expectedUser.getEmail());
+        when(mockResultSet.getString("password")).thenReturn(expectedUser.getPassword());
+        when(mockResultSet.getString("role")).thenReturn(expectedUser.getRole().name());
+        when(mockResultSet.getTimestamp("email_verified"))
+                .thenReturn(expectedUser.getEmailVerified() == null ? null
+                        : Timestamp.valueOf(expectedUser.getEmailVerified()));
 
         User actualUser = userRowMapper.mapToEntity(mockResultSet);
         assertEquals(expectedUser, actualUser);
