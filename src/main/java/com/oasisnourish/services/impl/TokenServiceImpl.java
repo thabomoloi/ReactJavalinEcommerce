@@ -10,7 +10,7 @@ import com.oasisnourish.services.TokenService;
 public class TokenServiceImpl implements TokenService {
     private static final int MAX_TOKENS_PER_DAY = 3;
     private static final int RATE_LIMIT_WINDOW_SECONDS = 24 * 60 * 60; // 24 hours
-    private static final int TOKEN_EXPIRES_SECONDS = 30 * 60; // 1 hour
+    private static final int TOKEN_EXPIRES_SECONDS = 30 * 60; // 30 minutes
     private final RedisConnection redisConnection;
 
     public TokenServiceImpl(RedisConnection redisConnection) {
