@@ -180,7 +180,7 @@ public class AuthController implements Handler {
         ctx.status(HttpStatus.OK).result("Your password has been reset");
     }
 
-    public void updateUserIfChanged(Context ctx) {
+    public void updateSessionUserIfChanged(Context ctx) {
         User currUser = ctx.sessionAttribute("currentUser");
         authService.updateSignedInUserIfChanged(currUser).ifPresent(tokens -> {
             sessionManager.setTokensInCookies(ctx, tokens, jwtService);

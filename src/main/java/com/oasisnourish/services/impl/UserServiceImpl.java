@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         user.setName(userDto.getName());
 
         if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
-            user.setPassword(userDto.getPassword());
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
 
         userDao.update(user);

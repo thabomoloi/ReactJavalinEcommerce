@@ -120,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
     public Optional<Map<String, String>> updateSignedInUserIfChanged(User signedInUser) {
         if (signedInUser != null) {
             var user = userService.findUserById(signedInUser.getId());
-            if (user.isPresent()) {
+            if (user.isPresent() && !signedInUser.equals(signedInUser)) {
                 Map<String, String> tokens = jwtService.generateTokens(user.get());
                 return Optional.of(tokens);
             }
