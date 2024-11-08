@@ -12,7 +12,6 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.oasisnourish.config.EnvConfig;
 import com.oasisnourish.db.RedisConnection;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.JWTService;
@@ -23,7 +22,6 @@ import javalinjwt.JWTProvider;
 
 public class JWTServiceImpl implements JWTService {
 
-    private final Dotenv dotenv = EnvConfig.getDotenv();
     private final String SECRET_KEY;
     private final int ACCESS_TOKEN_EXPIRES;
     private final int REFRESH_TOKEN_EXPIRES;
@@ -34,7 +32,7 @@ public class JWTServiceImpl implements JWTService {
     private long tokenVersion;
     private LocalDateTime freshSignInTime;
 
-    public JWTServiceImpl(RedisConnection redisConnection) {
+    public JWTServiceImpl(RedisConnection redisConnection, Dotenv dotenv) {
         this.redisConnection = redisConnection;
         String secretKey = dotenv.get("JWT_SECRET");
         String accessTokenExpires = dotenv.get("JWT_ACCESS_TOKEN_EXPIRES");

@@ -11,7 +11,6 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.IContext;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.oasisnourish.services.EmailService;
 import com.oasisnourish.config.EnvConfig;
@@ -23,7 +22,6 @@ import com.oasisnourish.config.EnvConfig;
  */
 public class EmailServiceImpl implements EmailService {
     private final TemplateEngine templateEngine;
-    private final Dotenv dotenv;
     private final String MAIL_USERNAME;
     private final String MAIL_PASSWORD;
     private final ExecutorService executorService;
@@ -36,9 +34,9 @@ public class EmailServiceImpl implements EmailService {
      *                       content.
      * @throws IllegalStateException if the mail environment variables are not set.
      */
-    public EmailServiceImpl(TemplateEngine templateEngine) {
+    public EmailServiceImpl(TemplateEngine templateEngine, ExecutorService executorService, Dotenv dotenv) {
         this.templateEngine = templateEngine;
-        executorService = Executors.newFixedThreadPool(10);
+        this.executorService = executorService;
         dotenv = EnvConfig.getDotenv();
         MAIL_PASSWORD = dotenv.get("MAIL_PASSWORD");
         MAIL_USERNAME = dotenv.get("MAIL_USERNAME");
@@ -91,10 +89,5 @@ public class EmailServiceImpl implements EmailService {
                 e.printStackTrace();
             }
         });
-    }
-
-    @Override
-    public void shutdown() {
-        executorService.shutdown();
     }
 }

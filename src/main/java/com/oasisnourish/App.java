@@ -20,6 +20,7 @@ public class App {
         }).start(7070);
 
         configureMiddleware(app);
+        configureEvents(app);
         new AppErrorHandler().configureErrorHandling(app);
     }
 
@@ -27,6 +28,18 @@ public class App {
         app.beforeMatched(CONFIG.AUTH_CONTROLLER);
         app.before(CONFIG.AUTH_CONTROLLER::decodeJWTFromCookie);
         app.after(CONFIG.AUTH_CONTROLLER::updateSessionUserIfChanged);
+    }
+
+    private void configureEvents(Javalin app) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            app.stop();
+        }));
+        app.events(event -> {
+            event.serverStopping(() -> {
+                CONFIG.EMAIL_EXECUTOR_SERVICE.shutdown();
+                System.out.println("Email ExecutorService shut down.");
+            });
+        });
     }
 
     public static void main(String[] args) {
