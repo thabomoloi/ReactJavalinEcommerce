@@ -1,5 +1,6 @@
 package com.oasisnourish.services;
 
+import java.util.Map;
 import java.util.Optional;
 
 import com.oasisnourish.dto.UserInputDto;
@@ -23,7 +24,7 @@ public interface AuthService {
      *         registration is successful, or an empty {@link Optional} if
      *         registration fails.
      */
-    Optional<User> signUpUser(UserInputDto userDto);
+    void signUpUser(UserInputDto userDto);
 
     /**
      * Authenticates a user based on the provided email and password credentials.
@@ -32,29 +33,31 @@ public interface AuthService {
      *
      * @param userDto The data transfer object containing the user's email and
      *                password for authentication.
-     * @return An {@link Optional} containing the authenticated {@link User} object
+     * @return An {@link Map} containing the authenticated {@link User} object
      *         if authentication is successful, or an empty {@link Optional} if
      *         authentication fails due to incorrect credentials.
      */
-    Optional<User> signInUser(UserInputDto userDto);
+    Map<String, String> signInUser(UserInputDto userDto);
 
     /**
      * Sends a confirmation token to the user's email address.
      *
      * @param user The user for whom the confirmation token is generated.
      */
-    void sendConfirmationToken(User user);
+    void sendConfirmationToken(int userId);
 
     /**
      * Sends a welcome email to new user.
      *
      * @param user The new user.
      */
-    void sendWelcomeEmail(User user);
+    void sendWelcomeEmail(int userId);
 
     void confirmAccount(int userId, String token);
 
     void resetPassword(int userId, String token, String password);
 
-    void sendResetPasswordToken(User user);
+    void sendResetPasswordToken(String email);
+
+    Optional<Map<String, String>> updateSignedInUserIfChanged(User signedInUser);
 }

@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.validation.ValidatorFactory;
 import com.oasisnourish.exceptions.EmailExistsException;
-import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.AuthService;
 import com.oasisnourish.services.JWTService;
@@ -17,6 +16,7 @@ import com.oasisnourish.util.SessionManager;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import io.javalin.http.HttpStatus;
 import io.javalin.http.UnauthorizedResponse;
 
 /**
@@ -99,10 +99,9 @@ public class AuthController implements Handler {
                 .isPasswordPatternValid()
                 .get();
 
-        authService.signUpUser(userDto).ifPresent(user -> {
-            authService.sendWelcomeEmail(user);
-            ctx.status(201).json("Account created. Check your email for the confirmation link.");
-        });
+        authService.signUpUser(userDto);
+        ctx.status(HttpStatus.CREATED).json("Account created. Check your email for the confirmation link.");
+
     }
 
     /**
@@ -118,14 +117,9 @@ public class AuthController implements Handler {
                 .isPasswordRequired()
                 .get();
 
-        authService.signInUser(userDto).ifPresentOrElse(user -> {
-            jwtService.updateFreshSignInTime();
-            Map<String, String> tokens = jwtService.generateTokens(user);
-            sessionManager.setTokensInCookies(ctx, tokens, jwtService);
-            ctx.status(200).result("Login successful.");
-        }, () -> {
-            throw new UnauthorizedResponse("Invalid email or password");
-        });
+        Map<String, String> tokens = authService.signInUser(userDto);
+        sessionManager.setTokensInCookies(ctx, tokens, jwtService);
+        ctx.status(HttpStatus.OK).result("Sign in successful.");
     }
 
     /**
@@ -143,21 +137,15 @@ public class AuthController implements Handler {
      * @param ctx Javalin HTTP context.
      */
     public void signOutUser(Context ctx) {
-
         sessionManager.invalidateSession(ctx);
         ctx.req().getSession().invalidate();
-        ctx.status(204).result("Sign out successful.");
+        ctx.status(HttpStatus.NO_CONTENT).result("Sign out successful.");
     }
 
     public void generateConfirmationToken(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
-
-        userService.findUserById(userId).ifPresentOrElse(user -> {
-            authService.sendConfirmationToken(user);
-            ctx.status(201).result("Confirmation token created. Check your email for the confirmation link.");
-        }, () -> {
-            throw new NotFoundException("User Not Found");
-        });
+        authService.sendConfirmationToken(userId);
+        ctx.status(HttpStatus.CREATED).result("Confirmation token generated. Check your email for the link.");
 
     }
 
@@ -165,44 +153,39 @@ public class AuthController implements Handler {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         String token = ctx.pathParamAsClass("token", String.class).get();
         authService.confirmAccount(userId, token);
-        ctx.result("Your account has been verified");
+        ctx.result("Your email address has been verified.");
     }
 
     public void generateResetPasswordToken(Context ctx) {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> body = ctx.bodyAsClass(Map.class);
-        String email = (String) body.get("email");
+        var userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+                .isEmailRequired()
+                .isEmailValid()
+                .get();
 
-        userService.findUserByEmail(email).ifPresent(user -> {
-            authService.sendResetPasswordToken(user);
-        });
-
-        ctx.status(201).result("If an account with that email exists, a password reset link has been sent.");
+        authService.sendResetPasswordToken(userDto.getEmail());
+        ctx.status(HttpStatus.CREATED).result("If the email is registered, a password reset link has been sent");
     }
 
     public void resetPassword(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         String token = ctx.pathParamAsClass("token", String.class).get();
-        @SuppressWarnings("unchecked")
-        Map<String, Object> body = ctx.bodyAsClass(Map.class);
-        String password = (String) body.get("password");
-        authService.resetPassword(userId, token, password);
-        ctx.result("Your password has been reset");
+
+        var userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+                .isPasswordRequired()
+                .isPasswordLengthValid()
+                .isPasswordPatternValid()
+                .get();
+
+        authService.resetPassword(userId, token, userDto.getPassword());
+        ctx.status(HttpStatus.OK).result("Your password has been reset");
     }
 
-    public void updateUserIfChanged(Context ctx) {
+    public void updateSessionUserIfChanged(Context ctx) {
         User currUser = ctx.sessionAttribute("currentUser");
-        if (currUser != null) {
-            userService.findUserById(currUser.getId()).ifPresent((user) -> {
-                if (!currUser.equals(user)) {
-                    Map<String, String> tokens = jwtService.generateTokens(user);
-                    sessionManager.setTokensInCookies(ctx, tokens, jwtService);
-                    sessionManager.updateJwtInSession(tokens, ctx, jwtService);
-                    sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
-                }
-            });
-
-        }
+        authService.updateSignedInUserIfChanged(currUser).ifPresent(tokens -> {
+            sessionManager.setTokensInCookies(ctx, tokens, jwtService);
+            sessionManager.updateJwtInSession(tokens, ctx, jwtService);
+            sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
+        });
     }
-
 }
