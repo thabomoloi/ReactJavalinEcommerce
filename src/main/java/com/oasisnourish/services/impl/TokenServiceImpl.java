@@ -3,6 +3,7 @@ package com.oasisnourish.services.impl;
 import java.util.UUID;
 
 import com.oasisnourish.db.RedisConnection;
+import com.oasisnourish.exceptions.InvalidTokenException;
 import com.oasisnourish.exceptions.TooManyRequestsException;
 import com.oasisnourish.services.TokenService;
 
@@ -57,6 +58,14 @@ public class TokenServiceImpl implements TokenService {
         var jedis = redisConnection.getJedis();
         String tokenKey = "tokens:" + userId + ":" + tokenType;
         jedis.del(tokenKey);
+    }
+
+    @Override
+    public void verifyTokenOrThrow(int userId, String tokenType, String token) throws InvalidTokenException {
+        if (!verifyToken(userId, tokenType, token)) {
+            throw new InvalidTokenException(
+                    "The " + tokenType + " token is either invalid or has expired. Please request a new one.");
+        }
     }
 
 }

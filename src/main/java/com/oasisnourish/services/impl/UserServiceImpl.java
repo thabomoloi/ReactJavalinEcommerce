@@ -3,6 +3,8 @@ package com.oasisnourish.services.impl;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.oasisnourish.dao.UserDao;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.enums.Role;
@@ -10,16 +12,17 @@ import com.oasisnourish.exceptions.EmailExistsException;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.UserService;
-import com.oasisnourish.util.PasswordUtil;
 
 /**
  * Implementation of the {@link UserService} for user-related operations.
  */
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserDao userDao) {
+    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -34,44 +37,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(UserInputDto userDto) {
-        Optional<User> existingUser = userDao.findByEmail(userDto.getEmail());
-        if (existingUser.isPresent()) {
+        userDao.findByEmail(userDto.getEmail()).ifPresent((_) -> {
             throw new EmailExistsException("The email has already been taken");
-        }
-        User user = new User(
-                userDto.getName(),
-                userDto.getEmail(),
-                PasswordUtil.hashPassword(userDto.getPassword()));
+        });
+
+        var password = passwordEncoder.encode(userDto.getPassword());
+        User user = new User(userDto.getName(), userDto.getEmail(), password);
 
         userDao.save(user);
     }
 
     @Override
     public void updateUser(UserInputDto userDto) {
-        Optional<User> exisitingUser = userDao.find(userDto.getId());
-        if (exisitingUser.isEmpty()) {
-            throw new NotFoundException("User with id " + userDto.getId() + " not found");
-        }
-        User user = exisitingUser.get();
+        User user = userDao.find(userDto.getId()).orElseThrow(() -> new NotFoundException("User does not exist."));
+
         if (!user.getEmail().equals(userDto.getEmail())) {
             user.setRole(Role.UNVERIFIED_USER);
             user.setEmailVerified(null);
+            user.setEmail(userDto.getEmail());
         }
+
         user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-        if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
-            user.setPassword(userDto.getPassword());
+
+        if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
+
         userDao.update(user);
     }
 
     @Override
     public void deleteUser(int id) {
-        userDao.find(id).ifPresentOrElse(
-                user -> userDao.delete(user.getId()),
-                () -> {
-                    throw new NotFoundException("User with id " + id + " not found");
-                });
+        userDao.find(id).orElseThrow(() -> new NotFoundException("User does not exist."));
+        userDao.delete(id);
     }
 
     @Override
@@ -85,7 +83,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePassword(User user) {
+    public void updatePassword(int userId, String password) {
+        User user = userDao.find(userId).orElseThrow(() -> new NotFoundException("User does not exist."));
+        user.setPassword(passwordEncoder.encode(password));
         userDao.update(user);
     }
 
