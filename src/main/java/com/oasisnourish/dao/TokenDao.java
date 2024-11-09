@@ -1,6 +1,9 @@
 package com.oasisnourish.dao;
 
-public interface TokenDao {
+import java.util.Optional;
 
-    
+public interface TokenDao<T> {
+    void saveToken(T tokenDetails);
+    Optional<T> findToken(String token);
+    void deleteToken(String token);
 }
