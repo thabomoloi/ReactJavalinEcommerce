@@ -13,7 +13,6 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
 import com.oasisnourish.services.EmailService;
-import com.oasisnourish.config.EnvConfig;
 
 /**
  * Implementation of the {@link EmailService} interface for sending emails.
@@ -27,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
     private final ExecutorService executorService;
 
     /**
-     * Constructs an instance of {@link EmailServiceImpl} with the specified
+     * Constructs an instance of {@link EmailServiceImplTest} with the specified
      * Thymeleaf {@link TemplateEngine}.
      *
      * @param templateEngine the {@link TemplateEngine} used for rendering email
@@ -37,7 +36,6 @@ public class EmailServiceImpl implements EmailService {
     public EmailServiceImpl(TemplateEngine templateEngine, ExecutorService executorService, Dotenv dotenv) {
         this.templateEngine = templateEngine;
         this.executorService = executorService;
-        dotenv = EnvConfig.getDotenv();
         MAIL_PASSWORD = dotenv.get("MAIL_PASSWORD");
         MAIL_USERNAME = dotenv.get("MAIL_USERNAME");
         if (MAIL_PASSWORD == null || MAIL_USERNAME == null) {
