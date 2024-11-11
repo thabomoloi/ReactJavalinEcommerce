@@ -152,4 +152,18 @@ public class TokenRateLimitDaoImplTest {
         assertEquals(1200L, token2.getExpires());
         assertEquals(1, token2.getUserId());
     }
+
+    @Test
+    public void testTtl() {
+        int userId = 123;
+        String key = "user:" + userId + ":token-rate-limit";
+        long expectedTtl = 120L;
+
+        when(jedis.ttl(key)).thenReturn(expectedTtl);
+
+        long result = tokenRateLimitDao.ttl(userId);
+
+        verify(jedis).ttl(key);
+        assertEquals(expectedTtl, result);
+    }
 }

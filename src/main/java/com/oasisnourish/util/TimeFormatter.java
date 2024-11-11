@@ -2,14 +2,14 @@ package com.oasisnourish.util;
 
 public class TimeFormatter {
 
-    public static String formatSecondsToReadableTime(int seconds) {
-        // int days = seconds / 86400;
+    public static String formatSecondsToReadableTime(long seconds) {
+        // long days = seconds / 86400;
         // seconds %= 86400;
 
-        int hours = seconds / 3600;
+        long hours = seconds / 3600;
         seconds %= 3600;
 
-        int minutes = seconds / 60;
+        long minutes = seconds / 60;
         seconds %= 60;
 
         StringBuilder readableTime = new StringBuilder();
