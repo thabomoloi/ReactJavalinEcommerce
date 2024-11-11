@@ -3,6 +3,7 @@ package com.oasisnourish;
 import io.javalin.Javalin;
 
 public class App {
+
     private final AppConfig CONFIG;
 
     public App(AppConfig config) {
@@ -25,9 +26,9 @@ public class App {
     }
 
     private void configureMiddleware(Javalin app) {
-        app.beforeMatched(CONFIG.AUTH_CONTROLLER);
-        app.before(CONFIG.AUTH_CONTROLLER::decodeJWTFromCookie);
-        app.after(CONFIG.AUTH_CONTROLLER::updateSessionUserIfChanged);
+        // app.beforeMatched(CONFIG.AUTH_CONTROLLER);
+        // app.before(CONFIG.AUTH_CONTROLLER::decodeJWTFromCookie);
+        // app.after(CONFIG.AUTH_CONTROLLER::updateSessionUserIfChanged);
     }
 
     private void configureEvents(Javalin app) {
@@ -35,10 +36,10 @@ public class App {
             app.stop();
         }));
         app.events(event -> {
-            event.serverStopping(() -> {
-                CONFIG.EMAIL_EXECUTOR_SERVICE.shutdown();
-                System.out.println("Email ExecutorService shut down.");
-            });
+            // event.serverStopping(() -> {
+            //     CONFIG.EMAIL_EXECUTOR_SERVICE.shutdown();
+            //     System.out.println("Email ExecutorService shut down.");
+            // });
         });
     }
 

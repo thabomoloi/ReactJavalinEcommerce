@@ -1,5 +1,7 @@
 package com.oasisnourish.models;
 
+import java.util.Objects;
+
 public abstract class Token {
 
     private final String token;
@@ -42,4 +44,25 @@ public abstract class Token {
         return userId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Token otherToken = (Token) o;
+        return tokenVersion == otherToken.tokenVersion
+                && expires == otherToken.expires
+                && userId == otherToken.userId
+                && Objects.equals(token, otherToken.token)
+                && Objects.equals(tokenType, otherToken.tokenType)
+                && Objects.equals(tokenCategory, otherToken.tokenCategory);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(token, tokenVersion, expires, tokenType, tokenCategory, userId);
+    }
 }

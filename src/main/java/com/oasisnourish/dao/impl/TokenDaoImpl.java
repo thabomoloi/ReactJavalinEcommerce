@@ -50,7 +50,7 @@ public class TokenDaoImpl implements TokenDao<Token> {
                     case "auth" ->
                         Optional.of(new AuthToken(token, tokenType, tokenVersion, expires, userId));
                     case "jwt" ->
-                        Optional.of(new JsonWebToken(tokenCategory, tokenType, tokenVersion, expires, userId));
+                        Optional.of(new JsonWebToken(token, tokenType, tokenVersion, expires, userId));
                     default ->
                         Optional.empty();
                 };
