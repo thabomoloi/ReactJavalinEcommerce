@@ -22,9 +22,10 @@ import io.javalin.http.UnauthorizedResponse;
  * and email confirmation.
  */
 public class AuthServiceImpl implements AuthService {
+
     private final UserService userService;
     private final EmailService emailService;
-    private final TokenService tokenService;
+    // private final TokenService tokenService;
     private final JWTService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final EmailContentBuilder emailContentBuilder;
@@ -32,9 +33,9 @@ public class AuthServiceImpl implements AuthService {
     /**
      * Constructs an {@link AuthServiceImpl} with the necessary services.
      *
-     * @param userService         The service for user-related operations.
-     * @param emailService        The service for sending emails.
-     * @param tokenService        The service for token generation and validation.
+     * @param userService The service for user-related operations.
+     * @param emailService The service for sending emails.
+     * @param tokenService The service for token generation and validation.
      * @param emailContentBuilder The utility for building email contexts.
      */
     public AuthServiceImpl(UserService userService, EmailService emailService, TokenService tokenService,
@@ -42,7 +43,7 @@ public class AuthServiceImpl implements AuthService {
         this.userService = userService;
         this.emailService = emailService;
         this.jwtService = jwtService;
-        this.tokenService = tokenService;
+        // this.tokenService = tokenService;
         this.passwordEncoder = passwordEncoder;
         this.emailContentBuilder = emailContentBuilder;
     }
@@ -78,12 +79,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void confirmAccount(int userId, String token) {
-        tokenService.verifyTokenOrThrow(userId, "confirmation", token);
+        // tokenService.verifyTokenOrThrow(userId, "confirmation", token);
 
-        userService.findUserById(userId).ifPresent(user -> {
-            userService.verifyEmail(user.getEmail());
-            tokenService.revokeToken(userId, "confirmation");
-        });
+        // userService.findUserById(userId).ifPresent(user -> {
+        //     userService.verifyEmail(user.getEmail());
+        //     tokenService.revokeToken(userId, "confirmation");
+        // });
     }
 
     @Override
@@ -94,26 +95,26 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void resetPassword(int userId, String token, String password) {
-        tokenService.verifyTokenOrThrow(userId, "reset-password", token);
+        // tokenService.verifyTokenOrThrow(userId, "reset-password", token);
 
-        userService.findUserById(userId).ifPresent(user -> {
-            userService.updatePassword(user.getId(), password);
-            tokenService.revokeToken(user.getId(), "reset-password");
-        });
+        // userService.findUserById(userId).ifPresent(user -> {
+        //     userService.updatePassword(user.getId(), password);
+        //     tokenService.revokeToken(user.getId(), "reset-password");
+        // });
     }
 
     /**
      * Sends an email with a generated token to the user.
      *
-     * @param user     the user to whom the email is sent
-     * @param type     the type of token to generate
-     * @param subject  the subject of the email
+     * @param user the user to whom the email is sent
+     * @param type the type of token to generate
+     * @param subject the subject of the email
      * @param template the template to use for the email body
      */
     private void sendTokenEmail(User user, String type, String subject, String template) {
-        String token = tokenService.generateToken(user.getId(), type);
-        var context = emailContentBuilder.buildConfirmationContext(user, token);
-        emailService.sendEmail(user.getEmail(), subject, template, context);
+        // String token = tokenService.generateToken(user.getId(), type);
+        // var context = emailContentBuilder.buildConfirmationContext(user, token);
+        // emailService.sendEmail(user.getEmail(), subject, template, context);
     }
 
     @Override

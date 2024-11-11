@@ -15,7 +15,7 @@ public class TokenVersionDaoImpl implements TokenVersionDao {
 
     @Override
     public long find(int userId, String tokenCategory, String tokenType) {
-        String key = "token-version:" + userId + ":" + tokenCategory + ":" + tokenType;
+        String key = getKey(userId, tokenCategory, tokenType);
         try (JedisPooled jedis = redisConnection.getJedis()) {
             if (!jedis.exists(key)) {
                 jedis.set(key, "1");
@@ -26,12 +26,16 @@ public class TokenVersionDaoImpl implements TokenVersionDao {
 
     @Override
     public long increment(int userId, String tokenCategory, String tokenType) {
-        String key = "token-version:" + userId + ":" + tokenCategory + ":" + tokenType;
+        String key = getKey(userId, tokenCategory, tokenType);
         try (JedisPooled jedis = redisConnection.getJedis()) {
             if (!jedis.exists(key)) {
                 jedis.set(key, "0");
             }
             return jedis.incr(key);
         }
+    }
+
+    private String getKey(int userId, String tokenCategory, String tokenType) {
+        return "user:" + userId + ":token-category:" + tokenCategory + ":token-type:" + tokenType;
     }
 }

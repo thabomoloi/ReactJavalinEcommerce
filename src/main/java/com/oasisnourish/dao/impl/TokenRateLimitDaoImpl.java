@@ -20,7 +20,7 @@ public class TokenRateLimitDaoImpl implements TokenRateLimitDao {
 
     @Override
     public long find(int userId) {
-        String key = "token-rate-limit:" + userId;
+        String key = getKey(userId);
         try (JedisPooled jedis = redisConnection.getJedis()) {
             if (!jedis.exists(key)) {
                 jedis.set(key, "1");
@@ -31,7 +31,7 @@ public class TokenRateLimitDaoImpl implements TokenRateLimitDao {
 
     @Override
     public long increment(int userId, int expires) {
-        String key = "token-rate-limit:" + userId;
+        String key = getKey(userId);
         try (JedisPooled jedis = redisConnection.getJedis()) {
             if (!jedis.exists(key)) {
                 jedis.set(key, "0");
@@ -43,7 +43,7 @@ public class TokenRateLimitDaoImpl implements TokenRateLimitDao {
 
     @Override
     public void reset(int userId) {
-        String key = "token-rate-limit:" + userId;
+        String key = getKey(userId);
         try (JedisPooled jedis = redisConnection.getJedis();) {
             jedis.del(key);
         }
@@ -64,5 +64,9 @@ public class TokenRateLimitDaoImpl implements TokenRateLimitDao {
             }
         }
         return tokens;
+    }
+
+    private String getKey(int userId) {
+        return "user:" + userId + ":token-rate-limit";
     }
 }
