@@ -32,7 +32,6 @@ public class TokenDaoImpl implements TokenDao<Token> {
             jedis.hset(key, "tokenType", tokenDetails.getTokenType());
             jedis.hset(key, "tokenVersion", String.valueOf(tokenDetails.getTokenVersion()));
             jedis.hset(key, "expires", String.valueOf(tokenDetails.getExpires()));
-            jedis.hset(key, "userId", String.valueOf(((AuthToken) tokenDetails).getUserId()));
             jedis.expire(key, (ttl / 1000));
         }
     }

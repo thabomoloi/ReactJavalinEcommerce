@@ -6,16 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.oasisnourish.db.RedisConnection;
 import com.oasisnourish.models.AuthToken;
@@ -24,6 +26,7 @@ import com.oasisnourish.models.Token;
 
 import redis.clients.jedis.JedisPooled;
 
+@ExtendWith(MockitoExtension.class)
 public class TokenDaoImplTest {
 
     @Mock
@@ -37,8 +40,7 @@ public class TokenDaoImplTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        when(redisConnection.getJedis()).thenReturn(jedis);
+        lenient().when(redisConnection.getJedis()).thenReturn(jedis);
     }
 
     @Test
@@ -52,7 +54,6 @@ public class TokenDaoImplTest {
         verify(jedis).hset(key, "tokenType", "AUTH");
         verify(jedis).hset(key, "tokenVersion", "1");
         verify(jedis).hset(key, "expires", String.valueOf(authToken.getExpires()));
-        verify(jedis).hset(key, "userId", String.valueOf(authToken.getUserId()));
 
         ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
         verify(jedis).expire(eq(key), ttlCaptor.capture());
@@ -82,7 +83,6 @@ public class TokenDaoImplTest {
         when(jedis.hget(key, "tokenType")).thenReturn(expectedToken.getTokenType());
         when(jedis.hget(key, "tokenVersion")).thenReturn(String.valueOf(expectedToken.getTokenVersion()));
         when(jedis.hget(key, "expires")).thenReturn(String.valueOf(expectedToken.getExpires()));
-        when(jedis.hget(key, "userId")).thenReturn(String.valueOf(userId));
 
         Optional<Token> result = tokenDao.findToken(token, userId);
 
@@ -104,7 +104,6 @@ public class TokenDaoImplTest {
         when(jedis.hget(key, "tokenType")).thenReturn(expectedToken.getTokenType());
         when(jedis.hget(key, "tokenVersion")).thenReturn(String.valueOf(expectedToken.getTokenVersion()));
         when(jedis.hget(key, "expires")).thenReturn(String.valueOf(expectedToken.getExpires()));
-        when(jedis.hget(key, "userId")).thenReturn(String.valueOf(userId));
 
         Optional<Token> result = tokenDao.findToken(token, userId);
 
