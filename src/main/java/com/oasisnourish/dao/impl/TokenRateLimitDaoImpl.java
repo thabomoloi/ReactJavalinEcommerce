@@ -43,9 +43,15 @@ public class TokenRateLimitDaoImpl implements TokenRateLimitDao {
 
     @Override
     public void reset(int userId) {
-        String key = getKey(userId);
         try (JedisPooled jedis = redisConnection.getJedis();) {
-            jedis.del(key);
+            jedis.del(getKey(userId));
+        }
+    }
+
+    @Override
+    public long ttl(int userId) {
+        try (JedisPooled jedis = redisConnection.getJedis();) {
+            return jedis.ttl(getKey(userId));
         }
     }
 
@@ -69,4 +75,5 @@ public class TokenRateLimitDaoImpl implements TokenRateLimitDao {
     private String getKey(int userId) {
         return "user:" + userId + ":token-rate-limit";
     }
+
 }

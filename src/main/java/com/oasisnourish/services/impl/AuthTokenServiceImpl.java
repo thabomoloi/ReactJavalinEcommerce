@@ -27,7 +27,7 @@ public class AuthTokenServiceImpl extends TokenServiceImpl<AuthToken> {
     public void createToken(int userId, String tokenType) {
         long tokenRequestCount = tokenRateLimitDao.find(userId);
         if (tokenRequestCount > tokenConfig.getMaxTokensPerWindow()) {
-            throw new TooManyRequestsException("Too many requests. Try again after " + formatSecondsToReadableTime(tokenConfig.getRateLimitWindow()));
+            throw new TooManyRequestsException("Too many requests. Try again after " + formatSecondsToReadableTime(tokenRateLimitDao.ttl(userId)) + ".");
         }
 
         var previousTokens = tokenRateLimitDao.findAllTokens(userId);

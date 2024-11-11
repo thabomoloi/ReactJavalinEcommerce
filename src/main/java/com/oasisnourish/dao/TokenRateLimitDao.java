@@ -12,5 +12,7 @@ public interface TokenRateLimitDao {
 
     void reset(int userId);
 
+    long ttl(int userId);
+
     List<AuthToken> findAllTokens(int userId);
 }
