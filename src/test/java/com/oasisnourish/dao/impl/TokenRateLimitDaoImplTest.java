@@ -7,19 +7,20 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.oasisnourish.db.RedisConnection;
 import com.oasisnourish.models.AuthToken;
 
 import redis.clients.jedis.JedisPooled;
 
+@ExtendWith(MockitoExtension.class)
 public class TokenRateLimitDaoImplTest {
-
-    private TokenRateLimitDaoImpl tokenRateLimitDao;
 
     @Mock
     private RedisConnection redisConnection;
@@ -27,11 +28,12 @@ public class TokenRateLimitDaoImplTest {
     @Mock
     private JedisPooled jedis;
 
+    @InjectMocks
+    private TokenRateLimitDaoImpl tokenRateLimitDao;
+
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
         when(redisConnection.getJedis()).thenReturn(jedis);
-        tokenRateLimitDao = new TokenRateLimitDaoImpl(redisConnection);
     }
 
     @Test
