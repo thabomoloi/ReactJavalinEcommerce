@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.oasisnourish.config.EnvConfig;
 import com.oasisnourish.dto.UserResponseDto;
+import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.JWTService;
 import com.oasisnourish.services.UserService;
@@ -16,15 +16,20 @@ import io.javalin.http.Cookie;
 import io.javalin.http.UnauthorizedResponse;
 
 public class SessionManager {
-    private static final String JWT_ACCESS_KEY = "JWTAccessToken";
-    private static final String JWT_REFRESH_KEY = "JWTRefreshToken";
-    private static final Dotenv dotenv = EnvConfig.getDotenv();
+
+    private static final String JWT_ACCESS_KEY = "JWT_ACCESS_TOKEN";
+    private static final String JWT_REFRESH_KEY = "JWT_RERESH_TOKEN";
+    private final Dotenv dotenv;
+
+    public SessionManager(Dotenv dotenv) {
+        this.dotenv = dotenv;
+    }
 
     public void updateJwtInSession(Map<String, String> tokens, Context ctx, JWTService jwtService) {
-        jwtService.getToken(tokens.get(JWT_ACCESS_KEY)).ifPresent((jwt) -> {
+        jwtService.decodeToken(tokens.get(JWT_ACCESS_KEY)).ifPresent((jwt) -> {
             ctx.sessionAttribute(JWT_ACCESS_KEY, jwt);
         });
-        jwtService.getToken(tokens.get(JWT_REFRESH_KEY)).ifPresent((jwt) -> {
+        jwtService.decodeToken(tokens.get(JWT_REFRESH_KEY)).ifPresent((jwt) -> {
             ctx.sessionAttribute(JWT_REFRESH_KEY, jwt);
         });
     }
@@ -34,7 +39,7 @@ public class SessionManager {
         String refresh = ctx.cookie(JWT_REFRESH_KEY);
 
         if (access != null) {
-            Optional<DecodedJWT> decodedAccess = jwtService.getToken(access);
+            Optional<DecodedJWT> decodedAccess = jwtService.decodeToken(access);
             if (decodedAccess.isPresent()) {
                 ctx.sessionAttribute(JWT_ACCESS_KEY, decodedAccess.get());
             } else {
@@ -42,16 +47,16 @@ public class SessionManager {
             }
         }
 
-        if (refresh != null && (access == null || !jwtService.getToken(access).isPresent())) {
-            Optional<DecodedJWT> decodedRefresh = jwtService.getToken(refresh);
+        if (refresh != null && (access == null || !jwtService.findToken(access).isPresent())) {
+            Optional<DecodedJWT> decodedRefresh = jwtService.decodeToken(refresh);
             decodedRefresh.ifPresentOrElse(jwt -> {
                 ctx.sessionAttribute(JWT_REFRESH_KEY, jwt);
                 int userId = jwt.getClaim("userId").asInt();
                 Optional<User> user = userService.findUserById(userId);
                 if (user.isPresent()) {
-                    Map<String, String> newTokens = jwtService.generateTokens(user.get());
-                    setTokensInCookies(ctx, newTokens, jwtService);
-                    ctx.sessionAttribute(JWT_ACCESS_KEY, jwtService.getToken(newTokens.get(JWT_ACCESS_KEY)).get());
+                    Map<String, JsonWebToken> newTokens = jwtService.createTokens(user.get());
+                    setTokensInCookies(ctx, newTokens);
+                    ctx.sessionAttribute(JWT_ACCESS_KEY, jwtService.decodeToken(newTokens.get(JWT_ACCESS_KEY).getToken()).get());
                 } else {
                     clearSessionIfUserDeleted(ctx);
                 }
@@ -65,15 +70,16 @@ public class SessionManager {
 
     public void validateAndSetUserSession(Context ctx, JWTService jwtService, UserService userService) {
         DecodedJWT jwt = ctx.sessionAttribute(JWT_ACCESS_KEY);
-        if (jwt == null)
+        if (jwt == null) {
             return;
+        }
 
         int userId = jwt.getClaim("userId").asInt();
         long version = jwt.getClaim("version").asLong();
 
-        if (version != jwtService.getTokenVersion(userId)) {
+        if (version != jwtService.getCurrentTokenVersion(userId, "access")) {
             invalidateSession(ctx);
-            throw new UnauthorizedResponse("Outdated token version");
+            throw new UnauthorizedResponse("Invalid token: version outdated,");
         }
 
         userService.findUserById(userId).ifPresentOrElse(
@@ -83,7 +89,7 @@ public class SessionManager {
 
     private void clearSessionIfUserDeleted(Context ctx) {
         invalidateSession(ctx);
-        throw new UnauthorizedResponse("User does not exist, session cleared");
+        throw new UnauthorizedResponse("User does not exist, session cleared.");
     }
 
     public void invalidateSession(Context ctx) {
@@ -103,36 +109,37 @@ public class SessionManager {
 
     public void refreshToken(Context ctx, JWTService jwtService) {
         DecodedJWT jwt = ctx.sessionAttribute(JWT_REFRESH_KEY);
-        if (jwt == null)
+        if (jwt == null) {
             return;
+        }
 
         int userId = jwt.getClaim("userId").asInt();
         long version = jwt.getClaim("version").asLong();
 
         User user = ctx.sessionAttribute("currentUser");
 
-        if (version != jwtService.getTokenVersion(userId) || user == null) {
+        if (version != jwtService.getCurrentTokenVersion(userId, "refresh") || user == null) {
             invalidateSession(ctx);
-            throw new UnauthorizedResponse("Cannot refresh token: version outdated");
+            throw new UnauthorizedResponse("Cannot refresh token: version outdated.");
         }
 
-        Map<String, String> tokens = jwtService.generateTokens(user);
-        setTokensInCookies(ctx, tokens, jwtService);
+        Map<String, JsonWebToken> tokens = jwtService.createTokens(user);
+        setTokensInCookies(ctx, tokens);
         ctx.status(200).result("Tokens refresh successful.");
     }
 
-    public void setTokensInCookies(Context ctx, Map<String, String> tokens, JWTService jwtService) {
-        ctx.cookie(createTokenCookie("access", tokens.get(JWT_ACCESS_KEY), jwtService));
-        ctx.cookie(createTokenCookie("refresh", tokens.get(JWT_REFRESH_KEY), jwtService));
+    public void setTokensInCookies(Context ctx, Map<String, JsonWebToken> tokens) {
+        ctx.cookie(createTokenCookie(tokens.get(JWT_ACCESS_KEY)));
+        ctx.cookie(createTokenCookie(tokens.get(JWT_REFRESH_KEY)));
     }
 
-    private Cookie createTokenCookie(String tokenType, String token, JWTService jwtService) {
+    private Cookie createTokenCookie(JsonWebToken token) {
         String environment = dotenv.get("ENV", "development");
-        Cookie cookie = new Cookie("access".equals(tokenType) ? JWT_ACCESS_KEY : JWT_REFRESH_KEY, token);
+        Cookie cookie = new Cookie("access".equals(token.getTokenType()) ? JWT_ACCESS_KEY : JWT_REFRESH_KEY, token.getToken());
         cookie.setHttpOnly(true);
         cookie.setSecure("production".equals(environment));
         cookie.setSameSite(io.javalin.http.SameSite.STRICT);
-        cookie.setMaxAge(jwtService.getTokenExpires(tokenType));
+        cookie.setMaxAge((int) (token.getExpires() - System.currentTimeMillis()) / 1000);
         return cookie;
     }
 }

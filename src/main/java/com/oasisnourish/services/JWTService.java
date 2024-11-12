@@ -12,4 +12,7 @@ public interface JWTService extends TokenService<JsonWebToken> {
     Map<String, JsonWebToken> createTokens(User user);
 
     Optional<DecodedJWT> decodeToken(String token);
+
+    long getCurrentTokenVersion(int userId, String tokenType);
+
 }
