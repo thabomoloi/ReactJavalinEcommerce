@@ -29,7 +29,7 @@ public class JWTServiceImpl extends TokenServiceImpl<JsonWebToken> implements JW
 
         long tokenVersion = tokenVersionDao.increment(user.getId(), "jwt", "access");
         JsonWebToken accessToken = provider.generateToken(user, "access", tokenVersion);
-        tokenVersion = tokenVersionDao.increment(user.getId(), "jwt", "access");
+        tokenVersion = tokenVersionDao.increment(user.getId(), "jwt", "refresh");
         JsonWebToken refreshToken = provider.generateToken(user, "refresh", tokenVersion);
         tokenDao.saveToken(accessToken);
         tokenDao.saveToken(refreshToken);
@@ -37,14 +37,22 @@ public class JWTServiceImpl extends TokenServiceImpl<JsonWebToken> implements JW
         return new HashMap<>() {
             {
                 put("JWT_ACCESS_TOKEN", accessToken);
-                put("JWT_RERESH_TOKEN", refreshToken);
+                put("JWT_REFRESH_TOKEN", refreshToken);
             }
         };
     }
 
     @Override
     public Optional<DecodedJWT> decodeToken(String token) {
-        return provider.validateToken(token);
+        if (tokenDao.findToken(token).isPresent()) {
+            return provider.validateToken(token);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public long getCurrentTokenVersion(int userId, String tokenType) {
+        return tokenVersionDao.find(userId, "jwt", tokenType);
     }
 
 }
