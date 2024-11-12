@@ -55,14 +55,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void signUpUser(UserInputDto userDto) {
         userService.createUser(userDto);
-        sendWelcomeEmail(userDto.getId());
+        sendWelcomeEmail(userDto.getEmail());
     }
 
     @Override
     public Map<String, JsonWebToken> signInUser(UserInputDto userDto) {
         var user = userService.findUserByEmail(userDto.getEmail())
                 .filter(u -> passwordEncoder.matches(userDto.getPassword(), u.getPassword()))
-                .orElseThrow(() -> new UnauthorizedResponse("Invalid email or password"));
+                .orElseThrow(() -> new UnauthorizedResponse("Invalid email or password."));
 
         Map<String, JsonWebToken> tokens = jwtService.createTokens(user);
         return tokens;
@@ -76,8 +76,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void sendWelcomeEmail(int userId) {
-        var user = userService.findUserById(userId).orElseThrow(() -> new NotFoundException("User does not exist."));
+    public void sendWelcomeEmail(String email) {
+        var user = userService.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User does not exist."));
         sendTokenEmail(user, "confirmation", "Welcome to Oasis Nourish", "user/welcome");
     }
 

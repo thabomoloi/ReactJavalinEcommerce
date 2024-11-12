@@ -1,4 +1,4 @@
-package com.oasisnourish.services;
+package com.oasisnourish.services.impl;
 
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +23,6 @@ import com.oasisnourish.dao.TokenVersionDao;
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
-import com.oasisnourish.services.impl.JWTServiceImpl;
 import com.oasisnourish.util.jwt.JWTProvider;
 
 @ExtendWith(MockitoExtension.class)

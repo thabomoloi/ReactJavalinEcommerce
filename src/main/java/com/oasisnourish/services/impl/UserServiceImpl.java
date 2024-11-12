@@ -17,6 +17,7 @@ import com.oasisnourish.services.UserService;
  * Implementation of the {@link UserService} for user-related operations.
  */
 public class UserServiceImpl implements UserService {
+
     private final UserDao userDao;
     private final PasswordEncoder passwordEncoder;
 
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createUser(UserInputDto userDto) {
         userDao.findByEmail(userDto.getEmail()).ifPresent((_) -> {
-            throw new EmailExistsException("The email has already been taken");
+            throw new EmailExistsException("The email has already been taken.");
         });
 
         var password = passwordEncoder.encode(userDto.getPassword());

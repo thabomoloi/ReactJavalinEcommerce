@@ -1,4 +1,4 @@
-package com.oasisnourish.services;
+package com.oasisnourish.services.impl;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -25,7 +25,6 @@ import com.oasisnourish.dao.TokenRateLimitDao;
 import com.oasisnourish.dao.TokenVersionDao;
 import com.oasisnourish.exceptions.TooManyRequestsException;
 import com.oasisnourish.models.AuthToken;
-import com.oasisnourish.services.impl.AuthTokenServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthTokenServiceImplTest {
