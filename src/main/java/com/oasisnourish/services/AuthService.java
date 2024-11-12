@@ -52,7 +52,7 @@ public interface AuthService {
      *
      * @param user The new user.
      */
-    void sendWelcomeEmail(int userId);
+    void sendWelcomeEmail(String email);
 
     void confirmAccount(String token);
 
