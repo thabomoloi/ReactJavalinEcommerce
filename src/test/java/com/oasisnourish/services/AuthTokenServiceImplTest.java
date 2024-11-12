@@ -59,22 +59,22 @@ public class AuthTokenServiceImplTest {
     @Test
     public void findToken_Exists() {
         AuthToken authToken = new AuthToken(token, tokenType, 1L, System.currentTimeMillis() + 300000, userId);
-        when(tokenDao.findToken(token, userId)).thenReturn(Optional.of(authToken));
+        when(tokenDao.findToken(token)).thenReturn(Optional.of(authToken));
 
-        Optional<AuthToken> result = authTokenService.findToken(userId, token);
+        Optional<AuthToken> result = authTokenService.findToken(token);
 
-        verify(tokenDao, times(1)).findToken(token, userId);
+        verify(tokenDao, times(1)).findToken(token);
         assertTrue(result.isPresent());
         assertTrue(result.get().equals(authToken));
     }
 
     @Test
     public void findToken_DoesNotExists() {
-        when(tokenDao.findToken(token, userId)).thenReturn(Optional.empty());
+        when(tokenDao.findToken(token)).thenReturn(Optional.empty());
 
-        Optional<AuthToken> result = authTokenService.findToken(userId, token);
+        Optional<AuthToken> result = authTokenService.findToken(token);
 
-        verify(tokenDao, times(1)).findToken(token, userId);
+        verify(tokenDao, times(1)).findToken(token);
         assertTrue(result.isEmpty());
     }
 
@@ -82,7 +82,7 @@ public class AuthTokenServiceImplTest {
     public void createToken_Success() {
         when(tokenRateLimitDao.find(userId)).thenReturn(0L);
         when(tokenVersionDao.find(userId, "auth", tokenType)).thenReturn(1L);
-        when(tokenRateLimitDao.findAllTokens(userId)).thenReturn(Collections.emptyList());
+        when(tokenDao.findTokensByUserId(userId)).thenReturn(Collections.emptyList());
 
         authTokenService.createToken(userId, tokenType);
 
@@ -105,18 +105,18 @@ public class AuthTokenServiceImplTest {
         AuthToken previousToken = new AuthToken(token, tokenType, 1L, System.currentTimeMillis() + 300000, userId);
         when(tokenRateLimitDao.find(userId)).thenReturn(0L);
         when(tokenVersionDao.find(userId, "auth", tokenType)).thenReturn(1L);
-        when(tokenRateLimitDao.findAllTokens(userId)).thenReturn(Collections.singletonList(previousToken));
+        when(tokenDao.findTokensByUserId(userId)).thenReturn(Collections.singletonList(previousToken));
 
         authTokenService.createToken(userId, tokenType);
 
-        verify(tokenDao, times(1)).deleteToken(token, userId);
+        verify(tokenDao, times(1)).deleteToken(token);
         verify(tokenDao, times(1)).saveToken(any(AuthToken.class));
     }
 
     @Test
     public void deleteToken() {
-        authTokenService.deleteToken(userId, token);
+        authTokenService.deleteToken(token);
 
-        verify(tokenDao, times(1)).deleteToken(token, userId);
+        verify(tokenDao, times(1)).deleteToken(token);
     }
 }

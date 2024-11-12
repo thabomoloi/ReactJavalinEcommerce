@@ -4,14 +4,18 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.thymeleaf.context.IContext;
 
 import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.exceptions.InvalidTokenException;
 import com.oasisnourish.exceptions.NotFoundException;
+import com.oasisnourish.models.AuthToken;
+import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.AuthService;
+import com.oasisnourish.services.AuthTokenService;
 import com.oasisnourish.services.EmailService;
 import com.oasisnourish.services.JWTService;
-import com.oasisnourish.services.TokenService;
 import com.oasisnourish.services.UserService;
 import com.oasisnourish.util.EmailContentBuilder;
 
@@ -25,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserService userService;
     private final EmailService emailService;
-    // private final TokenService tokenService;
+    private final AuthTokenService authTokenService;
     private final JWTService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final EmailContentBuilder emailContentBuilder;
@@ -38,12 +42,12 @@ public class AuthServiceImpl implements AuthService {
      * @param tokenService The service for token generation and validation.
      * @param emailContentBuilder The utility for building email contexts.
      */
-    public AuthServiceImpl(UserService userService, EmailService emailService, TokenService tokenService,
+    public AuthServiceImpl(UserService userService, EmailService emailService, AuthTokenService authTokenService,
             JWTService jwtService, PasswordEncoder passwordEncoder, EmailContentBuilder emailContentBuilder) {
         this.userService = userService;
         this.emailService = emailService;
         this.jwtService = jwtService;
-        // this.tokenService = tokenService;
+        this.authTokenService = authTokenService;
         this.passwordEncoder = passwordEncoder;
         this.emailContentBuilder = emailContentBuilder;
     }
@@ -55,12 +59,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Map<String, String> signInUser(UserInputDto userDto) {
+    public Map<String, JsonWebToken> signInUser(UserInputDto userDto) {
         var user = userService.findUserByEmail(userDto.getEmail())
                 .filter(u -> passwordEncoder.matches(userDto.getPassword(), u.getPassword()))
                 .orElseThrow(() -> new UnauthorizedResponse("Invalid email or password"));
 
-        Map<String, String> tokens = jwtService.generateTokens(user);
+        Map<String, JsonWebToken> tokens = jwtService.createTokens(user);
         return tokens;
 
     }
@@ -78,13 +82,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void confirmAccount(int userId, String token) {
-        // tokenService.verifyTokenOrThrow(userId, "confirmation", token);
-
-        // userService.findUserById(userId).ifPresent(user -> {
-        //     userService.verifyEmail(user.getEmail());
-        //     tokenService.revokeToken(userId, "confirmation");
-        // });
+    public void confirmAccount(String token) {
+        AuthToken authToken = authTokenService.findToken(token).orElseThrow(() -> new InvalidTokenException("The authentication token is either invalid or has expired. Please request a new one."));
+        userService.findUserById(authToken.getUserId()).ifPresent(user -> {
+            userService.verifyEmail(user.getEmail());
+            authTokenService.deleteToken(authToken.getToken());
+        });
     }
 
     @Override
@@ -94,13 +97,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void resetPassword(int userId, String token, String password) {
-        // tokenService.verifyTokenOrThrow(userId, "reset-password", token);
-
-        // userService.findUserById(userId).ifPresent(user -> {
-        //     userService.updatePassword(user.getId(), password);
-        //     tokenService.revokeToken(user.getId(), "reset-password");
-        // });
+    public void resetPassword(String token, String password) {
+        AuthToken authToken = authTokenService.findToken(token).orElseThrow(() -> new InvalidTokenException("The authentication token is either invalid or has expired. Please request a new one."));
+        userService.findUserById(authToken.getUserId()).ifPresent(user -> {
+            userService.updatePassword(user.getId(), password);
+            authTokenService.deleteToken(authToken.getToken());
+        });
     }
 
     /**
@@ -112,17 +114,17 @@ public class AuthServiceImpl implements AuthService {
      * @param template the template to use for the email body
      */
     private void sendTokenEmail(User user, String type, String subject, String template) {
-        // String token = tokenService.generateToken(user.getId(), type);
-        // var context = emailContentBuilder.buildConfirmationContext(user, token);
-        // emailService.sendEmail(user.getEmail(), subject, template, context);
+        AuthToken token = authTokenService.createToken(user.getId(), type);
+        IContext context = emailContentBuilder.buildConfirmationContext(user, token);
+        emailService.sendEmail(user.getEmail(), subject, template, context);
     }
 
     @Override
-    public Optional<Map<String, String>> updateSignedInUserIfChanged(User signedInUser) {
+    public Optional<Map<String, JsonWebToken>> updateSignedInUserIfChanged(User signedInUser) {
         if (signedInUser != null) {
             var user = userService.findUserById(signedInUser.getId());
             if (user.isPresent() && !signedInUser.equals(signedInUser)) {
-                Map<String, String> tokens = jwtService.generateTokens(user.get());
+                Map<String, JsonWebToken> tokens = jwtService.createTokens(user.get());
                 return Optional.of(tokens);
             }
         }

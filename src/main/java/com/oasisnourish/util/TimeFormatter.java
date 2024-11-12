@@ -2,9 +2,9 @@ package com.oasisnourish.util;
 
 public class TimeFormatter {
 
-    public static String formatSecondsToReadableTime(long seconds) {
-        // long days = seconds / 86400;
-        // seconds %= 86400;
+    public static String format(long seconds) {
+        long days = seconds / 86400;
+        seconds %= 86400;
 
         long hours = seconds / 3600;
         seconds %= 3600;
@@ -14,9 +14,9 @@ public class TimeFormatter {
 
         StringBuilder readableTime = new StringBuilder();
 
-        // if (days > 0) {
-        //     readableTime.append(days).append(" day").append(days > 1 ? "s" : "").append(", ");
-        // }
+        if (days > 0) {
+            readableTime.append(days).append(" day").append(days > 1 ? "s" : "").append(", ");
+        }
         if (hours > 0) {
             readableTime.append(hours).append(" hour").append(hours > 1 ? "s" : "").append(", ");
         }

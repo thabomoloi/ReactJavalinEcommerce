@@ -1,6 +1,9 @@
 package com.oasisnourish.dao.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.oasisnourish.dao.TokenDao;
 import com.oasisnourish.db.RedisConnection;
@@ -27,24 +30,26 @@ public class TokenDaoImpl implements TokenDao<Token> {
         }
 
         try (JedisPooled jedis = redisConnection.getJedis();) {
-            String key = getKey(tokenDetails.getUserId(), tokenDetails.getToken());
+            String key = getKey(tokenDetails.getToken());
             jedis.hset(key, "tokenCategory", tokenDetails.getTokenCategory());
             jedis.hset(key, "tokenType", tokenDetails.getTokenType());
             jedis.hset(key, "tokenVersion", String.valueOf(tokenDetails.getTokenVersion()));
             jedis.hset(key, "expires", String.valueOf(tokenDetails.getExpires()));
+            jedis.hset(key, "userId", String.valueOf(tokenDetails.getUserId()));
             jedis.expire(key, (ttl / 1000));
         }
     }
 
     @Override
-    public Optional<Token> findToken(String token, int userId) {
+    public Optional<Token> findToken(String token) {
         try (JedisPooled jedis = redisConnection.getJedis();) {
-            String key = getKey(userId, token);
+            String key = getKey(token);
             if (jedis.exists(key)) {
                 String tokenCategory = jedis.hget(key, "tokenCategory");
                 String tokenType = jedis.hget(key, "tokenType");
                 long tokenVersion = Long.parseLong(jedis.hget(key, "tokenVersion"));
                 long expires = Long.parseLong(jedis.hget(key, "expires"));
+                int userId = Integer.parseInt(jedis.hget(key, "userId"));
                 return switch (tokenCategory) {
                     case "auth" ->
                         Optional.of(new AuthToken(token, tokenType, tokenVersion, expires, userId));
@@ -60,14 +65,39 @@ public class TokenDaoImpl implements TokenDao<Token> {
     }
 
     @Override
-    public void deleteToken(String token, int userId) {
+    public void deleteToken(String token) {
         try (JedisPooled jedis = redisConnection.getJedis();) {
-            jedis.del(getKey(userId, token));
+            jedis.del(getKey(token));
         }
     }
 
-    private String getKey(int userId, String token) {
-        return "user:" + userId + ":token:" + token;
+    private String getKey(String token) {
+        return "token:" + token;
     }
 
+    @Override
+    public List<Token> findTokensByUserId(int userId) {
+        List<Token> tokens = new ArrayList<>();
+        try (JedisPooled jedis = redisConnection.getJedis()) {
+            Set<String> keys = jedis.keys("token:*");
+            for (String key : keys) {
+                String tokenType = jedis.hget(key, "tokenType");
+                long tokenVersion = Long.parseLong(jedis.hget(key, "tokenVersion"));
+                long expires = Long.parseLong(jedis.hget(key, "expires"));
+                int uid = Integer.parseInt(jedis.hget(key, "userId"));
+                String tokenCategory = jedis.hget(key, "tokenCategory");
+                if (uid == userId) {
+                    switch (tokenCategory) {
+                        case "auth" ->
+                            tokens.add(new AuthToken(key, tokenType, tokenVersion, expires, uid));
+                        case "jwt" ->
+                            tokens.add(new JsonWebToken(key, tokenType, tokenVersion, expires, uid));
+                        default -> {
+                        }
+                    }
+                }
+            }
+            return tokens;
+        }
+    }
 }

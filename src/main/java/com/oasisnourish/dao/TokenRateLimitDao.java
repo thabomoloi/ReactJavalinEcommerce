@@ -1,9 +1,5 @@
 package com.oasisnourish.dao;
 
-import java.util.List;
-
-import com.oasisnourish.models.AuthToken;
-
 public interface TokenRateLimitDao {
 
     long find(int userId);
@@ -14,5 +10,4 @@ public interface TokenRateLimitDao {
 
     long ttl(int userId);
 
-    List<AuthToken> findAllTokens(int userId);
 }
