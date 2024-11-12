@@ -1,4 +1,4 @@
-package com.oasisnourish.jwt;
+package com.oasisnourish.util.jwt;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -1,18 +1,22 @@
 package com.oasisnourish.services.impl;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.IContext;
+
+import com.oasisnourish.config.EmailConfig;
+import com.oasisnourish.services.EmailService;
+
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.IContext;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-
-import com.oasisnourish.services.EmailService;
 
 /**
  * Implementation of the {@link EmailService} interface for sending emails.
@@ -20,9 +24,10 @@ import com.oasisnourish.services.EmailService;
  * rendering.
  */
 public class EmailServiceImpl implements EmailService {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(EmailServiceImpl.class);
     private final TemplateEngine templateEngine;
-    private final String MAIL_USERNAME;
-    private final String MAIL_PASSWORD;
+    private final EmailConfig emailConfig;
     private final ExecutorService executorService;
 
     /**
@@ -30,29 +35,26 @@ public class EmailServiceImpl implements EmailService {
      * Thymeleaf {@link TemplateEngine}.
      *
      * @param templateEngine the {@link TemplateEngine} used for rendering email
-     *                       content.
-     * @throws IllegalStateException if the mail environment variables are not set.
+     * content.
+     * @throws IllegalStateException if the mail environment variables are not
+     * set.
      */
-    public EmailServiceImpl(TemplateEngine templateEngine, ExecutorService executorService, Dotenv dotenv) {
+    public EmailServiceImpl(TemplateEngine templateEngine, EmailConfig emailConfig, ExecutorService executorService) {
         this.templateEngine = templateEngine;
         this.executorService = executorService;
-        MAIL_PASSWORD = dotenv.get("MAIL_PASSWORD");
-        MAIL_USERNAME = dotenv.get("MAIL_USERNAME");
-        if (MAIL_PASSWORD == null || MAIL_USERNAME == null) {
-            throw new IllegalStateException("Mail environment variables are not set.");
-        }
+        this.emailConfig = emailConfig;
     }
 
     /**
      * Sends an email to a specified recipient using a provided subject and
      * Thymeleaf template.
      *
-     * @param to           the email address of the recipient.
-     * @param subject      the subject of the email.
+     * @param to the email address of the recipient.
+     * @param subject the subject of the email.
      * @param templateName the name of the Thymeleaf template to be used for the
-     *                     email content.
-     * @param context      the context containing variables for the Thymeleaf
-     *                     template.
+     * email content.
+     * @param context the context containing variables for the Thymeleaf
+     * template.
      * @throws MessagingException if there is an error sending the email.
      */
     @Override
@@ -70,7 +72,7 @@ public class EmailServiceImpl implements EmailService {
             try {
                 // Create a MimeMessage
                 MimeMessage message = new MimeMessage(session);
-                message.setFrom(new InternetAddress(MAIL_USERNAME));
+                message.setFrom(new InternetAddress(emailConfig.getMailUsername()));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
                 message.setSubject(subject);
 
@@ -81,10 +83,10 @@ public class EmailServiceImpl implements EmailService {
                 message.setContent(htmlContent, "text/html");
 
                 // Send the message
-                Transport.send(message, MAIL_USERNAME, MAIL_PASSWORD);
+                Transport.send(message, emailConfig.getMailUsername(), emailConfig.getMailPassword());
 
             } catch (MessagingException e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage(), e);
             }
         });
     }

@@ -1,12 +1,7 @@
 package com.oasisnourish.dao.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import com.oasisnourish.dao.TokenRateLimitDao;
 import com.oasisnourish.db.RedisConnection;
-import com.oasisnourish.models.AuthToken;
 
 import redis.clients.jedis.JedisPooled;
 
@@ -53,23 +48,6 @@ public class TokenRateLimitDaoImpl implements TokenRateLimitDao {
         try (JedisPooled jedis = redisConnection.getJedis();) {
             return jedis.ttl(getKey(userId));
         }
-    }
-
-    @Override
-    public List<AuthToken> findAllTokens(int userId) {
-        List<AuthToken> tokens = new ArrayList<>();
-        String pattern = "user:" + userId + ":token:*";
-        try (JedisPooled jedis = redisConnection.getJedis()) {
-            Set<String> keys = jedis.keys(pattern);
-            for (String key : keys) {
-                String tokenType = jedis.hget(key, "tokenType");
-                long tokenVersion = Long.parseLong(jedis.hget(key, "tokenVersion"));
-                long expires = Long.parseLong(jedis.hget(key, "expires"));
-                int uid = Integer.parseInt(jedis.hget(key, "userId"));
-                tokens.add(new AuthToken(key, tokenType, tokenVersion, expires, uid));
-            }
-        }
-        return tokens;
     }
 
     private String getKey(int userId) {

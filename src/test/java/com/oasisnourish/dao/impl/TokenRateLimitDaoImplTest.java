@@ -1,9 +1,5 @@
 package com.oasisnourish.dao.impl;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +11,6 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.oasisnourish.db.RedisConnection;
-import com.oasisnourish.models.AuthToken;
 
 import redis.clients.jedis.JedisPooled;
 
@@ -110,47 +105,6 @@ public class TokenRateLimitDaoImplTest {
         tokenRateLimitDao.reset(userId);
 
         verify(jedis).del(key);
-    }
-
-    @Test
-    public void testFindAllTokens() {
-        int userId = 1;
-        String pattern = "user:" + userId + ":token:*";
-        String tokenKey1 = "user:1:token:auth-token1";
-        String tokenKey2 = "user:1:token:auth-token2";
-
-        Set<String> keys = new HashSet<>();
-        keys.add(tokenKey1);
-        keys.add(tokenKey2);
-
-        when(jedis.keys(pattern)).thenReturn(keys);
-        when(jedis.hget(tokenKey1, "tokenType")).thenReturn("type1");
-        when(jedis.hget(tokenKey1, "tokenVersion")).thenReturn("1");
-        when(jedis.hget(tokenKey1, "expires")).thenReturn("600");
-        when(jedis.hget(tokenKey1, "userId")).thenReturn("1");
-
-        when(jedis.hget(tokenKey2, "tokenType")).thenReturn("type2");
-        when(jedis.hget(tokenKey2, "tokenVersion")).thenReturn("2");
-        when(jedis.hget(tokenKey2, "expires")).thenReturn("1200");
-        when(jedis.hget(tokenKey2, "userId")).thenReturn("1");
-
-        List<AuthToken> tokens = tokenRateLimitDao.findAllTokens(userId);
-
-        assertEquals(2, tokens.size());
-
-        AuthToken token1 = tokens.get(0);
-        assertEquals(tokenKey1, token1.getToken());
-        assertEquals("type1", token1.getTokenType());
-        assertEquals(1L, token1.getTokenVersion());
-        assertEquals(600L, token1.getExpires());
-        assertEquals(1, token1.getUserId());
-
-        AuthToken token2 = tokens.get(1);
-        assertEquals(tokenKey2, token2.getToken());
-        assertEquals("type2", token2.getTokenType());
-        assertEquals(2L, token2.getTokenVersion());
-        assertEquals(1200L, token2.getExpires());
-        assertEquals(1, token2.getUserId());
     }
 
     @Test

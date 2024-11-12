@@ -14,16 +14,13 @@ public abstract class TokenServiceImpl<T> implements TokenService<T> {
     }
 
     @Override
-    public Optional<T> findToken(int userId, String token) {
-        return tokenDao.findToken(token, userId);
+    public Optional<T> findToken(String token) {
+        return tokenDao.findToken(token);
     }
 
     @Override
-    public abstract void createToken(int userId, String tokenType);
-
-    @Override
-    public void deleteToken(int userId, String token) {
-        tokenDao.deleteToken(token, userId);
+    public void deleteToken(String token) {
+        tokenDao.deleteToken(token);
     }
 
 }

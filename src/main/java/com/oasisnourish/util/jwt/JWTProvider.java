@@ -1,4 +1,4 @@
-package com.oasisnourish.jwt;
+package com.oasisnourish.util.jwt;
 
 import java.util.Optional;
 
@@ -7,6 +7,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.config.JWTConfig;
+import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 
 public class JWTProvider {
@@ -27,8 +28,8 @@ public class JWTProvider {
         jwtMaxExpiryTime = 0;
     }
 
-    public JWTTokenDetails generateToken(User user, String tokenType, long tokenVersion) {
-        long jwtTokenExpires = switch (tokenType) {
+    public JsonWebToken generateToken(User user, String tokenType, long tokenVersion) {
+        long jwtTokenExpires = switch (tokenType.toLowerCase()) {
             case "access" ->
                 config.getJwtAccessTokenExpires() * 1000L;
             case "refresh" ->
@@ -40,7 +41,7 @@ public class JWTProvider {
         jwtTokenExpires = Math.min(jwtTokenExpires, jwtMaxExpiryTime);
 
         String token = generator.generate(user, algorithm, tokenType, tokenVersion, jwtCurrentTime, jwtTokenExpires);
-        return new JWTTokenDetails(token, tokenType, tokenVersion, jwtTokenExpires, jwtTokenExpires);
+        return new JsonWebToken(token, tokenType, tokenVersion, jwtTokenExpires, user.getId());
     }
 
     public Optional<DecodedJWT> validateToken(String token) {
