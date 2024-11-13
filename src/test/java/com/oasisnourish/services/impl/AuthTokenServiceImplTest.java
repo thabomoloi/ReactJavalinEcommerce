@@ -1,5 +1,6 @@
 package com.oasisnourish.services.impl;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,7 +58,7 @@ public class AuthTokenServiceImplTest {
 
     @Test
     public void findToken_Exists() {
-        AuthToken authToken = new AuthToken(token, tokenType, 1L, System.currentTimeMillis() + 300000, userId);
+        AuthToken authToken = new AuthToken(token, tokenType, 1L, Instant.now().plusSeconds(30L), userId);
         when(tokenDao.findToken(token)).thenReturn(Optional.of(authToken));
 
         Optional<AuthToken> result = authTokenService.findToken(token);
@@ -101,7 +102,7 @@ public class AuthTokenServiceImplTest {
 
     @Test
     public void createToken_DeletePreviousToken() {
-        AuthToken previousToken = new AuthToken(token, tokenType, 1L, System.currentTimeMillis() + 300000, userId);
+        AuthToken previousToken = new AuthToken(token, tokenType, 1L, Instant.now().plusSeconds(30L), userId);
         when(tokenRateLimitDao.find(userId)).thenReturn(0L);
         when(tokenVersionDao.find(userId, "auth", tokenType)).thenReturn(1L);
         when(tokenDao.findTokensByUserId(userId)).thenReturn(Collections.singletonList(previousToken));

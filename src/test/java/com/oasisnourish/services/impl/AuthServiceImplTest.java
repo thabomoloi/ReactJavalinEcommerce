@@ -1,5 +1,6 @@
 package com.oasisnourish.services.impl;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,8 +74,8 @@ public class AuthServiceImplTest {
 
     @Test
     public void testSignInUser_Success() {
-        JsonWebToken accessToken = new JsonWebToken("accessToken", "access", 1, 30000L, user.getId());
-        JsonWebToken refreshToken = new JsonWebToken("refreshToken", "refresh", 1, 60000L, user.getId());
+        JsonWebToken accessToken = new JsonWebToken("accessToken", "access", 1, Instant.now().plusSeconds(30L), user.getId());
+        JsonWebToken refreshToken = new JsonWebToken("refreshToken", "refresh", 1, Instant.now().plusSeconds(60L), user.getId());
 
         when(userService.findUserByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(userDto.getPassword(), user.getPassword())).thenReturn(true);
@@ -98,7 +99,7 @@ public class AuthServiceImplTest {
 
     @Test
     public void testSendConfirmationToken_UserExists() {
-        AuthToken authToken = new AuthToken("token", "confirmation", 1, 1000, 1);
+        AuthToken authToken = new AuthToken("token", "confirmation", 1, Instant.now().plusSeconds(10L), 1);
         IContext context = mock(IContext.class);
 
         when(userService.findUserById(user.getId())).thenReturn(Optional.of(user));
@@ -120,7 +121,7 @@ public class AuthServiceImplTest {
 
     @Test
     void testConfirmAccount_ValidToken() {
-        AuthToken authToken = new AuthToken("validToken", "confirmation", 1, 1000, user.getId());
+        AuthToken authToken = new AuthToken("validToken", "confirmation", 1, Instant.now().plusSeconds(10L), user.getId());
 
         when(authTokenService.findToken("validToken")).thenReturn(Optional.of(authToken));
         when(userService.findUserById(user.getId())).thenReturn(Optional.of(user));
@@ -142,7 +143,7 @@ public class AuthServiceImplTest {
     @Test
     public void testSendResetPasswordToken_UserExists() {
         IContext context = mock(IContext.class);
-        AuthToken authToken = new AuthToken("token", "reset-password", 1, 1000, user.getId());
+        AuthToken authToken = new AuthToken("token", "reset-password", 1, Instant.now().plusSeconds(10L), user.getId());
 
         when(userService.findUserByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         when(authTokenService.createToken(1, "reset-password")).thenReturn(authToken);
@@ -164,7 +165,7 @@ public class AuthServiceImplTest {
 
     @Test
     public void testResetPassword_ValidToken() {
-        AuthToken authToken = new AuthToken("resetToken", "reset-password", 1, 1000, user.getId());
+        AuthToken authToken = new AuthToken("resetToken", "reset-password", 1, Instant.now().plusSeconds(10L), user.getId());
 
         when(authTokenService.findToken("resetToken")).thenReturn(Optional.of(authToken));
         when(userService.findUserById(1)).thenReturn(Optional.of(user));

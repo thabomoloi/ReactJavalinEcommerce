@@ -1,5 +1,6 @@
 package com.oasisnourish.services.impl;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class AuthTokenServiceImpl extends TokenServiceImpl<AuthToken> implements
             }
         }
 
-        long tokenExpiry = System.currentTimeMillis() + tokenConfig.getTokenExpires() * 1000;
+        Instant tokenExpiry = Instant.now().plusSeconds(tokenConfig.getTokenExpires());
         long tokenVersion = tokenVersionDao.find(userId, "auth", tokenType);
 
         AuthToken authToken = new AuthToken(UUID.randomUUID().toString(), tokenType, tokenVersion, tokenExpiry, userId);

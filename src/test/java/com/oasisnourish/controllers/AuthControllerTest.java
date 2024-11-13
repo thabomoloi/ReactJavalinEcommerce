@@ -1,5 +1,6 @@
 package com.oasisnourish.controllers;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
@@ -79,8 +80,8 @@ public class AuthControllerTest {
 
     @Test
     void testSignInUser() {
-        JsonWebToken jwtAccessToken = new JsonWebToken("accessToken", "access", 1L, System.currentTimeMillis() + 30000L, user.getId());
-        JsonWebToken jwtRefreshToken = new JsonWebToken("refreshToken", "refresh", 1L, System.currentTimeMillis() + 60000L, user.getId());
+        JsonWebToken jwtAccessToken = new JsonWebToken("accessToken", "access", 1L, Instant.now().plusSeconds(30L), user.getId());
+        JsonWebToken jwtRefreshToken = new JsonWebToken("refreshToken", "refresh", 1L, Instant.now().plusSeconds(60L), user.getId());
         Map<String, JsonWebToken> tokens = Map.of("JWT_ACCESS_TOKEN", jwtAccessToken, "JWT_REFRESH_TOKEN", jwtRefreshToken);
 
         when(ctx.bodyValidator(UserInputDto.class)).thenReturn(bodyValidator);
@@ -181,8 +182,8 @@ public class AuthControllerTest {
 
     @Test
     void testUpdateSessionUserIfChanged() {
-        JsonWebToken jwtAccessToken = new JsonWebToken("accessToken", "access", 1L, System.currentTimeMillis() + 30000L, user.getId());
-        JsonWebToken jwtRefreshToken = new JsonWebToken("refreshToken", "refresh", 1L, System.currentTimeMillis() + 60000L, user.getId());
+        JsonWebToken jwtAccessToken = new JsonWebToken("accessToken", "access", 1L, Instant.now().plusSeconds(30L), user.getId());
+        JsonWebToken jwtRefreshToken = new JsonWebToken("refreshToken", "refresh", 1L, Instant.now().plusSeconds(60L), user.getId());
         Map<String, JsonWebToken> tokens = Map.of("JWT_ACCESS_TOKEN", jwtAccessToken, "JWT_REFRESH_TOKEN", jwtRefreshToken);
 
         when(ctx.sessionAttribute("currentUser")).thenReturn(user);

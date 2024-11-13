@@ -1,5 +1,6 @@
 package com.oasisnourish.dao.impl;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public class TokenDaoImplTest {
 
     @Test
     public void testSaveToken() {
-        AuthToken authToken = new AuthToken("testToken", "AUTH", 1L, System.currentTimeMillis() + 60000, 1);
+        AuthToken authToken = new AuthToken("testToken", "AUTH", 1L, Instant.now().plusSeconds(60L), 1);
         String key = "token:" + authToken.getToken();
 
         tokenDao.saveToken(authToken);
@@ -66,7 +67,7 @@ public class TokenDaoImplTest {
 
     @Test
     void testSaveToken_TokenExpired() {
-        AuthToken authToken = new AuthToken("expiredToken", "AUTH", 1L, System.currentTimeMillis() - 1000, 1);
+        AuthToken authToken = new AuthToken("expiredToken", "AUTH", 1L, Instant.now().minusSeconds(10L), 1);
 
         tokenDao.saveToken(authToken);
 
@@ -80,7 +81,7 @@ public class TokenDaoImplTest {
         int userId = 1;
         String key = "token:" + token;
 
-        AuthToken expectedToken = new AuthToken(token, "confirmation", 1, 60000L, userId);
+        AuthToken expectedToken = new AuthToken(token, "confirmation", 1, Instant.now().plusSeconds(60L), userId);
         when(jedis.exists(key)).thenReturn(true);
         when(jedis.hget(key, "tokenCategory")).thenReturn(expectedToken.getTokenCategory());
         when(jedis.hget(key, "tokenType")).thenReturn(expectedToken.getTokenType());
@@ -102,7 +103,7 @@ public class TokenDaoImplTest {
         int userId = 1;
         String key = "token:" + token;
 
-        JsonWebToken expectedToken = new JsonWebToken(token, "refresh", 1, 60000L, userId);
+        JsonWebToken expectedToken = new JsonWebToken(token, "refresh", 1, Instant.now().plusSeconds(60L), userId);
         when(jedis.exists(key)).thenReturn(true);
         when(jedis.hget(key, "tokenCategory")).thenReturn(expectedToken.getTokenCategory());
         when(jedis.hget(key, "tokenType")).thenReturn(expectedToken.getTokenType());
@@ -147,6 +148,8 @@ public class TokenDaoImplTest {
         String pattern = "token:*";
         String tokenKey1 = "auth-token1";
         String tokenKey2 = "auth-token2";
+        Instant expires1 = Instant.now().plusSeconds(60L);
+        Instant expires2 = Instant.now().plusSeconds(120L);
 
         Set<String> keys = new HashSet<>();
         keys.add(tokenKey1);
@@ -155,13 +158,13 @@ public class TokenDaoImplTest {
         when(jedis.keys(pattern)).thenReturn(keys);
         when(jedis.hget(tokenKey1, "tokenType")).thenReturn("type1");
         when(jedis.hget(tokenKey1, "tokenVersion")).thenReturn("1");
-        when(jedis.hget(tokenKey1, "expires")).thenReturn("600");
+        when(jedis.hget(tokenKey1, "expires")).thenReturn(String.valueOf(expires1));
         when(jedis.hget(tokenKey1, "userId")).thenReturn("1");
         when(jedis.hget(tokenKey1, "tokenCategory")).thenReturn("auth");
 
         when(jedis.hget(tokenKey2, "tokenType")).thenReturn("type2");
         when(jedis.hget(tokenKey2, "tokenVersion")).thenReturn("2");
-        when(jedis.hget(tokenKey2, "expires")).thenReturn("1200");
+        when(jedis.hget(tokenKey2, "expires")).thenReturn(String.valueOf(expires2));
         when(jedis.hget(tokenKey2, "userId")).thenReturn("1");
         when(jedis.hget(tokenKey2, "tokenCategory")).thenReturn("auth");
 
@@ -173,14 +176,14 @@ public class TokenDaoImplTest {
         assertEquals(tokenKey1, token1.getToken());
         assertEquals("type1", token1.getTokenType());
         assertEquals(1L, token1.getTokenVersion());
-        assertEquals(600L, token1.getExpires());
+        assertEquals(expires1, token1.getExpires());
         assertEquals(1, token1.getUserId());
 
         Token token2 = tokens.get(1);
         assertEquals(tokenKey2, token2.getToken());
         assertEquals("type2", token2.getTokenType());
         assertEquals(2L, token2.getTokenVersion());
-        assertEquals(1200L, token2.getExpires());
+        assertEquals(expires2, token2.getExpires());
         assertEquals(1, token2.getUserId());
     }
 }

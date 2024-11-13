@@ -1,5 +1,7 @@
 package com.oasisnourish.util;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,6 +15,7 @@ import com.oasisnourish.services.UserService;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.javalin.http.Context;
 import io.javalin.http.Cookie;
+import io.javalin.http.SameSite;
 import io.javalin.http.UnauthorizedResponse;
 
 public class SessionManager {
@@ -138,8 +141,8 @@ public class SessionManager {
         Cookie cookie = new Cookie("access".equals(token.getTokenType()) ? JWT_ACCESS_KEY : JWT_REFRESH_KEY, token.getToken());
         cookie.setHttpOnly(true);
         cookie.setSecure("production".equals(environment));
-        cookie.setSameSite(io.javalin.http.SameSite.STRICT);
-        cookie.setMaxAge((int) (token.getExpires() - System.currentTimeMillis()) / 1000);
+        cookie.setSameSite(SameSite.STRICT);
+        cookie.setMaxAge((int) Duration.between(Instant.now(), token.getExpires()).toSeconds());
         return cookie;
     }
 }

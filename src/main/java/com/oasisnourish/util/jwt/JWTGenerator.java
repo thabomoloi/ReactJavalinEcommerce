@@ -10,11 +10,11 @@ import com.oasisnourish.models.User;
 
 public class JWTGenerator {
 
-    public String generate(User user, Algorithm algorithm, String tokenType, long tokenVersion, long issuedAt, long expiresAt) {
+    public String generate(User user, Algorithm algorithm, String tokenType, long tokenVersion, Instant issuedAt, Instant expiresAt) {
         JWTCreator.Builder token = JWT.create()
                 .withJWTId(UUID.randomUUID().toString())
-                .withIssuedAt(Instant.ofEpochMilli(issuedAt))
-                .withExpiresAt(Instant.ofEpochMilli(expiresAt))
+                .withIssuedAt(issuedAt)
+                .withExpiresAt(issuedAt)
                 .withClaim("version", tokenVersion)
                 .withClaim("type", tokenType)
                 .withClaim("userId", user.getId())

@@ -1,17 +1,18 @@
 package com.oasisnourish.models;
 
+import java.time.Instant;
 import java.util.Objects;
 
 public abstract class Token {
 
     private final String token;
     private final long tokenVersion;
-    private final long expires;
+    private final Instant expires;
     private final String tokenType;
     private final String tokenCategory;
     private final int userId;
 
-    public Token(String token, String tokenCategory, String tokenType, long tokenVersion, long expires, int userId) {
+    public Token(String token, String tokenCategory, String tokenType, long tokenVersion, Instant expires, int userId) {
         this.expires = expires;
         this.token = token;
         this.tokenType = tokenType;
@@ -28,7 +29,7 @@ public abstract class Token {
         return tokenVersion;
     }
 
-    public long getExpires() {
+    public Instant getExpires() {
         return expires;
     }
 
@@ -54,11 +55,11 @@ public abstract class Token {
         }
         Token otherToken = (Token) o;
         return tokenVersion == otherToken.tokenVersion
-                && expires == otherToken.expires
                 && userId == otherToken.userId
                 && Objects.equals(token, otherToken.token)
                 && Objects.equals(tokenType, otherToken.tokenType)
-                && Objects.equals(tokenCategory, otherToken.tokenCategory);
+                && Objects.equals(tokenCategory, otherToken.tokenCategory)
+                && Objects.equals(expires, otherToken.expires);
     }
 
     @Override

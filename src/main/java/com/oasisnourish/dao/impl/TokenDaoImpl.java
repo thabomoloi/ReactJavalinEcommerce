@@ -1,5 +1,7 @@
 package com.oasisnourish.dao.impl;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,9 +25,9 @@ public class TokenDaoImpl implements TokenDao<Token> {
 
     @Override
     public void saveToken(Token tokenDetails) {
-        long ttl = tokenDetails.getExpires() - System.currentTimeMillis();
+        Duration ttl = Duration.between(Instant.now(), tokenDetails.getExpires());
 
-        if (ttl <= 0) {
+        if (ttl.isNegative() || ttl.isZero()) {
             return; // Token has already expired
         }
 
@@ -36,7 +38,7 @@ public class TokenDaoImpl implements TokenDao<Token> {
             jedis.hset(key, "tokenVersion", String.valueOf(tokenDetails.getTokenVersion()));
             jedis.hset(key, "expires", String.valueOf(tokenDetails.getExpires()));
             jedis.hset(key, "userId", String.valueOf(tokenDetails.getUserId()));
-            jedis.expire(key, (ttl / 1000));
+            jedis.expire(key, ttl.toSeconds());
         }
     }
 
@@ -48,7 +50,7 @@ public class TokenDaoImpl implements TokenDao<Token> {
                 String tokenCategory = jedis.hget(key, "tokenCategory");
                 String tokenType = jedis.hget(key, "tokenType");
                 long tokenVersion = Long.parseLong(jedis.hget(key, "tokenVersion"));
-                long expires = Long.parseLong(jedis.hget(key, "expires"));
+                Instant expires = Instant.parse(jedis.hget(key, "expires"));
                 int userId = Integer.parseInt(jedis.hget(key, "userId"));
                 return switch (tokenCategory) {
                     case "auth" ->
@@ -83,7 +85,7 @@ public class TokenDaoImpl implements TokenDao<Token> {
             for (String key : keys) {
                 String tokenType = jedis.hget(key, "tokenType");
                 long tokenVersion = Long.parseLong(jedis.hget(key, "tokenVersion"));
-                long expires = Long.parseLong(jedis.hget(key, "expires"));
+                Instant expires = Instant.parse(jedis.hget(key, "expires"));
                 int uid = Integer.parseInt(jedis.hget(key, "userId"));
                 String tokenCategory = jedis.hget(key, "tokenCategory");
                 if (uid == userId) {
