@@ -25,11 +25,11 @@ public class SessionManager {
         this.dotenv = dotenv;
     }
 
-    public void updateJwtInSession(Map<String, String> tokens, Context ctx, JWTService jwtService) {
-        jwtService.decodeToken(tokens.get(JWT_ACCESS_KEY)).ifPresent((jwt) -> {
+    public void updateJwtInSession(Map<String, JsonWebToken> tokens, Context ctx, JWTService jwtService) {
+        jwtService.decodeToken(tokens.get(JWT_ACCESS_KEY).getToken()).ifPresent((jwt) -> {
             ctx.sessionAttribute(JWT_ACCESS_KEY, jwt);
         });
-        jwtService.decodeToken(tokens.get(JWT_REFRESH_KEY)).ifPresent((jwt) -> {
+        jwtService.decodeToken(tokens.get(JWT_REFRESH_KEY).getToken()).ifPresent((jwt) -> {
             ctx.sessionAttribute(JWT_REFRESH_KEY, jwt);
         });
     }
