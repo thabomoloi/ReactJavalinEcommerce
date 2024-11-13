@@ -14,7 +14,7 @@ public class JWTGenerator {
         JWTCreator.Builder token = JWT.create()
                 .withJWTId(UUID.randomUUID().toString())
                 .withIssuedAt(issuedAt)
-                .withExpiresAt(issuedAt)
+                .withExpiresAt(expiresAt)
                 .withClaim("version", tokenVersion)
                 .withClaim("type", tokenType)
                 .withClaim("userId", user.getId())

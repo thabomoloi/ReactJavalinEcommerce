@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,24 +22,44 @@ public class JWTGeneratorTest {
     private final Algorithm algorithm = Algorithm.HMAC256("testSecret");
     private final JWTGenerator jwtGenerator = new JWTGenerator();
 
-    // @Test
-    // void generate_ShouldGenerateUniqueTokenIds() {
-    //     long issuedAt = Instant.now().toEpochMilli();
-    //     long expiresAt = issuedAt + 3600000;
-    //     String token1 = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
-    //     String token2 = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
-    //     assertNotEquals(JWT.decode(token1).getId(), JWT.decode(token2).getId());
-    // }
-    // @Test
-    // void generate_ShouldSetExpirationCorrectly() {
-    //     Instant now = Instant.now();
-    //     long issuedAt = now.toEpochMilli();
-    //     long expiresAt = issuedAt + 60000; // Expires in 1 minute
-    //     String token = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
-    //     DecodedJWT decodedJWT = JWT.decode(token);
-    //     assertEquals(now.toEpochMilli(), Instant.ofEpochMilli(now.toEpochMilli()).toEpochMilli()); // working
-    //     assertEquals(now.plusMillis(60000), Instant.ofEpochMilli(now.toEpochMilli() + 60000)); // not working
-    //     // assertEquals(expiresAt, decodedJWT.getExpiresAt().toInstant().toEpochMilli());
-    //     // assertTrue(decodedJWT.getExpiresAt().toInstant().isAfter(decodedJWT.getIssuedAt().toInstant()));
-    // }
+    @Test
+    void generate_ShouldReturnTokenWithCorrectClaims() {
+        long tokenVersion = 1;
+        String tokenType = "access";
+        Instant issuedAt = Instant.now();
+        Instant expiresAt = issuedAt.plus(1, ChronoUnit.HOURS); // Expires in 1 hour
+
+        String token = jwtGenerator.generate(user, algorithm, tokenType, tokenVersion, issuedAt, expiresAt);
+        DecodedJWT decodedJWT = JWT.decode(token);
+
+        Duration offset = Duration.ofSeconds(1);
+
+        assertEquals(tokenType, decodedJWT.getClaim("type").asString());
+        assertEquals(tokenVersion, decodedJWT.getClaim("version").asLong());
+        assertEquals(user.getId(), decodedJWT.getClaim("userId").asInt());
+        assertEquals(user.getRole().name().toLowerCase(), decodedJWT.getClaim("role").asString());
+        assertTrue(Duration.between(issuedAt, decodedJWT.getIssuedAt().toInstant()).abs().compareTo(offset) <= 0);
+        assertTrue(Duration.between(expiresAt, decodedJWT.getExpiresAt().toInstant()).abs().compareTo(offset) <= 0);
+    }
+
+    @Test
+    void generate_ShouldGenerateUniqueTokenIds() {
+        Instant issuedAt = Instant.now();
+        Instant expiresAt = issuedAt.plusSeconds(60L);
+        String token1 = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
+        String token2 = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
+        assertNotEquals(JWT.decode(token1).getId(), JWT.decode(token2).getId());
+    }
+
+    @Test
+    void generate_ShouldSetExpirationCorrectly() {
+        Instant issuedAt = Instant.now();
+        Instant expiresAt = issuedAt.plusSeconds(60L);
+        String token = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
+        DecodedJWT decodedJWT = JWT.decode(token);
+        Duration duration = Duration.between(expiresAt, decodedJWT.getExpiresAt().toInstant());
+        Duration offset = Duration.ofSeconds(1);
+        assertTrue(duration.abs().compareTo(offset) <= 0, "The actual instant is outside the acceptable offset range from the expected instant.");
+        assertTrue(decodedJWT.getExpiresAt().toInstant().isAfter(decodedJWT.getIssuedAt().toInstant()));
+    }
 }
