@@ -1,6 +1,5 @@
 package com.oasisnourish.services.impl;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,12 +33,7 @@ public class JWTServiceImpl extends TokenServiceImpl<JsonWebToken> implements JW
         tokenDao.saveToken(accessToken);
         tokenDao.saveToken(refreshToken);
 
-        return new HashMap<>() {
-            {
-                put("JWT_ACCESS_TOKEN", accessToken);
-                put("JWT_REFRESH_TOKEN", refreshToken);
-            }
-        };
+        return Map.of("JWT_ACCESS_TOKEN", accessToken, "JWT_REFRESH_TOKEN", refreshToken);
     }
 
     @Override
@@ -53,6 +47,11 @@ public class JWTServiceImpl extends TokenServiceImpl<JsonWebToken> implements JW
     @Override
     public long getCurrentTokenVersion(int userId, String tokenType) {
         return tokenVersionDao.find(userId, "jwt", tokenType);
+    }
+
+    @Override
+    public JWTProvider getProvider() {
+        return provider;
     }
 
 }

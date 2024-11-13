@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
+import com.oasisnourish.util.jwt.JWTProvider;
 
 public interface JWTService extends TokenService<JsonWebToken> {
 
@@ -15,4 +16,5 @@ public interface JWTService extends TokenService<JsonWebToken> {
 
     long getCurrentTokenVersion(int userId, String tokenType);
 
+    JWTProvider getProvider();
 }
