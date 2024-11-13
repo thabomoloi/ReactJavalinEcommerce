@@ -115,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
      */
     private void sendTokenEmail(User user, String type, String subject, String template) {
         AuthToken token = authTokenService.createToken(user.getId(), type);
-        IContext context = emailContentBuilder.buildConfirmationContext(user, token);
+        IContext context = emailContentBuilder.buildEmailTokenContext(user, token);
         emailService.sendEmail(user.getEmail(), subject, template, context);
     }
 

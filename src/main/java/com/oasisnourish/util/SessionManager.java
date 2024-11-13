@@ -21,7 +21,7 @@ import io.javalin.http.UnauthorizedResponse;
 public class SessionManager {
 
     private static final String JWT_ACCESS_KEY = "JWT_ACCESS_TOKEN";
-    private static final String JWT_REFRESH_KEY = "JWT_RERESH_TOKEN";
+    private static final String JWT_REFRESH_KEY = "JWT_REFRESH_TOKEN";
     private final Dotenv dotenv;
 
     public SessionManager(Dotenv dotenv) {
@@ -82,7 +82,7 @@ public class SessionManager {
 
         if (version != jwtService.getCurrentTokenVersion(userId, "access")) {
             invalidateSession(ctx);
-            throw new UnauthorizedResponse("Invalid token: version outdated,");
+            throw new UnauthorizedResponse("Invalid token: version outdated.");
         }
 
         userService.findUserById(userId).ifPresentOrElse(

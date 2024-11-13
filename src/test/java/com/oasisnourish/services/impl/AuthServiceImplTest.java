@@ -64,7 +64,7 @@ public class AuthServiceImplTest {
 
         when(userService.findUserByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         when(authTokenService.createToken(user.getId(), "confirmation")).thenReturn(token);
-        when(emailContentBuilder.buildConfirmationContext(user, token)).thenReturn(context);
+        when(emailContentBuilder.buildEmailTokenContext(user, token)).thenReturn(context);
 
         authService.signUpUser(userDto);
 
@@ -104,7 +104,7 @@ public class AuthServiceImplTest {
 
         when(userService.findUserById(user.getId())).thenReturn(Optional.of(user));
         when(authTokenService.createToken(user.getId(), "confirmation")).thenReturn(authToken);
-        when(emailContentBuilder.buildConfirmationContext(user, authToken)).thenReturn(context);
+        when(emailContentBuilder.buildEmailTokenContext(user, authToken)).thenReturn(context);
 
         authService.sendConfirmationToken(user.getId());
 
@@ -147,7 +147,7 @@ public class AuthServiceImplTest {
 
         when(userService.findUserByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         when(authTokenService.createToken(1, "reset-password")).thenReturn(authToken);
-        when(emailContentBuilder.buildConfirmationContext(user, authToken)).thenReturn(context);
+        when(emailContentBuilder.buildEmailTokenContext(user, authToken)).thenReturn(context);
 
         authService.sendResetPasswordToken(userDto.getEmail());
 
