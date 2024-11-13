@@ -1,5 +1,6 @@
 package com.oasisnourish.util.jwt;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import com.auth0.jwt.JWTVerifier;
@@ -16,29 +17,31 @@ public class JWTProvider {
     private final JWTGenerator generator;
     private final JWTVerifier verifier;
     private final JWTConfig config;
-    private long jwtCurrentTime;
-    private long jwtMaxExpiryTime;
+    private Instant jwtCurrentTime;
+    private Instant jwtMaxExpiryTime;
 
     public JWTProvider(Algorithm algorithm, JWTGenerator generator, JWTVerifier verifier, JWTConfig config) {
         this.algorithm = algorithm;
         this.generator = generator;
         this.verifier = verifier;
         this.config = config;
-        jwtCurrentTime = 0;
-        jwtMaxExpiryTime = 0;
+        jwtCurrentTime = Instant.now();
+        jwtMaxExpiryTime = jwtCurrentTime.plusSeconds(config.getJwtTokenMaxExpires());
     }
 
     public JsonWebToken generateToken(User user, String tokenType, long tokenVersion) {
-        long jwtTokenExpires = switch (tokenType.toLowerCase()) {
+        Instant jwtTokenExpires = switch (tokenType.toLowerCase()) {
             case "access" ->
-                config.getJwtAccessTokenExpires() * 1000L;
+                jwtCurrentTime.plusSeconds(config.getJwtAccessTokenExpires());
             case "refresh" ->
-                config.getJwtTokenMaxExpires() * 1000L;
+                jwtCurrentTime.plusSeconds(config.getJwtTokenMaxExpires());
             default ->
-                0;
+                jwtCurrentTime.plusSeconds(0);
         };
 
-        jwtTokenExpires = Math.min(jwtTokenExpires, jwtMaxExpiryTime);
+        if (jwtTokenExpires.isAfter(jwtMaxExpiryTime)) {
+            jwtTokenExpires = jwtMaxExpiryTime;
+        }
 
         String token = generator.generate(user, algorithm, tokenType, tokenVersion, jwtCurrentTime, jwtTokenExpires);
         return new JsonWebToken(token, tokenType, tokenVersion, jwtTokenExpires, user.getId());
@@ -53,10 +56,10 @@ public class JWTProvider {
     }
 
     public void updateJwtCurrentTime() {
-        jwtCurrentTime = System.currentTimeMillis();
+        jwtCurrentTime = Instant.now();
     }
 
     public void updateJwtMaxExpiryTime() {
-        jwtMaxExpiryTime = jwtCurrentTime + config.getJwtTokenMaxExpires() * 1000;
+        jwtMaxExpiryTime = jwtCurrentTime.plusSeconds(config.getJwtTokenMaxExpires());
     }
 }

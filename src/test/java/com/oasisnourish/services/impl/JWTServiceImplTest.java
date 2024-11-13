@@ -1,5 +1,6 @@
 package com.oasisnourish.services.impl;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,8 +46,9 @@ public class JWTServiceImplTest {
     private final String accessToken = UUID.randomUUID().toString();
     private final String refreshToken = UUID.randomUUID().toString();
     private final long tokenVersion = 1L;
-    private final JsonWebToken jwtAccessToken = new JsonWebToken(accessToken, "access", tokenVersion, System.currentTimeMillis() + 30000L, user.getId());
-    private final JsonWebToken jwtRefreshToken = new JsonWebToken(refreshToken, "refresh", tokenVersion, System.currentTimeMillis() + 60000L, user.getId());
+    private final Instant currentTime = Instant.now();
+    private final JsonWebToken jwtAccessToken = new JsonWebToken(accessToken, "access", tokenVersion, currentTime.plusSeconds(60L), user.getId());
+    private final JsonWebToken jwtRefreshToken = new JsonWebToken(refreshToken, "refresh", tokenVersion, currentTime.plusSeconds(120L), user.getId());
 
     @Test
     public void findToken_Exists() {
