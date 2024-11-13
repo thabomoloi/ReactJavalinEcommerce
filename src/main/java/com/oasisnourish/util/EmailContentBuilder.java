@@ -3,7 +3,6 @@ package com.oasisnourish.util;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.context.IContext;
 
-import com.oasisnourish.config.EnvConfig;
 import com.oasisnourish.models.Token;
 import com.oasisnourish.models.User;
 
@@ -14,16 +13,13 @@ import io.github.cdimascio.dotenv.Dotenv;
  */
 public class EmailContentBuilder {
 
-    private final Dotenv dotenv = EnvConfig.getDotenv();
+    private final Dotenv dotenv;
 
-    /**
-     * Builds the context for a confirmation email.
-     *
-     * @param user The user to include in the email context.
-     * @param token The confirmation token.
-     * @return The context with user and token information.
-     */
-    public IContext buildConfirmationContext(User user, Token token) {
+    public EmailContentBuilder(Dotenv dotenv) {
+        this.dotenv = dotenv;
+    }
+
+    public IContext buildEmailTokenContext(User user, Token token) {
         Context context = new Context();
         context.setVariable("user", user);
         context.setVariable("token", token);

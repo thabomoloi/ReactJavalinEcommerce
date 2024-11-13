@@ -1,0 +1,47 @@
+package com.oasisnourish.util;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.thymeleaf.context.IContext;
+
+import com.oasisnourish.enums.Role;
+import com.oasisnourish.models.AuthToken;
+import com.oasisnourish.models.Token;
+import com.oasisnourish.models.User;
+
+import io.github.cdimascio.dotenv.Dotenv;
+
+@ExtendWith(MockitoExtension.class)
+public class EmailContentBuilderTest {
+
+    @Mock
+    private Dotenv dotenv;
+
+    @InjectMocks
+    private EmailContentBuilder emailContentBuilder;
+
+    @Test
+    public void testBuildEmailTokenContext() {
+        User user = new User(1, "John Doe", "john.doe@test.com", "encodedPassword", Role.ADMIN);
+        Token token = new AuthToken("dummy-token", "confirmation", 1, Instant.now(), user.getId());
+
+        when(dotenv.get("BASE_URL", "http://localhost:7070")).thenReturn("http://testurl.com");
+
+        IContext context = emailContentBuilder.buildEmailTokenContext(user, token);
+
+        assertNotNull(context);
+        assertEquals(user, ((User) context.getVariable("user")));
+        assertEquals(token, ((Token) context.getVariable("token")));
+        assertEquals("http://testurl.com", context.getVariable("baseUrl"));
+        assertNotNull(context.getVariable("TimeFormatter")); // Checking if TimeFormatter class is set
+    }
+}
