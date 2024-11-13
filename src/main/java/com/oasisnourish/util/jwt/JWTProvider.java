@@ -34,7 +34,7 @@ public class JWTProvider {
             case "access" ->
                 jwtCurrentTime.plusSeconds(config.getJwtAccessTokenExpires());
             case "refresh" ->
-                jwtCurrentTime.plusSeconds(config.getJwtTokenMaxExpires());
+                jwtCurrentTime.plusSeconds(config.getJwtRefreshTokenExpires());
             default ->
                 jwtCurrentTime.plusSeconds(0);
         };
@@ -61,5 +61,13 @@ public class JWTProvider {
 
     public void updateJwtMaxExpiryTime() {
         jwtMaxExpiryTime = jwtCurrentTime.plusSeconds(config.getJwtTokenMaxExpires());
+    }
+
+    public Instant getJwtCurrentTime() {
+        return jwtCurrentTime;
+    }
+
+    public Instant getJwtMaxExpiryTime() {
+        return jwtMaxExpiryTime;
     }
 }
