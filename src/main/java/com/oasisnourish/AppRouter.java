@@ -1,10 +1,15 @@
 package com.oasisnourish;
 
-import static io.javalin.apibuilder.ApiBuilder.*;
-
 import com.oasisnourish.enums.Role;
 
+import static io.javalin.apibuilder.ApiBuilder.delete;
+import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.patch;
+import static io.javalin.apibuilder.ApiBuilder.path;
+import static io.javalin.apibuilder.ApiBuilder.post;
+
 public class AppRouter {
+
     private final AppConfig CONFIG;
 
     public AppRouter(AppConfig config) {
@@ -28,13 +33,13 @@ public class AppRouter {
                 post("/signin", CONFIG.AUTH_CONTROLLER::signInUser, Role.GUEST);
                 delete("/signout", CONFIG.AUTH_CONTROLLER::signOutUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
                 post("/refresh", CONFIG.AUTH_CONTROLLER::refreshToken, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
-                path("/confirm/{userId}", () -> {
+                path("/confirm-account", () -> {
                     post(CONFIG.AUTH_CONTROLLER::generateConfirmationToken, Role.UNVERIFIED_USER);
                     patch("/{token}", CONFIG.AUTH_CONTROLLER::confirmAccountToken, Role.UNVERIFIED_USER);
                 });
                 path("/reset-password", () -> {
                     post(CONFIG.AUTH_CONTROLLER::generateResetPasswordToken, Role.GUEST);
-                    patch("/{userId}/{token}", CONFIG.AUTH_CONTROLLER::resetPassword, Role.GUEST);
+                    patch("/{token}", CONFIG.AUTH_CONTROLLER::resetPassword, Role.GUEST);
                 });
             });
         });
