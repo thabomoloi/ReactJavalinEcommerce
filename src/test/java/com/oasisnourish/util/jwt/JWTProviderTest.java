@@ -7,12 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -46,6 +48,12 @@ public class JWTProviderTest {
     private JWTProvider jwtProvider;
 
     private final User user = new User(1, "John Doe", "john.doe@test.com", "encodedPassword", Role.ADMIN);
+
+    @BeforeEach
+    public void setUp() {
+        lenient().when(jwtConfig.getAlgorithm()).thenReturn(algorithm);
+        lenient().when(jwtConfig.getVerifier()).thenReturn(jwtVerifier);
+    }
 
     @Test
     void testGenerateToken_ValidExpiry() {
