@@ -1,18 +1,24 @@
 package com.oasisnourish.services.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.oasisnourish.dao.UserDao;
@@ -22,6 +28,7 @@ import com.oasisnourish.exceptions.EmailExistsException;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.User;
 
+@ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
     @Mock
@@ -32,11 +39,6 @@ public class UserServiceImplTest {
 
     @InjectMocks
     private UserServiceImpl userService;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     public void testFindUserById_Success() {
@@ -77,7 +79,8 @@ public class UserServiceImplTest {
 
         when(userDao.findByEmail(userDto.getEmail())).thenReturn(Optional.of(new User()));
 
-        assertThrows(EmailExistsException.class, () -> userService.createUser(userDto));
+        EmailExistsException exception = assertThrows(EmailExistsException.class, () -> userService.createUser(userDto));
+        assertEquals("The email has already been taken.", exception.getMessage());
         verify(userDao, times(1)).findByEmail(userDto.getEmail());
         verify(userDao, never()).save(any(User.class));
     }
@@ -126,7 +129,8 @@ public class UserServiceImplTest {
 
         when(userDao.find(1)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> userService.updateUser(userDto));
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.updateUser(userDto));
+        assertEquals("User does not exist.", exception.getMessage());
         verify(userDao, times(1)).find(1);
         verify(userDao, never()).update(any(User.class));
     }
@@ -147,7 +151,8 @@ public class UserServiceImplTest {
     public void testDeleteUser_UserDoesNotExist() {
         when(userDao.find(1)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> userService.deleteUser(1));
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.deleteUser(1));
+        assertEquals("User does not exist.", exception.getMessage());
         verify(userDao, times(1)).find(1);
         verify(userDao, never()).delete(1);
     }
@@ -202,7 +207,8 @@ public class UserServiceImplTest {
     void updatePassword_UserDoesNotExist_ThrowsNotFoundException() {
         when(userDao.find(1)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> userService.updatePassword(1, "newPassword"));
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.updatePassword(1, "newPassword"));
+        assertEquals("User does not exist.", exception.getMessage());
         verify(userDao, times(1)).find(1);
         verify(userDao, never()).update(any(User.class));
     }

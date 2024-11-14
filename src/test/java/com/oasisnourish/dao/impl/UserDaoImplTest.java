@@ -1,8 +1,5 @@
 package com.oasisnourish.dao.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,26 +10,33 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.AdditionalAnswers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.oasisnourish.dao.mappers.EntityRowMapper;
 import com.oasisnourish.db.JdbcConnection;
-import com.oasisnourish.models.User;
 import com.oasisnourish.enums.Role;
+import com.oasisnourish.models.User;
 
 /**
  * Unit tests for {@link UserDaoImpl}.
- * 
+ *
  * <p>
  * This class tests the CRUD operations for {@link User} in the
  * {@link UserDaoImpl} class.
  * </p>
  */
+@ExtendWith(MockitoExtension.class)
 public class UserDaoImplTest {
 
     private static final String FIND_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
@@ -69,7 +73,6 @@ public class UserDaoImplTest {
      */
     @BeforeEach
     public void setUp() throws SQLException {
-        MockitoAnnotations.openMocks(this);
         when(jdbcConnection.getConnection()).thenReturn(connection);
     }
 
@@ -175,7 +178,8 @@ public class UserDaoImplTest {
     }
 
     /**
-     * Tests finding a user by email address when the user exists in the database.
+     * Tests finding a user by email address when the user exists in the
+     * database.
      *
      * @throws SQLException if a SQL error occurs during the test.
      */
