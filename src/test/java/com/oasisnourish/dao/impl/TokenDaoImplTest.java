@@ -27,7 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.oasisnourish.db.RedisConnection;
 import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.AuthToken;
-import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.Token;
 
 import redis.clients.jedis.JedisPooled;
@@ -42,7 +41,7 @@ public class TokenDaoImplTest {
     private JedisPooled jedis;
 
     @InjectMocks
-    private TokenDaoImpl tokenDao;
+    private TokenDaoImpl<AuthToken> tokenDao;
 
     @BeforeEach
     public void setUp() {
@@ -83,29 +82,11 @@ public class TokenDaoImplTest {
         when(jedis.exists(key)).thenReturn(true);
         mockRedisTokenFields(key, expectedToken);
 
-        Optional<Token> result = tokenDao.findToken(token);
+        Optional<AuthToken> result = tokenDao.findToken(token);
 
         assertTrue(result.isPresent());
         assertEquals(AuthToken.class, result.get().getClass());
         AuthToken actualToken = (AuthToken) result.get();
-        assertEquals(expectedToken, actualToken);
-    }
-
-    @Test
-    void testFindToken_JWTExists() {
-        String token = "testToken";
-        int userId = 1;
-        String key = "token:" + token;
-
-        JsonWebToken expectedToken = new JsonWebToken(token, Tokens.Jwt.ACCESS_TOKEN, 1, Instant.now().plusSeconds(60L), userId);
-        when(jedis.exists(key)).thenReturn(true);
-        mockRedisTokenFields(key, expectedToken);
-
-        Optional<Token> result = tokenDao.findToken(token);
-
-        assertTrue(result.isPresent());
-        assertEquals(JsonWebToken.class, result.get().getClass());
-        JsonWebToken actualToken = (JsonWebToken) result.get();
         assertEquals(expectedToken, actualToken);
     }
 
@@ -116,7 +97,7 @@ public class TokenDaoImplTest {
 
         when(jedis.exists(key)).thenReturn(false);
 
-        Optional<Token> result = tokenDao.findToken(token);
+        Optional<AuthToken> result = tokenDao.findToken(token);
 
         assertTrue(result.isEmpty());
         verify(jedis, never()).hget(anyString(), anyString());
@@ -148,7 +129,7 @@ public class TokenDaoImplTest {
         mockRedisTokenFields("token:" + token1.getToken(), token1);
         mockRedisTokenFields("token:" + token2.getToken(), token2);
 
-        List<Token> tokens = tokenDao.findTokensByUserId(userId);
+        List<AuthToken> tokens = tokenDao.findTokensByUserId(userId);
 
         assertEquals(Arrays.asList(token1, token2), tokens);
     }

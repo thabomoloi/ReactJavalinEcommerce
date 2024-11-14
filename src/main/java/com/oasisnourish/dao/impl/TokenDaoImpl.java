@@ -16,7 +16,7 @@ import com.oasisnourish.models.Token;
 
 import redis.clients.jedis.JedisPooled;
 
-public class TokenDaoImpl implements TokenDao<Token> {
+public class TokenDaoImpl<T extends Token> implements TokenDao<T> {
 
     private final RedisConnection redisConnection;
 
@@ -25,59 +25,57 @@ public class TokenDaoImpl implements TokenDao<Token> {
     }
 
     @Override
-    public void saveToken(Token tokenDetails) {
+    public void saveToken(T tokenDetails) {
         Duration ttl = Duration.between(Instant.now(), tokenDetails.getExpires());
 
         if (ttl.isNegative() || ttl.isZero()) {
             return; // Token has already expired
         }
 
-        try (JedisPooled jedis = redisConnection.getJedis();) {
-            String key = getKey(tokenDetails.getToken());
-            jedis.hset(key, "token", tokenDetails.getToken());
-            jedis.hset(key, "tokenCategory", tokenDetails.getTokenCategory().getCategory());
-            jedis.hset(key, "tokenType", tokenDetails.getTokenType().getType());
-            jedis.hset(key, "tokenVersion", String.valueOf(tokenDetails.getTokenVersion()));
-            jedis.hset(key, "expires", String.valueOf(tokenDetails.getExpires()));
-            jedis.hset(key, "userId", String.valueOf(tokenDetails.getUserId()));
-            jedis.expire(key, ttl.toSeconds());
-        }
+        var jedis = redisConnection.getJedis();
+        String key = getKey(tokenDetails.getToken());
+        jedis.hset(key, "token", tokenDetails.getToken());
+        jedis.hset(key, "tokenCategory", tokenDetails.getTokenCategory().getCategory());
+        jedis.hset(key, "tokenType", tokenDetails.getTokenType().getType());
+        jedis.hset(key, "tokenVersion", String.valueOf(tokenDetails.getTokenVersion()));
+        jedis.hset(key, "expires", String.valueOf(tokenDetails.getExpires()));
+        jedis.hset(key, "userId", String.valueOf(tokenDetails.getUserId()));
+        jedis.expire(key, ttl.toSeconds());
     }
 
     @Override
-    public Optional<Token> findToken(String token) {
-        try (JedisPooled jedis = redisConnection.getJedis();) {
-            String key = getKey(token);
-            if (jedis.exists(key)) {
-                return Optional.of(buildTokenFromRedis(key, jedis));
-            } else {
-                return Optional.empty();
-            }
+    public Optional<T> findToken(String token) {
+        var jedis = redisConnection.getJedis();
+
+        String key = getKey(token);
+        if (jedis.exists(key)) {
+            return Optional.of(buildTokenFromRedis(key, jedis));
+        } else {
+            return Optional.empty();
         }
     }
 
     @Override
     public void deleteToken(String token) {
-        try (JedisPooled jedis = redisConnection.getJedis();) {
-            jedis.del(getKey(token));
-        }
+        redisConnection.getJedis().del(getKey(token));
     }
 
     @Override
-    public List<Token> findTokensByUserId(int userId) {
-        List<Token> tokens = new ArrayList<>();
-        try (JedisPooled jedis = redisConnection.getJedis()) {
-            Set<String> keys = jedis.keys("token:*");
-            for (String key : keys) {
-                if (userIdMatches(jedis, key, userId)) {
-                    tokens.add(buildTokenFromRedis(key, jedis));
-                }
+    public List<T> findTokensByUserId(int userId) {
+        var jedis = redisConnection.getJedis();
+
+        List<T> tokens = new ArrayList<>();
+        Set<String> keys = jedis.keys("token:*");
+        for (String key : keys) {
+            if (userIdMatches(jedis, key, userId)) {
+                tokens.add(buildTokenFromRedis(key, jedis));
             }
-            return tokens;
         }
+        return tokens;
     }
 
-    private Token buildTokenFromRedis(String key, JedisPooled jedis) {
+    @SuppressWarnings("unchecked")
+    private T buildTokenFromRedis(String key, JedisPooled jedis) {
         String token = jedis.hget(key, "token");
         String tokenCategoryStr = jedis.hget(key, "tokenCategory");
         String tokenTypeStr = jedis.hget(key, "tokenType");
@@ -96,9 +94,9 @@ public class TokenDaoImpl implements TokenDao<Token> {
 
         return switch (tokenCategory) {
             case AUTH ->
-                new AuthToken(token, (Tokens.Auth) tokenType, tokenVersion, expires, userId);
+                (T) new AuthToken(token, (Tokens.Auth) tokenType, tokenVersion, expires, userId);
             case JWT ->
-                new JsonWebToken(token, (Tokens.Jwt) tokenType, tokenVersion, expires, userId);
+                (T) new JsonWebToken(token, (Tokens.Jwt) tokenType, tokenVersion, expires, userId);
         };
     }
 
