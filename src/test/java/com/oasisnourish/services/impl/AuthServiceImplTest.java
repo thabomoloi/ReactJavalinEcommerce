@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.context.IContext;
 
 import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.exceptions.InvalidTokenException;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.AuthToken;
@@ -63,7 +64,7 @@ public class AuthServiceImplTest {
         IContext context = mock(IContext.class);
 
         when(userService.findUserByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
-        when(authTokenService.createToken(user.getId(), "confirmation")).thenReturn(token);
+        when(authTokenService.createToken(user.getId(), Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN)).thenReturn(token);
         when(emailContentBuilder.buildEmailTokenContext(user, token)).thenReturn(context);
 
         authService.signUpUser(userDto);
@@ -74,8 +75,8 @@ public class AuthServiceImplTest {
 
     @Test
     public void testSignInUser_Success() {
-        JsonWebToken accessToken = new JsonWebToken("accessToken", "access", 1, Instant.now().plusSeconds(30L), user.getId());
-        JsonWebToken refreshToken = new JsonWebToken("refreshToken", "refresh", 1, Instant.now().plusSeconds(60L), user.getId());
+        JsonWebToken accessToken = new JsonWebToken("accessToken", Tokens.Jwt.ACCESS_TOKEN, 1, Instant.now().plusSeconds(30L), user.getId());
+        JsonWebToken refreshToken = new JsonWebToken("refreshToken", Tokens.Jwt.REFRESH_TOKEN, 1, Instant.now().plusSeconds(60L), user.getId());
 
         when(userService.findUserByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(userDto.getPassword(), user.getPassword())).thenReturn(true);
@@ -99,11 +100,11 @@ public class AuthServiceImplTest {
 
     @Test
     public void testSendConfirmationToken_UserExists() {
-        AuthToken authToken = new AuthToken("token", "confirmation", 1, Instant.now().plusSeconds(10L), 1);
+        AuthToken authToken = new AuthToken("token", Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN, 1, Instant.now().plusSeconds(10L), 1);
         IContext context = mock(IContext.class);
 
         when(userService.findUserById(user.getId())).thenReturn(Optional.of(user));
-        when(authTokenService.createToken(user.getId(), "confirmation")).thenReturn(authToken);
+        when(authTokenService.createToken(user.getId(), Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN)).thenReturn(authToken);
         when(emailContentBuilder.buildEmailTokenContext(user, authToken)).thenReturn(context);
 
         authService.sendConfirmationToken(user.getId());
@@ -121,7 +122,7 @@ public class AuthServiceImplTest {
 
     @Test
     void testConfirmAccount_ValidToken() {
-        AuthToken authToken = new AuthToken("validToken", "confirmation", 1, Instant.now().plusSeconds(10L), user.getId());
+        AuthToken authToken = new AuthToken("validToken", Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN, 1, Instant.now().plusSeconds(10L), user.getId());
 
         when(authTokenService.findToken("validToken")).thenReturn(Optional.of(authToken));
         when(userService.findUserById(user.getId())).thenReturn(Optional.of(user));
@@ -143,10 +144,10 @@ public class AuthServiceImplTest {
     @Test
     public void testSendResetPasswordToken_UserExists() {
         IContext context = mock(IContext.class);
-        AuthToken authToken = new AuthToken("token", "reset-password", 1, Instant.now().plusSeconds(10L), user.getId());
+        AuthToken authToken = new AuthToken("token", Tokens.Auth.PASSWORD_RESET_TOKEN, 1, Instant.now().plusSeconds(10L), user.getId());
 
         when(userService.findUserByEmail(userDto.getEmail())).thenReturn(Optional.of(user));
-        when(authTokenService.createToken(1, "reset-password")).thenReturn(authToken);
+        when(authTokenService.createToken(1, Tokens.Auth.PASSWORD_RESET_TOKEN)).thenReturn(authToken);
         when(emailContentBuilder.buildEmailTokenContext(user, authToken)).thenReturn(context);
 
         authService.sendResetPasswordToken(userDto.getEmail());
@@ -165,7 +166,7 @@ public class AuthServiceImplTest {
 
     @Test
     public void testResetPassword_ValidToken() {
-        AuthToken authToken = new AuthToken("resetToken", "reset-password", 1, Instant.now().plusSeconds(10L), user.getId());
+        AuthToken authToken = new AuthToken("resetToken", Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN, 1, Instant.now().plusSeconds(10L), user.getId());
 
         when(authTokenService.findToken("resetToken")).thenReturn(Optional.of(authToken));
         when(userService.findUserById(1)).thenReturn(Optional.of(user));

@@ -2,6 +2,7 @@ package com.oasisnourish.dao.impl;
 
 import com.oasisnourish.dao.TokenVersionDao;
 import com.oasisnourish.db.RedisConnection;
+import com.oasisnourish.enums.Tokens;
 
 import redis.clients.jedis.JedisPooled;
 
@@ -14,7 +15,7 @@ public class TokenVersionDaoImpl implements TokenVersionDao {
     }
 
     @Override
-    public long find(int userId, String tokenCategory, String tokenType) {
+    public long find(int userId, Tokens.Category tokenCategory, Tokens.Type tokenType) {
         String key = getKey(userId, tokenCategory, tokenType);
         try (JedisPooled jedis = redisConnection.getJedis()) {
             if (!jedis.exists(key)) {
@@ -25,7 +26,7 @@ public class TokenVersionDaoImpl implements TokenVersionDao {
     }
 
     @Override
-    public long increment(int userId, String tokenCategory, String tokenType) {
+    public long increment(int userId, Tokens.Category tokenCategory, Tokens.Type tokenType) {
         String key = getKey(userId, tokenCategory, tokenType);
         try (JedisPooled jedis = redisConnection.getJedis()) {
             if (!jedis.exists(key)) {
@@ -35,7 +36,7 @@ public class TokenVersionDaoImpl implements TokenVersionDao {
         }
     }
 
-    private String getKey(int userId, String tokenCategory, String tokenType) {
-        return "user:" + userId + ":token-category:" + tokenCategory + ":token-type:" + tokenType;
+    private String getKey(int userId, Tokens.Category tokenCategory, Tokens.Type tokenType) {
+        return "user:" + userId + ":token-category:" + tokenCategory.getCategory() + ":token-type:" + tokenType.getType();
     }
 }

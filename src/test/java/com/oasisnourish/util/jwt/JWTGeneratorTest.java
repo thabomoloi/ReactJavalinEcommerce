@@ -1,19 +1,19 @@
 package com.oasisnourish.util.jwt;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.enums.Role;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.User;
 
 public class JWTGeneratorTest {
@@ -25,7 +25,7 @@ public class JWTGeneratorTest {
     @Test
     void generate_ShouldReturnTokenWithCorrectClaims() {
         long tokenVersion = 1;
-        String tokenType = "access";
+        Tokens.Jwt tokenType = Tokens.Jwt.ACCESS_TOKEN;
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plus(1, ChronoUnit.HOURS); // Expires in 1 hour
 
@@ -34,7 +34,7 @@ public class JWTGeneratorTest {
 
         Duration offset = Duration.ofSeconds(1);
 
-        assertEquals(tokenType, decodedJWT.getClaim("type").asString());
+        assertEquals(tokenType.getType(), decodedJWT.getClaim("type").asString());
         assertEquals(tokenVersion, decodedJWT.getClaim("version").asLong());
         assertEquals(user.getId(), decodedJWT.getClaim("userId").asInt());
         assertEquals(user.getRole().name().toLowerCase(), decodedJWT.getClaim("role").asString());
@@ -46,8 +46,8 @@ public class JWTGeneratorTest {
     void generate_ShouldGenerateUniqueTokenIds() {
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plusSeconds(60L);
-        String token1 = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
-        String token2 = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
+        String token1 = jwtGenerator.generate(user, algorithm, Tokens.Jwt.ACCESS_TOKEN, 1, issuedAt, expiresAt);
+        String token2 = jwtGenerator.generate(user, algorithm, Tokens.Jwt.ACCESS_TOKEN, 1, issuedAt, expiresAt);
         assertNotEquals(JWT.decode(token1).getId(), JWT.decode(token2).getId());
     }
 
@@ -55,7 +55,7 @@ public class JWTGeneratorTest {
     void generate_ShouldSetExpirationCorrectly() {
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plusSeconds(60L);
-        String token = jwtGenerator.generate(user, algorithm, "ACCESS", 1, issuedAt, expiresAt);
+        String token = jwtGenerator.generate(user, algorithm, Tokens.Jwt.ACCESS_TOKEN, 1, issuedAt, expiresAt);
         DecodedJWT decodedJWT = JWT.decode(token);
         Duration duration = Duration.between(expiresAt, decodedJWT.getExpiresAt().toInstant());
         Duration offset = Duration.ofSeconds(1);

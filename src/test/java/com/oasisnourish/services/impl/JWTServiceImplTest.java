@@ -22,6 +22,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.dao.TokenDao;
 import com.oasisnourish.dao.TokenVersionDao;
 import com.oasisnourish.enums.Role;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 import com.oasisnourish.util.jwt.JWTProvider;
@@ -47,8 +48,8 @@ public class JWTServiceImplTest {
     private final String refreshToken = UUID.randomUUID().toString();
     private final long tokenVersion = 1L;
     private final Instant currentTime = Instant.now();
-    private final JsonWebToken jwtAccessToken = new JsonWebToken(accessToken, "access", tokenVersion, currentTime.plusSeconds(60L), user.getId());
-    private final JsonWebToken jwtRefreshToken = new JsonWebToken(refreshToken, "refresh", tokenVersion, currentTime.plusSeconds(120L), user.getId());
+    private final JsonWebToken jwtAccessToken = new JsonWebToken(accessToken, Tokens.Jwt.ACCESS_TOKEN, tokenVersion, currentTime.plusSeconds(60L), user.getId());
+    private final JsonWebToken jwtRefreshToken = new JsonWebToken(refreshToken, Tokens.Jwt.REFRESH_TOKEN, tokenVersion, currentTime.plusSeconds(120L), user.getId());
 
     @Test
     public void findToken_Exists() {
@@ -73,10 +74,10 @@ public class JWTServiceImplTest {
 
     @Test
     public void createToken_Success() {
-        when(tokenVersionDao.increment(user.getId(), "jwt", "access")).thenReturn(tokenVersion);
-        when(provider.generateToken(user, "access", tokenVersion)).thenReturn(jwtAccessToken);
-        when(tokenVersionDao.increment(user.getId(), "jwt", "refresh")).thenReturn(tokenVersion);
-        when(provider.generateToken(user, "refresh", tokenVersion)).thenReturn(jwtRefreshToken);
+        when(tokenVersionDao.increment(user.getId(), Tokens.Category.JWT, Tokens.Jwt.ACCESS_TOKEN)).thenReturn(tokenVersion);
+        when(provider.generateToken(user, Tokens.Jwt.ACCESS_TOKEN, tokenVersion)).thenReturn(jwtAccessToken);
+        when(tokenVersionDao.increment(user.getId(), Tokens.Category.JWT, Tokens.Jwt.REFRESH_TOKEN)).thenReturn(tokenVersion);
+        when(provider.generateToken(user, Tokens.Jwt.REFRESH_TOKEN, tokenVersion)).thenReturn(jwtRefreshToken);
 
         Map<String, JsonWebToken> tokens = jwtService.createTokens(user);
 
@@ -120,9 +121,9 @@ public class JWTServiceImplTest {
 
     @Test
     public void testGetCurrentTokenVersion() {
-        String tokenType = "access";
+        Tokens.Jwt tokenType = Tokens.Jwt.ACCESS_TOKEN;
 
-        when(tokenVersionDao.find(user.getId(), "jwt", tokenType)).thenReturn(tokenVersion);
+        when(tokenVersionDao.find(user.getId(), Tokens.Category.JWT, tokenType)).thenReturn(tokenVersion);
 
         long result = jwtService.getCurrentTokenVersion(user.getId(), tokenType);
 

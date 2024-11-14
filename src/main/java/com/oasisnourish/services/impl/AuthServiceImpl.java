@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.context.IContext;
 
 import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.exceptions.InvalidTokenException;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.AuthToken;
@@ -72,13 +73,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void sendConfirmationToken(int userId) {
         var user = userService.findUserById(userId).orElseThrow(() -> new NotFoundException("User does not exist."));
-        sendTokenEmail(user, "confirmation", "Confirm Your Email Address", "user/confirm");
+        sendTokenEmail(user, Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN, "Confirm Your Email Address", "user/confirm");
     }
 
     @Override
     public void sendWelcomeEmail(String email) {
         var user = userService.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User does not exist."));
-        sendTokenEmail(user, "confirmation", "Welcome to Oasis Nourish", "user/welcome");
+        sendTokenEmail(user, Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN, "Welcome to Oasis Nourish", "user/welcome");
     }
 
     @Override
@@ -93,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void sendResetPasswordToken(String email) {
         var user = userService.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User does not exist."));
-        sendTokenEmail(user, "reset-password", "Reset your password", "user/reset-password");
+        sendTokenEmail(user, Tokens.Auth.PASSWORD_RESET_TOKEN, "Reset your password", "user/reset-password");
     }
 
     @Override
@@ -113,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
      * @param subject the subject of the email
      * @param template the template to use for the email body
      */
-    private void sendTokenEmail(User user, String type, String subject, String template) {
+    private void sendTokenEmail(User user, Tokens.Auth type, String subject, String template) {
         AuthToken token = authTokenService.createToken(user.getId(), type);
         IContext context = emailContentBuilder.buildEmailTokenContext(user, token);
         emailService.sendEmail(user.getEmail(), subject, template, context);

@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.thymeleaf.context.IContext;
 
 import com.oasisnourish.enums.Role;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.AuthToken;
 import com.oasisnourish.models.Token;
 import com.oasisnourish.models.User;
@@ -32,7 +33,7 @@ public class EmailContentBuilderTest {
     @Test
     public void testBuildEmailTokenContext() {
         User user = new User(1, "John Doe", "john.doe@test.com", "encodedPassword", Role.ADMIN);
-        Token token = new AuthToken("dummy-token", "confirmation", 1, Instant.now(), user.getId());
+        Token token = new AuthToken("dummy-token", Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN, 1, Instant.now(), user.getId());
 
         when(dotenv.get("BASE_URL", "http://localhost:7070")).thenReturn("http://testurl.com");
 

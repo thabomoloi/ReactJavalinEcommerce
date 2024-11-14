@@ -2,9 +2,11 @@ package com.oasisnourish.models;
 
 import java.time.Instant;
 
+import com.oasisnourish.enums.Tokens;
+
 public class AuthToken extends Token {
 
-    public AuthToken(String token, String tokenType, long tokenVersion, Instant expires, int userId) {
-        super(token, "auth", tokenType, tokenVersion, expires, userId);
+    public AuthToken(String token, Tokens.Auth tokenType, long tokenVersion, Instant expires, int userId) {
+        super(token, Tokens.Category.AUTH, tokenType, tokenVersion, expires, userId);
     }
 }

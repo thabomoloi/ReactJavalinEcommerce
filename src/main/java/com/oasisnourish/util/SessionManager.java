@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.dto.UserResponseDto;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.JWTService;
@@ -80,7 +81,7 @@ public class SessionManager {
         int userId = jwt.getClaim("userId").asInt();
         long version = jwt.getClaim("version").asLong();
 
-        if (version != jwtService.getCurrentTokenVersion(userId, "access")) {
+        if (version != jwtService.getCurrentTokenVersion(userId, Tokens.Jwt.ACCESS_TOKEN)) {
             invalidateSession(ctx);
             throw new UnauthorizedResponse("Invalid token: version outdated.");
         }
@@ -121,7 +122,7 @@ public class SessionManager {
 
         User user = ctx.sessionAttribute("currentUser");
 
-        if (version != jwtService.getCurrentTokenVersion(userId, "refresh") || user == null) {
+        if (version != jwtService.getCurrentTokenVersion(userId, Tokens.Jwt.REFRESH_TOKEN) || user == null) {
             invalidateSession(ctx);
             throw new UnauthorizedResponse("Cannot refresh token: version outdated.");
         }
@@ -138,7 +139,7 @@ public class SessionManager {
 
     private Cookie createTokenCookie(JsonWebToken token) {
         String environment = dotenv.get("ENV", "development");
-        Cookie cookie = new Cookie("access".equals(token.getTokenType()) ? JWT_ACCESS_KEY : JWT_REFRESH_KEY, token.getToken());
+        Cookie cookie = new Cookie(Tokens.Jwt.ACCESS_TOKEN == token.getTokenType() ? JWT_ACCESS_KEY : JWT_REFRESH_KEY, token.getToken());
         cookie.setHttpOnly(true);
         cookie.setSecure("production".equals(environment));
         cookie.setSameSite(SameSite.STRICT);

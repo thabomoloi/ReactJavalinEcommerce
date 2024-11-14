@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.dao.TokenDao;
 import com.oasisnourish.dao.TokenVersionDao;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.JWTService;
@@ -26,10 +27,10 @@ public class JWTServiceImpl extends TokenServiceImpl<JsonWebToken> implements JW
     public Map<String, JsonWebToken> createTokens(User user) {
         provider.updateJwtCurrentTime();
 
-        long tokenVersion = tokenVersionDao.increment(user.getId(), "jwt", "access");
-        JsonWebToken accessToken = provider.generateToken(user, "access", tokenVersion);
-        tokenVersion = tokenVersionDao.increment(user.getId(), "jwt", "refresh");
-        JsonWebToken refreshToken = provider.generateToken(user, "refresh", tokenVersion);
+        long tokenVersion = tokenVersionDao.increment(user.getId(), Tokens.Category.JWT, Tokens.Jwt.ACCESS_TOKEN);
+        JsonWebToken accessToken = provider.generateToken(user, Tokens.Jwt.ACCESS_TOKEN, tokenVersion);
+        tokenVersion = tokenVersionDao.increment(user.getId(), Tokens.Category.JWT, Tokens.Jwt.REFRESH_TOKEN);
+        JsonWebToken refreshToken = provider.generateToken(user, Tokens.Jwt.REFRESH_TOKEN, tokenVersion);
         tokenDao.saveToken(accessToken);
         tokenDao.saveToken(refreshToken);
 
@@ -45,8 +46,8 @@ public class JWTServiceImpl extends TokenServiceImpl<JsonWebToken> implements JW
     }
 
     @Override
-    public long getCurrentTokenVersion(int userId, String tokenType) {
-        return tokenVersionDao.find(userId, "jwt", tokenType);
+    public long getCurrentTokenVersion(int userId, Tokens.Jwt tokenType) {
+        return tokenVersionDao.find(userId, Tokens.Category.JWT, tokenType);
     }
 
     @Override

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.oasisnourish.db.RedisConnection;
+import com.oasisnourish.enums.Tokens;
 
 import redis.clients.jedis.JedisPooled;
 
@@ -26,6 +27,11 @@ public class TokenVersionDaoImplTest {
     @InjectMocks
     private TokenVersionDaoImpl tokenVersionDao;
 
+    private final int userId = 1;
+    private final Tokens.Category tokenCategory = Tokens.Category.AUTH;
+    private final Tokens.Auth tokenType = Tokens.Auth.PASSWORD_RESET_TOKEN;
+    private final String key = "user:" + userId + ":token-category:" + tokenCategory.getCategory() + ":token-type:" + tokenType.getType();
+
     @BeforeEach
     public void setUp() {
         when(redisConnection.getJedis()).thenReturn(jedis);
@@ -33,11 +39,6 @@ public class TokenVersionDaoImplTest {
 
     @Test
     public void testFind_KeyExists() {
-        int userId = 1;
-        String tokenCategory = "testCategory";
-        String tokenType = "testType";
-        String key = "user:" + userId + ":token-category:" + tokenCategory + ":token-type:" + tokenType;
-
         when(jedis.exists(key)).thenReturn(true);
         when(jedis.get(key)).thenReturn("3");
 
@@ -49,11 +50,6 @@ public class TokenVersionDaoImplTest {
 
     @Test
     void testFind_KeyDoesNotExist() {
-        int userId = 1;
-        String tokenCategory = "testCategory";
-        String tokenType = "testType";
-        String key = "user:" + userId + ":token-category:" + tokenCategory + ":token-type:" + tokenType;
-
         when(jedis.exists(key)).thenReturn(false);
         when(jedis.get(key)).thenReturn("1");
 
@@ -67,11 +63,6 @@ public class TokenVersionDaoImplTest {
 
     @Test
     void testIncrement_KeyExists() {
-        int userId = 1;
-        String tokenCategory = "testCategory";
-        String tokenType = "testType";
-        String key = "user:" + userId + ":token-category:" + tokenCategory + ":token-type:" + tokenType;
-
         when(jedis.exists(key)).thenReturn(true);
         when(jedis.incr(key)).thenReturn(4L);
 
@@ -84,11 +75,6 @@ public class TokenVersionDaoImplTest {
 
     @Test
     void testIncrement_KeyDoesNotExist() {
-        int userId = 1;
-        String tokenCategory = "testCategory";
-        String tokenType = "testType";
-        String key = "user:" + userId + ":token-category:" + tokenCategory + ":token-type:" + tokenType;
-
         when(jedis.exists(key)).thenReturn(false);
         when(jedis.incr(key)).thenReturn(1L);
 
