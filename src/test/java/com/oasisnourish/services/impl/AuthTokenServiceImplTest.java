@@ -24,6 +24,7 @@ import com.oasisnourish.config.AuthTokenConfig;
 import com.oasisnourish.dao.TokenDao;
 import com.oasisnourish.dao.TokenRateLimitDao;
 import com.oasisnourish.dao.TokenVersionDao;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.exceptions.TooManyRequestsException;
 import com.oasisnourish.models.AuthToken;
 
@@ -46,7 +47,7 @@ public class AuthTokenServiceImplTest {
     private AuthTokenServiceImpl authTokenService;
 
     private final int userId = 1;
-    private final String tokenType = "confirmation";
+    private final Tokens.Auth tokenType = Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN;
     private final String token = UUID.randomUUID().toString();
 
     @BeforeEach
@@ -81,13 +82,13 @@ public class AuthTokenServiceImplTest {
     @Test
     public void createToken_Success() {
         when(tokenRateLimitDao.find(userId)).thenReturn(0L);
-        when(tokenVersionDao.find(userId, "auth", tokenType)).thenReturn(1L);
+        when(tokenVersionDao.find(userId, Tokens.Category.AUTH, tokenType)).thenReturn(1L);
         when(tokenDao.findTokensByUserId(userId)).thenReturn(Collections.emptyList());
 
         authTokenService.createToken(userId, tokenType);
 
         verify(tokenDao, times(1)).saveToken(any(AuthToken.class));
-        verify(tokenVersionDao, times(1)).increment(userId, "auth", tokenType);
+        verify(tokenVersionDao, times(1)).increment(userId, Tokens.Category.AUTH, tokenType);
         verify(tokenRateLimitDao, times(1)).increment(userId, 60);
 
     }
@@ -104,7 +105,7 @@ public class AuthTokenServiceImplTest {
     public void createToken_DeletePreviousToken() {
         AuthToken previousToken = new AuthToken(token, tokenType, 1L, Instant.now().plusSeconds(30L), userId);
         when(tokenRateLimitDao.find(userId)).thenReturn(0L);
-        when(tokenVersionDao.find(userId, "auth", tokenType)).thenReturn(1L);
+        when(tokenVersionDao.find(userId, Tokens.Category.AUTH, tokenType)).thenReturn(1L);
         when(tokenDao.findTokensByUserId(userId)).thenReturn(Collections.singletonList(previousToken));
 
         authTokenService.createToken(userId, tokenType);

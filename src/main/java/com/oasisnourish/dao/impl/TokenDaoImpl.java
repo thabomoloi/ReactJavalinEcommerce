@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.oasisnourish.dao.TokenDao;
 import com.oasisnourish.db.RedisConnection;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.AuthToken;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.Token;
@@ -33,8 +34,9 @@ public class TokenDaoImpl implements TokenDao<Token> {
 
         try (JedisPooled jedis = redisConnection.getJedis();) {
             String key = getKey(tokenDetails.getToken());
-            jedis.hset(key, "tokenCategory", tokenDetails.getTokenCategory());
-            jedis.hset(key, "tokenType", tokenDetails.getTokenType());
+            jedis.hset(key, "token", tokenDetails.getToken());
+            jedis.hset(key, "tokenCategory", tokenDetails.getTokenCategory().getCategory());
+            jedis.hset(key, "tokenType", tokenDetails.getTokenType().getType());
             jedis.hset(key, "tokenVersion", String.valueOf(tokenDetails.getTokenVersion()));
             jedis.hset(key, "expires", String.valueOf(tokenDetails.getExpires()));
             jedis.hset(key, "userId", String.valueOf(tokenDetails.getUserId()));
@@ -47,19 +49,7 @@ public class TokenDaoImpl implements TokenDao<Token> {
         try (JedisPooled jedis = redisConnection.getJedis();) {
             String key = getKey(token);
             if (jedis.exists(key)) {
-                String tokenCategory = jedis.hget(key, "tokenCategory");
-                String tokenType = jedis.hget(key, "tokenType");
-                long tokenVersion = Long.parseLong(jedis.hget(key, "tokenVersion"));
-                Instant expires = Instant.parse(jedis.hget(key, "expires"));
-                int userId = Integer.parseInt(jedis.hget(key, "userId"));
-                return switch (tokenCategory) {
-                    case "auth" ->
-                        Optional.of(new AuthToken(token, tokenType, tokenVersion, expires, userId));
-                    case "jwt" ->
-                        Optional.of(new JsonWebToken(token, tokenType, tokenVersion, expires, userId));
-                    default ->
-                        Optional.empty();
-                };
+                return Optional.of(buildTokenFromRedis(key, jedis));
             } else {
                 return Optional.empty();
             }
@@ -73,33 +63,50 @@ public class TokenDaoImpl implements TokenDao<Token> {
         }
     }
 
-    private String getKey(String token) {
-        return "token:" + token;
-    }
-
     @Override
     public List<Token> findTokensByUserId(int userId) {
         List<Token> tokens = new ArrayList<>();
         try (JedisPooled jedis = redisConnection.getJedis()) {
             Set<String> keys = jedis.keys("token:*");
             for (String key : keys) {
-                String tokenType = jedis.hget(key, "tokenType");
-                long tokenVersion = Long.parseLong(jedis.hget(key, "tokenVersion"));
-                Instant expires = Instant.parse(jedis.hget(key, "expires"));
-                int uid = Integer.parseInt(jedis.hget(key, "userId"));
-                String tokenCategory = jedis.hget(key, "tokenCategory");
-                if (uid == userId) {
-                    switch (tokenCategory) {
-                        case "auth" ->
-                            tokens.add(new AuthToken(key, tokenType, tokenVersion, expires, uid));
-                        case "jwt" ->
-                            tokens.add(new JsonWebToken(key, tokenType, tokenVersion, expires, uid));
-                        default -> {
-                        }
-                    }
+                if (userIdMatches(jedis, key, userId)) {
+                    tokens.add(buildTokenFromRedis(key, jedis));
                 }
             }
             return tokens;
         }
+    }
+
+    private Token buildTokenFromRedis(String key, JedisPooled jedis) {
+        String token = jedis.hget(key, "token");
+        String tokenCategoryStr = jedis.hget(key, "tokenCategory");
+        String tokenTypeStr = jedis.hget(key, "tokenType");
+        long tokenVersion = Long.parseLong(jedis.hget(key, "tokenVersion"));
+        Instant expires = Instant.parse(jedis.hget(key, "expires"));
+        int userId = Integer.parseInt(jedis.hget(key, "userId"));
+
+        Tokens.Category tokenCategory = Tokens.Category.valueOf(tokenCategoryStr.toUpperCase());
+
+        Tokens.Type tokenType = switch (tokenCategory) {
+            case AUTH ->
+                Tokens.Auth.valueOf(tokenTypeStr.toUpperCase());
+            case JWT ->
+                Tokens.Jwt.valueOf(tokenTypeStr.toUpperCase());
+        };
+
+        return switch (tokenCategory) {
+            case AUTH ->
+                new AuthToken(token, (Tokens.Auth) tokenType, tokenVersion, expires, userId);
+            case JWT ->
+                new JsonWebToken(token, (Tokens.Jwt) tokenType, tokenVersion, expires, userId);
+        };
+    }
+
+    private boolean userIdMatches(JedisPooled jedis, String key, int userId) {
+        return Integer.parseInt(jedis.hget(key, "userId")) == userId;
+    }
+
+    private String getKey(String token) {
+        return "token:" + token;
     }
 }

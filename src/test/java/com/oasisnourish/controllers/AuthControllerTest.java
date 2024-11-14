@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.AuthService;
@@ -80,8 +81,8 @@ public class AuthControllerTest {
 
     @Test
     void testSignInUser() {
-        JsonWebToken jwtAccessToken = new JsonWebToken("accessToken", "access", 1L, Instant.now().plusSeconds(30L), user.getId());
-        JsonWebToken jwtRefreshToken = new JsonWebToken("refreshToken", "refresh", 1L, Instant.now().plusSeconds(60L), user.getId());
+        JsonWebToken jwtAccessToken = new JsonWebToken("accessToken", Tokens.Jwt.ACCESS_TOKEN, 1L, Instant.now().plusSeconds(30L), user.getId());
+        JsonWebToken jwtRefreshToken = new JsonWebToken("refreshToken", Tokens.Jwt.REFRESH_TOKEN, 1L, Instant.now().plusSeconds(60L), user.getId());
         Map<String, JsonWebToken> tokens = Map.of("JWT_ACCESS_TOKEN", jwtAccessToken, "JWT_REFRESH_TOKEN", jwtRefreshToken);
 
         when(ctx.bodyValidator(UserInputDto.class)).thenReturn(bodyValidator);
@@ -182,8 +183,8 @@ public class AuthControllerTest {
 
     @Test
     void testUpdateSessionUserIfChanged() {
-        JsonWebToken jwtAccessToken = new JsonWebToken("accessToken", "access", 1L, Instant.now().plusSeconds(30L), user.getId());
-        JsonWebToken jwtRefreshToken = new JsonWebToken("refreshToken", "refresh", 1L, Instant.now().plusSeconds(60L), user.getId());
+        JsonWebToken jwtAccessToken = new JsonWebToken("accessToken", Tokens.Jwt.ACCESS_TOKEN, 1L, Instant.now().plusSeconds(30L), user.getId());
+        JsonWebToken jwtRefreshToken = new JsonWebToken("refreshToken", Tokens.Jwt.REFRESH_TOKEN, 1L, Instant.now().plusSeconds(60L), user.getId());
         Map<String, JsonWebToken> tokens = Map.of("JWT_ACCESS_TOKEN", jwtAccessToken, "JWT_REFRESH_TOKEN", jwtRefreshToken);
 
         when(ctx.sessionAttribute("currentUser")).thenReturn(user);

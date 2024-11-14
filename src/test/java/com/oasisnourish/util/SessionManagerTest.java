@@ -1,29 +1,29 @@
 package com.oasisnourish.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.enums.Role;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.JWTService;
@@ -56,8 +56,8 @@ public class SessionManagerTest {
     private SessionManager sessionManager;
 
     private final User user = new User(1, "John Doe", "john.doe@test.com", "encodedPassword", Role.ADMIN);
-    private final JsonWebToken accessToken = new JsonWebToken("access-token", "access", 1, Instant.now().plusSeconds(180), 1);
-    private final JsonWebToken refreshToken = new JsonWebToken("refresh-token", "refresh", 1, Instant.now().plusSeconds(360), 1);
+    private final JsonWebToken accessToken = new JsonWebToken("access-token", Tokens.Jwt.ACCESS_TOKEN, 1, Instant.now().plusSeconds(180), 1);
+    private final JsonWebToken refreshToken = new JsonWebToken("refresh-token", Tokens.Jwt.REFRESH_TOKEN, 1, Instant.now().plusSeconds(360), 1);
     private final Map<String, JsonWebToken> tokens = Map.of(
             "JWT_ACCESS_TOKEN", accessToken,
             "JWT_REFRESH_TOKEN", refreshToken
@@ -142,7 +142,7 @@ public class SessionManagerTest {
         when(userIdClaim.asInt()).thenReturn(user.getId());
         when(decodedJWT.getClaim("version")).thenReturn(versionClaim);
         when(versionClaim.asLong()).thenReturn(1L);
-        when(jwtService.getCurrentTokenVersion(user.getId(), "access")).thenReturn(1L);
+        when(jwtService.getCurrentTokenVersion(user.getId(), Tokens.Jwt.ACCESS_TOKEN)).thenReturn(1L);
         when(userService.findUserById(user.getId())).thenReturn(Optional.of(user));
 
         sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
@@ -159,7 +159,7 @@ public class SessionManagerTest {
         when(userIdClaim.asInt()).thenReturn(user.getId());
         when(decodedJWT.getClaim("version")).thenReturn(versionClaim);
         when(versionClaim.asLong()).thenReturn(1L);
-        when(jwtService.getCurrentTokenVersion(user.getId(), "access")).thenReturn(1L);
+        when(jwtService.getCurrentTokenVersion(user.getId(), Tokens.Jwt.ACCESS_TOKEN)).thenReturn(1L);
         when(userService.findUserById(user.getId())).thenReturn(Optional.empty());
 
         UnauthorizedResponse exception = assertThrows(UnauthorizedResponse.class, () -> {
@@ -181,7 +181,7 @@ public class SessionManagerTest {
         when(userIdClaim.asInt()).thenReturn(user.getId());
         when(decodedJWT.getClaim("version")).thenReturn(versionClaim);
         when(versionClaim.asLong()).thenReturn(1L);
-        when(jwtService.getCurrentTokenVersion(user.getId(), "access")).thenReturn(2L);
+        when(jwtService.getCurrentTokenVersion(user.getId(), Tokens.Jwt.ACCESS_TOKEN)).thenReturn(2L);
 
         UnauthorizedResponse exception = assertThrows(UnauthorizedResponse.class, () -> {
             sessionManager.validateAndSetUserSession(ctx, jwtService, userService);

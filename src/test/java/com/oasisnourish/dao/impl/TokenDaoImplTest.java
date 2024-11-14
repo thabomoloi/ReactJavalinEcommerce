@@ -1,6 +1,7 @@
 package com.oasisnourish.dao.impl;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.oasisnourish.db.RedisConnection;
+import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.AuthToken;
 import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.Token;
@@ -49,15 +51,11 @@ public class TokenDaoImplTest {
 
     @Test
     public void testSaveToken() {
-        AuthToken authToken = new AuthToken("testToken", "AUTH", 1L, Instant.now().plusSeconds(60L), 1);
+        AuthToken authToken = new AuthToken("testToken", Tokens.Auth.PASSWORD_RESET_TOKEN, 1L, Instant.now().plusSeconds(60L), 1);
         String key = "token:" + authToken.getToken();
 
         tokenDao.saveToken(authToken);
-
-        verify(jedis).hset(key, "tokenCategory", "auth");
-        verify(jedis).hset(key, "tokenType", "AUTH");
-        verify(jedis).hset(key, "tokenVersion", "1");
-        verify(jedis).hset(key, "expires", String.valueOf(authToken.getExpires()));
+        verifyTokenFields(key, authToken);
 
         ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
         verify(jedis).expire(eq(key), ttlCaptor.capture());
@@ -67,7 +65,7 @@ public class TokenDaoImplTest {
 
     @Test
     void testSaveToken_TokenExpired() {
-        AuthToken authToken = new AuthToken("expiredToken", "AUTH", 1L, Instant.now().minusSeconds(10L), 1);
+        AuthToken authToken = new AuthToken("expiredToken", Tokens.Auth.PASSWORD_RESET_TOKEN, 1L, Instant.now().minusSeconds(10L), 1);
 
         tokenDao.saveToken(authToken);
 
@@ -81,13 +79,9 @@ public class TokenDaoImplTest {
         int userId = 1;
         String key = "token:" + token;
 
-        AuthToken expectedToken = new AuthToken(token, "confirmation", 1, Instant.now().plusSeconds(60L), userId);
+        AuthToken expectedToken = new AuthToken(token, Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN, 1, Instant.now().plusSeconds(60L), userId);
         when(jedis.exists(key)).thenReturn(true);
-        when(jedis.hget(key, "tokenCategory")).thenReturn(expectedToken.getTokenCategory());
-        when(jedis.hget(key, "tokenType")).thenReturn(expectedToken.getTokenType());
-        when(jedis.hget(key, "tokenVersion")).thenReturn(String.valueOf(expectedToken.getTokenVersion()));
-        when(jedis.hget(key, "expires")).thenReturn(String.valueOf(expectedToken.getExpires()));
-        when(jedis.hget(key, "userId")).thenReturn(String.valueOf(expectedToken.getUserId()));
+        mockRedisTokenFields(key, expectedToken);
 
         Optional<Token> result = tokenDao.findToken(token);
 
@@ -103,13 +97,9 @@ public class TokenDaoImplTest {
         int userId = 1;
         String key = "token:" + token;
 
-        JsonWebToken expectedToken = new JsonWebToken(token, "refresh", 1, Instant.now().plusSeconds(60L), userId);
+        JsonWebToken expectedToken = new JsonWebToken(token, Tokens.Jwt.ACCESS_TOKEN, 1, Instant.now().plusSeconds(60L), userId);
         when(jedis.exists(key)).thenReturn(true);
-        when(jedis.hget(key, "tokenCategory")).thenReturn(expectedToken.getTokenCategory());
-        when(jedis.hget(key, "tokenType")).thenReturn(expectedToken.getTokenType());
-        when(jedis.hget(key, "tokenVersion")).thenReturn(String.valueOf(expectedToken.getTokenVersion()));
-        when(jedis.hget(key, "expires")).thenReturn(String.valueOf(expectedToken.getExpires()));
-        when(jedis.hget(key, "userId")).thenReturn(String.valueOf(expectedToken.getUserId()));
+        mockRedisTokenFields(key, expectedToken);
 
         Optional<Token> result = tokenDao.findToken(token);
 
@@ -146,44 +136,39 @@ public class TokenDaoImplTest {
     public void testFindAllTokens() {
         int userId = 1;
         String pattern = "token:*";
-        String tokenKey1 = "auth-token1";
-        String tokenKey2 = "auth-token2";
-        Instant expires1 = Instant.now().plusSeconds(60L);
-        Instant expires2 = Instant.now().plusSeconds(120L);
+
+        Token token1 = new AuthToken("token1", Tokens.Auth.ACCOUNT_CONFIRMATION_TOKEN, 1L, Instant.now().plusSeconds(60L), userId);
+        Token token2 = new AuthToken("token2", Tokens.Auth.PASSWORD_RESET_TOKEN, 1L, Instant.now().plusSeconds(90L), userId);
 
         Set<String> keys = new HashSet<>();
-        keys.add(tokenKey1);
-        keys.add(tokenKey2);
+        keys.add("token:" + token1.getToken());
+        keys.add("token:" + token2.getToken());
 
         when(jedis.keys(pattern)).thenReturn(keys);
-        when(jedis.hget(tokenKey1, "tokenType")).thenReturn("type1");
-        when(jedis.hget(tokenKey1, "tokenVersion")).thenReturn("1");
-        when(jedis.hget(tokenKey1, "expires")).thenReturn(String.valueOf(expires1));
-        when(jedis.hget(tokenKey1, "userId")).thenReturn("1");
-        when(jedis.hget(tokenKey1, "tokenCategory")).thenReturn("auth");
-
-        when(jedis.hget(tokenKey2, "tokenType")).thenReturn("type2");
-        when(jedis.hget(tokenKey2, "tokenVersion")).thenReturn("2");
-        when(jedis.hget(tokenKey2, "expires")).thenReturn(String.valueOf(expires2));
-        when(jedis.hget(tokenKey2, "userId")).thenReturn("1");
-        when(jedis.hget(tokenKey2, "tokenCategory")).thenReturn("auth");
+        mockRedisTokenFields("token:" + token1.getToken(), token1);
+        mockRedisTokenFields("token:" + token2.getToken(), token2);
 
         List<Token> tokens = tokenDao.findTokensByUserId(userId);
 
-        assertEquals(2, tokens.size());
-
-        Token token1 = tokens.get(0);
-        assertEquals(tokenKey1, token1.getToken());
-        assertEquals("type1", token1.getTokenType());
-        assertEquals(1L, token1.getTokenVersion());
-        assertEquals(expires1, token1.getExpires());
-        assertEquals(1, token1.getUserId());
-
-        Token token2 = tokens.get(1);
-        assertEquals(tokenKey2, token2.getToken());
-        assertEquals("type2", token2.getTokenType());
-        assertEquals(2L, token2.getTokenVersion());
-        assertEquals(expires2, token2.getExpires());
-        assertEquals(1, token2.getUserId());
+        assertEquals(Arrays.asList(token1, token2), tokens);
     }
+
+    private void verifyTokenFields(String key, Token token) {
+        verify(jedis).hset(key, "token", token.getToken());
+        verify(jedis).hset(key, "tokenCategory", token.getTokenCategory().getCategory());
+        verify(jedis).hset(key, "tokenType", token.getTokenType().getType());
+        verify(jedis).hset(key, "tokenVersion", String.valueOf(token.getTokenVersion()));
+        verify(jedis).hset(key, "expires", String.valueOf(token.getExpires()));
+        verify(jedis).hset(key, "userId", String.valueOf(token.getUserId()));
+    }
+
+    private void mockRedisTokenFields(String key, Token token) {
+        when(jedis.hget(key, "token")).thenReturn(token.getToken());
+        when(jedis.hget(key, "tokenType")).thenReturn(token.getTokenType().getType());
+        when(jedis.hget(key, "tokenVersion")).thenReturn(String.valueOf(token.getTokenVersion()));
+        when(jedis.hget(key, "expires")).thenReturn(String.valueOf(token.getExpires()));
+        when(jedis.hget(key, "userId")).thenReturn(String.valueOf(token.getUserId()));
+        when(jedis.hget(key, "tokenCategory")).thenReturn(token.getTokenCategory().getCategory());
+    }
+
 }
