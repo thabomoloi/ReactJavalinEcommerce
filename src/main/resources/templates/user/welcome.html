@@ -14,7 +14,7 @@
       </p>
       <p style="text-align: center; margin: 20px 0">
         <a
-          th:href="@{${baseUrl} + '/auth/confirm/' + ${user.getId()} + '/' + ${token}}"
+          th:href="@{${baseUrl} + '/auth/confirm/' + ${token.getToken()}}"
           style="
             display: inline-block;
             background-color: #217327;
@@ -26,7 +26,12 @@
           >Confirm Email Address</a
         >
       </p>
-      <p>This link will expire in <strong>1 hour</strong>.</p>
+      <p>
+        This link will expire in
+        <strong th:text="${TimeFormatter.format(token.getExpires())}"
+          >30 minutes</strong
+        >.
+      </p>
       <p>Thank you for being part of our community!</p>
       <p>Warm regards,<br /><strong>The Oasis Nourish Team</strong></p>
     </section>

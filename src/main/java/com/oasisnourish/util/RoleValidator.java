@@ -16,6 +16,7 @@ import io.javalin.security.RouteRole;
  * RoleValidator
  */
 public class RoleValidator {
+
     private final static Map<String, Role> rolesMapping = Map.of(
             "guest", Role.GUEST,
             "unverified_user", Role.UNVERIFIED_USER,
@@ -31,7 +32,7 @@ public class RoleValidator {
         Set<RouteRole> permittedRoles = ctx.routeRoles();
 
         if (!permittedRoles.isEmpty() && !permittedRoles.contains(role)) {
-            throw new UnauthorizedResponse("You are not allowed to access this route");
+            throw new UnauthorizedResponse("You are not allowed to access this route.");
         }
     }
 }

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.validation.ValidatorFactory;
 import com.oasisnourish.exceptions.EmailExistsException;
+import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.models.User;
 import com.oasisnourish.services.AuthService;
 import com.oasisnourish.services.JWTService;
@@ -20,11 +21,10 @@ import io.javalin.http.HttpStatus;
 import io.javalin.http.UnauthorizedResponse;
 
 /**
- * Controller responsible for handling authentication-related operations.
- * This class provides endpoints for user signup, login, logout, and session
- * management.
- * It integrates various services to ensure secure authentication and
- * authorization flows.
+ * Controller responsible for handling authentication-related operations. This
+ * class provides endpoints for user signup, login, logout, and session
+ * management. It integrates various services to ensure secure authentication
+ * and authorization flows.
  */
 public class AuthController implements Handler {
 
@@ -38,11 +38,11 @@ public class AuthController implements Handler {
      * Constructs an AuthController with the necessary dependencies for handling
      * authentication and authorization processes.
      *
-     * @param userService    Service for user-related operations.
-     * @param authService    Service responsible for handling authentication.
-     * @param jwtService     Service for handling JWT generation and validation.
+     * @param userService Service for user-related operations.
+     * @param authService Service responsible for handling authentication.
+     * @param jwtService Service for handling JWT generation and validation.
      * @param sessionManager Manages user sessions and cookies.
-     * @param roleValidator  Validates roles for authorization purposes.
+     * @param roleValidator Validates roles for authorization purposes.
      */
     public AuthController(UserService userService, AuthService authService,
             JWTService jwtService, SessionManager sessionManager,
@@ -100,7 +100,8 @@ public class AuthController implements Handler {
                 .get();
 
         authService.signUpUser(userDto);
-        ctx.status(HttpStatus.CREATED).json("Account created. Check your email for the confirmation link.");
+        ctx.status(HttpStatus.CREATED);
+        ctx.result("Account created. Check your email for the confirmation link.");
 
     }
 
@@ -117,9 +118,11 @@ public class AuthController implements Handler {
                 .isPasswordRequired()
                 .get();
 
-        Map<String, String> tokens = authService.signInUser(userDto);
-        sessionManager.setTokensInCookies(ctx, tokens, jwtService);
-        ctx.status(HttpStatus.OK).result("Sign in successful.");
+        jwtService.getProvider().updateJwtMaxExpiryTime();
+        Map<String, JsonWebToken> tokens = authService.signInUser(userDto);
+        sessionManager.setTokensInCookies(ctx, tokens);
+        ctx.status(HttpStatus.OK);
+        ctx.result("Sign in successful.");
     }
 
     /**
@@ -139,20 +142,20 @@ public class AuthController implements Handler {
     public void signOutUser(Context ctx) {
         sessionManager.invalidateSession(ctx);
         ctx.req().getSession().invalidate();
-        ctx.status(HttpStatus.NO_CONTENT).result("Sign out successful.");
+        ctx.status(HttpStatus.NO_CONTENT);
+        ctx.result("Sign out successful.");
     }
 
     public void generateConfirmationToken(Context ctx) {
         int userId = ctx.pathParamAsClass("userId", Integer.class).get();
         authService.sendConfirmationToken(userId);
-        ctx.status(HttpStatus.CREATED).result("Confirmation token generated. Check your email for the link.");
-
+        ctx.status(HttpStatus.CREATED);
+        ctx.result("Confirmation token generated. Check your email for the link.");
     }
 
     public void confirmAccountToken(Context ctx) {
-        int userId = ctx.pathParamAsClass("userId", Integer.class).get();
-        String token = ctx.pathParamAsClass("token", String.class).get();
-        authService.confirmAccount(userId, token);
+        String token = ctx.pathParam("token");
+        authService.confirmAccount(token);
         ctx.result("Your email address has been verified.");
     }
 
@@ -163,12 +166,12 @@ public class AuthController implements Handler {
                 .get();
 
         authService.sendResetPasswordToken(userDto.getEmail());
-        ctx.status(HttpStatus.CREATED).result("If the email is registered, a password reset link has been sent");
+        ctx.status(HttpStatus.CREATED);
+        ctx.result("If the email is registered, a password reset link has been sent.");
     }
 
     public void resetPassword(Context ctx) {
-        int userId = ctx.pathParamAsClass("userId", Integer.class).get();
-        String token = ctx.pathParamAsClass("token", String.class).get();
+        String token = ctx.pathParam("token");
 
         var userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
                 .isPasswordRequired()
@@ -176,14 +179,15 @@ public class AuthController implements Handler {
                 .isPasswordPatternValid()
                 .get();
 
-        authService.resetPassword(userId, token, userDto.getPassword());
-        ctx.status(HttpStatus.OK).result("Your password has been reset");
+        authService.resetPassword(token, userDto.getPassword());
+        ctx.status(HttpStatus.OK);
+        ctx.result("Your password has been reset.");
     }
 
     public void updateSessionUserIfChanged(Context ctx) {
         User currUser = ctx.sessionAttribute("currentUser");
         authService.updateSignedInUserIfChanged(currUser).ifPresent(tokens -> {
-            sessionManager.setTokensInCookies(ctx, tokens, jwtService);
+            sessionManager.setTokensInCookies(ctx, tokens);
             sessionManager.updateJwtInSession(tokens, ctx, jwtService);
             sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
         });
