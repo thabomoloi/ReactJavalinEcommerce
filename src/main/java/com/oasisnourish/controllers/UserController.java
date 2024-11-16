@@ -102,9 +102,6 @@ public class UserController {
                 .isNameRequired()
                 .isEmailRequired()
                 .isEmailValid()
-                .isPasswordRequired()
-                .isPasswordLengthValid()
-                .isPasswordPatternValid()
                 .get();
 
         userDto.setId(userId);
