@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Package, Heart, Star, User, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { SignOutForm } from "../auth/signout-form";
+import { useAuth } from "@/hooks/use-auth";
 
 const accountLinks = [
   { title: "Profile", href: "/account/profile", icon: User },
@@ -11,6 +11,7 @@ const accountLinks = [
 ];
 
 export function AccountMenu() {
+  const { signOut } = useAuth();
   return (
     <div>
       <nav>
@@ -34,12 +35,13 @@ export function AccountMenu() {
             </li>
           ))}
           <li>
-            <SignOutForm>
-              <button className="px-2 py-1 font-semibold text-sm rounded-md flex items-center hover:bg-slate-200/50 text-secondary-foreground/80 w-full">
-                <LogOut className="inline-block mr-3" />
-                Sign out
-              </button>
-            </SignOutForm>
+            <button
+              className="px-2 py-1 font-semibold text-sm rounded-md flex items-center hover:bg-slate-200/50 text-secondary-foreground/80 w-full"
+              onClick={() => signOut()}
+            >
+              <LogOut className="inline-block mr-3" />
+              Sign out
+            </button>
           </li>
         </ul>
       </nav>

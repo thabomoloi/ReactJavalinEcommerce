@@ -1,22 +1,22 @@
+import { useAuth } from "@/hooks/use-auth";
 import { Role } from "@/lib/data/models/types";
-import { useAuth } from "@/lib/store/auth";
 import { CircleAlert } from "lucide-react";
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
-interface ProtectedPageProps {
+interface PageProps {
   rolesRequired?: Role[];
   signInRequired?: boolean;
   children?: React.ReactNode;
   fallback: React.ReactNode;
 }
 
-export function ProtectedPage({
+export function Page({
   rolesRequired = [Role.USER, Role.UNVERIFIED_USER, Role.ADMIN],
   signInRequired = true,
   children,
   fallback,
-}: ProtectedPageProps) {
+}: PageProps) {
   const { currentUser, isAuthenticated, isLoading } = useAuth();
 
   const { pathname } = useLocation();

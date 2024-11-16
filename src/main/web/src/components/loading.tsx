@@ -9,7 +9,7 @@ export function Loading() {
       <BarLoader
         cssOverride={{ width: "100vw" }}
         color="#0ea5e9"
-        loading={loading.isLoading}
+        loading={loading}
       />
     </div>
   );
