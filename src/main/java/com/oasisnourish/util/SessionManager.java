@@ -62,7 +62,7 @@ public class SessionManager {
                     setTokensInCookies(ctx, newTokens);
                     ctx.sessionAttribute(JWT_ACCESS_KEY, jwtService.decodeToken(newTokens.get(JWT_ACCESS_KEY).getToken()).get());
                 } else {
-                    clearSessionIfUserDeleted(ctx);
+                    invalidateSession(ctx);
                 }
             }, () -> ctx.sessionAttribute(JWT_REFRESH_KEY, null));
         }
@@ -88,16 +88,11 @@ public class SessionManager {
 
         userService.findUserById(userId).ifPresentOrElse(
                 user -> ctx.sessionAttribute("currentUser", user),
-                () -> clearSessionIfUserDeleted(ctx));
-    }
-
-    private void clearSessionIfUserDeleted(Context ctx) {
-        invalidateSession(ctx);
-        throw new UnauthorizedResponse("User does not exist, session cleared.");
+                () -> invalidateSession(ctx));
     }
 
     public void invalidateSession(Context ctx) {
-        ctx.sessionAttribute("currentUser", null);
+        ctx.req().getSession().invalidate();
         ctx.removeCookie(JWT_ACCESS_KEY);
         ctx.removeCookie(JWT_REFRESH_KEY);
     }

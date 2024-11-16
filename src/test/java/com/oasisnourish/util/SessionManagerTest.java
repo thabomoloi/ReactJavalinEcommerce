@@ -33,6 +33,8 @@ import io.github.cdimascio.dotenv.Dotenv;
 import io.javalin.http.Context;
 import io.javalin.http.Cookie;
 import io.javalin.http.UnauthorizedResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @ExtendWith(MockitoExtension.class)
 public class SessionManagerTest {
@@ -162,11 +164,14 @@ public class SessionManagerTest {
         when(jwtService.getCurrentTokenVersion(user.getId(), Tokens.Jwt.ACCESS_TOKEN)).thenReturn(1L);
         when(userService.findUserById(user.getId())).thenReturn(Optional.empty());
 
-        UnauthorizedResponse exception = assertThrows(UnauthorizedResponse.class, () -> {
-            sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
-        });
-        assertEquals("User does not exist, session cleared.", exception.getMessage());
-        verify(ctx).sessionAttribute("currentUser", null);
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpSession session = mock(HttpSession.class);
+        when(ctx.req()).thenReturn(req);
+        when(req.getSession()).thenReturn(session);
+
+        sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
+
+        verify(session).invalidate();
         verify(ctx).removeCookie("JWT_ACCESS_TOKEN");
         verify(ctx).removeCookie("JWT_REFRESH_TOKEN");
     }
@@ -183,20 +188,30 @@ public class SessionManagerTest {
         when(versionClaim.asLong()).thenReturn(1L);
         when(jwtService.getCurrentTokenVersion(user.getId(), Tokens.Jwt.ACCESS_TOKEN)).thenReturn(2L);
 
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpSession session = mock(HttpSession.class);
+        when(ctx.req()).thenReturn(req);
+        when(req.getSession()).thenReturn(session);
+
         UnauthorizedResponse exception = assertThrows(UnauthorizedResponse.class, () -> {
             sessionManager.validateAndSetUserSession(ctx, jwtService, userService);
         });
         assertEquals("Invalid token: version outdated.", exception.getMessage());
-        verify(ctx).sessionAttribute("currentUser", null);
+        verify(session).invalidate();
         verify(ctx).removeCookie("JWT_ACCESS_TOKEN");
         verify(ctx).removeCookie("JWT_REFRESH_TOKEN");
     }
 
     @Test
     public void testInvalidateSession_RemovesAttributesAndCookies() {
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpSession session = mock(HttpSession.class);
+        when(ctx.req()).thenReturn(req);
+        when(req.getSession()).thenReturn(session);
+
         sessionManager.invalidateSession(ctx);
 
-        verify(ctx).sessionAttribute("currentUser", null);
+        verify(session).invalidate();
         verify(ctx).removeCookie("JWT_ACCESS_TOKEN");
         verify(ctx).removeCookie("JWT_REFRESH_TOKEN");
     }
