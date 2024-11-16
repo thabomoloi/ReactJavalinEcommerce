@@ -1,6 +1,7 @@
 package com.oasisnourish.db.impl;
 
 import com.oasisnourish.config.EnvConfig;
+import com.oasisnourish.config.RedisDbConfig;
 import com.oasisnourish.db.RedisConnection;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -11,6 +12,7 @@ import redis.clients.jedis.JedisPooled;
  * This class handles the setup and retrieval of Redis connections.
  */
 public class RedisConnectionImpl implements RedisConnection {
+
     private static final Dotenv dotenv = EnvConfig.getDotenv();
     private static final JedisPooled jedis;
 
@@ -25,15 +27,8 @@ public class RedisConnectionImpl implements RedisConnection {
      * @throws IllegalStateException if Redis environment variables are not set.
      */
     private static JedisPooled setUpRedisConnection() {
-        String host = dotenv.get("REDIS_HOST");
-        String port = dotenv.get("REDIS_PORT");
-
-        if (host == null || port == null) {
-            throw new IllegalStateException("Redis environment variables are not set.");
-        }
-
-        int portNumber = Integer.parseInt(port);
-        return new JedisPooled(host, portNumber);
+        var redisDbConfig = new RedisDbConfig(dotenv);
+        return new JedisPooled(redisDbConfig.getHost(), redisDbConfig.getPort());
     }
 
     @Override

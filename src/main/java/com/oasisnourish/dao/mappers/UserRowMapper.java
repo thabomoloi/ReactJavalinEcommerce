@@ -10,6 +10,7 @@ import com.oasisnourish.models.User;
 
 public class UserRowMapper implements EntityRowMapper<User> {
 
+    @Override
     public void mapToRow(PreparedStatement statement, User user, boolean includeId) throws SQLException {
         statement.setString(1, user.getName());
         statement.setString(2, user.getEmail());

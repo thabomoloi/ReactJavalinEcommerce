@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.oasisnourish.config.EnvConfig;
+import com.oasisnourish.config.JdbcDbConfig;
 import com.oasisnourish.db.JdbcConnection;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -16,6 +17,7 @@ import io.github.cdimascio.dotenv.Dotenv;
  * connections.
  */
 public class JdbcConnectionImpl implements JdbcConnection {
+
     private static final Dotenv dotenv = EnvConfig.getDotenv();
     private static final HikariDataSource dataSource;
 
@@ -27,21 +29,16 @@ public class JdbcConnectionImpl implements JdbcConnection {
      * Sets up the JDBC connection using HikariCP configuration.
      *
      * @return a {@link HikariDataSource} configured for the database.
-     * @throws IllegalStateException if database environment variables are not set.
+     * @throws IllegalStateException if database environment variables are not
+     * set.
      */
     private static HikariDataSource setUpJdbcConnection() {
-        String url = dotenv.get("POSTGRES_DB_URL");
-        String username = dotenv.get("POSTGRES_USER");
-        String password = dotenv.get("POSTGRES_PASSWORD");
-
-        if (url == null || username == null || password == null) {
-            throw new IllegalStateException("Database environment variables are not set.");
-        }
+        JdbcDbConfig jdbcDbConfig = new JdbcDbConfig(dotenv);
 
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
+        config.setJdbcUrl(jdbcDbConfig.getDbUrl());
+        config.setUsername(jdbcDbConfig.getDbUsername());
+        config.setPassword(jdbcDbConfig.getDbPassword());
         return new HikariDataSource(config);
     }
 
