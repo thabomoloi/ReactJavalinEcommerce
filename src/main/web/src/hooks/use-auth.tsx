@@ -14,22 +14,8 @@ import {
 } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useToast } from "./use-toast";
-import { getErrorMessage } from "@/lib/data/api/error-message";
 import { SignInSchemaType, SignUpSchemaType } from "@/lib/data/schemas/user";
-
-// Reusable helper to handle errors and display toast messages
-function handleMutationError(
-  error: Error,
-  defaultMessage: string,
-  toast: ReturnType<typeof useToast>["toast"]
-): void {
-  const message = getErrorMessage(error, defaultMessage);
-  console.error(error);
-  toast({
-    variant: "destructive",
-    title: message,
-  });
-}
+import { handleMutationError } from "./helpers";
 
 // Custom hook for creating authentication mutations
 function useCreateAuthMutation<T = unknown, V = void>(
@@ -46,16 +32,14 @@ function useCreateAuthMutation<T = unknown, V = void>(
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast({
         variant: "success",
-        title:
-          successMessage ||
-          (typeof message === "string" ? message : "Operation successful."),
+        title: typeof message === "string" ? message : successMessage,
       });
     },
     onError: (error) => handleMutationError(error, errorMessage, toast),
   });
 }
 
-export function useAuthMutations() {
+function useAuthMutations() {
   const signOutMutation = useCreateAuthMutation<string, void>(
     signOut,
     "Successfully signed out.",
@@ -81,7 +65,7 @@ export function useAuthMutations() {
   };
 }
 
-export function useAuthQuery() {
+function useAuthQuery() {
   const { data: currentUser, isLoading } = useQuery<User | null>({
     queryKey: ["currentUser"] as QueryKey,
     queryFn: async () => {

@@ -16,32 +16,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordField } from "@/components/ui/password-field";
-import { useLoading } from "@/hooks/use-loading";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { SignUpSchema, SignUpSchemaType } from "@/lib/data/schemas/user";
-import { useAuth } from "@/lib/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Link,
-  Navigate,
-  useActionData,
-  useNavigate,
-  useSubmit,
-} from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 export default function SignUpPage() {
-  const { toast } = useToast();
-  const submit = useSubmit();
-  const navigate = useNavigate();
-  const actionData = useActionData() as
-    | undefined
-    | { error: boolean; message: string };
-
-  const auth = useAuth();
-  const loading = useLoading();
+  const { signUp, isAuthenticated, isLoading } = useAuth();
 
   const form = useForm<SignUpSchemaType>({
     resolver: zodResolver(SignUpSchema),
@@ -53,31 +36,10 @@ export default function SignUpPage() {
   });
 
   const onSubmit = (data: SignUpSchemaType) => {
-    submit(data, {
-      method: "post",
-      action: "/auth/signup",
-      encType: "application/json",
-    });
+    signUp(data);
   };
 
-  useEffect(() => {
-    if (actionData?.error === true) {
-      toast({
-        title: actionData?.message,
-        variant: "destructive",
-      });
-    }
-
-    if (actionData?.error === false) {
-      toast({
-        title: actionData?.message,
-        variant: "success",
-      });
-      navigate("/auth/signin");
-    }
-  }, [actionData, navigate, toast]);
-
-  if (auth.isAuthenticated) {
+  if (isAuthenticated) {
     return <Navigate to="/account/profile" replace />;
   }
   return (
@@ -102,7 +64,7 @@ export default function SignUpPage() {
                         type="text"
                         className="bg-secondary"
                         autoComplete="name"
-                        disabled={loading.isLoading}
+                        disabled={isLoading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -122,7 +84,7 @@ export default function SignUpPage() {
                         type="email"
                         className="bg-secondary"
                         autoComplete="email"
-                        disabled={loading.isLoading}
+                        disabled={isLoading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -142,7 +104,7 @@ export default function SignUpPage() {
                           {...field}
                           type="password"
                           className="bg-secondary"
-                          disabled={loading.isLoading}
+                          disabled={isLoading}
                         />
                       </PasswordField>
                     </FormControl>
@@ -152,14 +114,8 @@ export default function SignUpPage() {
               />
             </div>
 
-            <Button
-              type="submit"
-              className="w-full mt-6"
-              disabled={loading.isLoading}
-            >
-              {loading.isSubmitting && (
-                <LoaderCircleIcon className="animate-spin mr-2" />
-              )}
+            <Button type="submit" className="w-full mt-6" disabled={isLoading}>
+              {isLoading && <LoaderCircleIcon className="animate-spin mr-2" />}
               Sign up
             </Button>
           </form>

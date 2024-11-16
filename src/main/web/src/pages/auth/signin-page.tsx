@@ -16,33 +16,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordField } from "@/components/ui/password-field";
-import { useLoading } from "@/hooks/use-loading";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { SignInSchema, SignInSchemaType } from "@/lib/data/schemas/user";
-import { useAuth } from "@/lib/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Link,
-  useSubmit,
-  useActionData,
-  useNavigate,
-  Navigate,
-} from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 export default function SignInPage() {
-  const { toast } = useToast();
-  const submit = useSubmit();
-  const navigate = useNavigate();
-  const loading = useLoading();
-
-  const actionData = useActionData() as
-    | undefined
-    | { error: boolean; message: string };
-
-  const auth = useAuth();
+  const { signIn, isLoading, isAuthenticated } = useAuth();
 
   const form = useForm<SignInSchemaType>({
     resolver: zodResolver(SignInSchema),
@@ -53,31 +35,10 @@ export default function SignInPage() {
   });
 
   const onSubmit = (data: SignInSchemaType) => {
-    submit(data, {
-      method: "post",
-      action: "/auth/signin",
-      encType: "application/json",
-    });
+    signIn(data);
   };
 
-  useEffect(() => {
-    if (actionData?.error === true) {
-      toast({
-        title: actionData?.message,
-        variant: "destructive",
-      });
-    }
-
-    if (actionData?.error === false) {
-      toast({
-        title: actionData?.message,
-        variant: "success",
-      });
-      navigate("/");
-    }
-  }, [actionData, navigate, toast]);
-
-  if (auth.isAuthenticated) {
+  if (isAuthenticated) {
     return <Navigate to="/account/profile" replace />;
   }
 
@@ -103,7 +64,7 @@ export default function SignInPage() {
                         type="email"
                         className="bg-secondary"
                         autoComplete="email"
-                        disabled={loading.isLoading}
+                        disabled={isLoading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -124,7 +85,7 @@ export default function SignInPage() {
                           type="password"
                           className="bg-secondary"
                           autoComplete="current-password"
-                          disabled={loading.isLoading}
+                          disabled={isLoading}
                         />
                       </PasswordField>
                     </FormControl>
@@ -133,14 +94,8 @@ export default function SignInPage() {
                 )}
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full mt-6"
-              disabled={loading.isLoading}
-            >
-              {loading.isSubmitting && (
-                <LoaderCircleIcon className="animate-spin mr-2" />
-              )}
+            <Button type="submit" className="w-full mt-6" disabled={isLoading}>
+              {isLoading && <LoaderCircleIcon className="animate-spin mr-2" />}
               Sign in
             </Button>
           </form>
