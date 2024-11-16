@@ -17,7 +17,7 @@ import {
 } from "./actions";
 import ProfilePage from "@/pages/account/profile-page";
 import AccountLayout from "@/pages/account/account-layout";
-import { ProtectedPage } from "@/components/protected-page";
+import { Page } from "@/components/page";
 import UnverifiedPage from "@/pages/auth/unverified-page";
 import VerifyAccountPage from "@/pages/auth/verify-account-page";
 import ForgotPasswordPage from "@/pages/auth/forgot-password-page";
@@ -37,18 +37,18 @@ export const router = createBrowserRouter([
           {
             path: "profile",
             element: (
-              <ProtectedPage fallback={<HomePage />}>
+              <Page fallback={<HomePage />}>
                 <ProfilePage />
-              </ProtectedPage>
+              </Page>
             ),
             action: profileAction,
           },
           {
             path: "profile/:userId/delete",
             element: (
-              <ProtectedPage fallback={<HomePage />}>
+              <Page fallback={<HomePage />}>
                 <ProfilePage />
-              </ProtectedPage>
+              </Page>
             ),
             action: deleteAccountAction,
           },
@@ -70,9 +70,9 @@ export const router = createBrowserRouter([
       {
         path: "unverified",
         element: (
-          <ProtectedPage fallback={<HomePage />}>
+          <Page fallback={<HomePage />}>
             <UnverifiedPage />
-          </ProtectedPage>
+          </Page>
         ),
         action: sendConfirmationLinkAction,
       },
@@ -80,35 +80,35 @@ export const router = createBrowserRouter([
         path: "confirm/:userId/:token",
 
         element: (
-          <ProtectedPage fallback={<HomePage />}>
+          <Page fallback={<HomePage />}>
             <VerifyAccountPage />
-          </ProtectedPage>
+          </Page>
         ),
         action: verifyAccountAction,
       },
       {
         path: "forgot-password",
         element: (
-          <ProtectedPage
+          <Page
             fallback={<HomePage />}
             signInRequired={false}
             rolesRequired={[Role.GUEST]}
           >
             <ForgotPasswordPage />
-          </ProtectedPage>
+          </Page>
         ),
         action: sendResetPasswordLinkAction,
       },
       {
         path: "reset-password/:userId/:token",
         element: (
-          <ProtectedPage
+          <Page
             fallback={<HomePage />}
             signInRequired={false}
             rolesRequired={[Role.GUEST]}
           >
             <ResetPasswordPage />
-          </ProtectedPage>
+          </Page>
         ),
         action: resetPasswordAction,
       },

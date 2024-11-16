@@ -1,9 +1,9 @@
 import { useActionData, useSubmit } from "react-router-dom";
 import { DeleteAccountForm } from "./components/delete-account-form";
 import { ProfileForm } from "./components/profile-form";
-import { useAuth } from "@/lib/store/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function ProfilePage() {
   const { toast } = useToast();
