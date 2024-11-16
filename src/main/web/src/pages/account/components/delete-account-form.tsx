@@ -20,11 +20,11 @@ import {
 import { Trash2 } from "lucide-react";
 import React from "react";
 
-export interface DeletedAccountFormProps {
+export interface DeleteAccountFormProps {
   handleSubmit: () => void;
 }
 
-export function DeleteAccountForm({ handleSubmit }: DeletedAccountFormProps) {
+export function DeleteAccountForm({ handleSubmit }: DeleteAccountFormProps) {
   return (
     <React.Fragment>
       <Card>
@@ -44,15 +44,21 @@ export function DeleteAccountForm({ handleSubmit }: DeletedAccountFormProps) {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogTitle>Delete account</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers.
+                  Are you sure you want to delete your account. This action
+                  cannot be undone. This will permanently delete your account
+                  and remove your data from our servers.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction>Continue</AlertDialogAction>
+                <AlertDialogAction
+                  className="bg-destructive hover:bg-destructive/80"
+                  onClick={handleSubmit}
+                >
+                  Delete
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

@@ -29,10 +29,14 @@ function useCreateAuthMutation<T = unknown, V = void>(
   return useMutation<T, AxiosError, V>({
     mutationFn,
     onSuccess: (message) => {
+      console.log(message);
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       toast({
         variant: "success",
-        title: typeof message === "string" ? message : successMessage,
+        title:
+          typeof message === "string" && message.trim().length != 0
+            ? message
+            : successMessage,
       });
     },
     onError: (error) => handleMutationError(error, errorMessage, toast),
