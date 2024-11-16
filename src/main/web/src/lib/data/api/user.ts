@@ -67,8 +67,8 @@ async function sendConfirmationLink(userId: number) {
   return response.data as string;
 }
 
-async function verifyAccount(userId: number, token: string) {
-  const response = await axios.patch(CONFIRM_URL + "/" + userId + "/" + token);
+async function verifyAccount(token: string) {
+  const response = await axios.patch(CONFIRM_URL + "/" + token);
   return response.data as string;
 }
 
@@ -77,15 +77,14 @@ async function sendResetPasswordLink(data: ForgotPasswordSchemaType) {
   return response.data as string;
 }
 
-async function resetPassword(
-  userId: number,
-  token: string,
-  data: ResetPasswordSchemaType
-) {
-  const response = await axios.patch(
-    RESET_PASSWORD_URL + "/" + userId + "/" + token,
-    data
-  );
+async function resetPassword({
+  token,
+  data,
+}: {
+  token: string;
+  data: ResetPasswordSchemaType;
+}) {
+  const response = await axios.patch(RESET_PASSWORD_URL + "/" + token, data);
   return response.data as string;
 }
 
