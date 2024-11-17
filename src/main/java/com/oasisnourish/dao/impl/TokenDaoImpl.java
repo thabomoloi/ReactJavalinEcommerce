@@ -19,9 +19,11 @@ import redis.clients.jedis.JedisPooled;
 public class TokenDaoImpl<T extends Token> implements TokenDao<T> {
 
     private final RedisConnection redisConnection;
+    private final Class<T> tokenClass;
 
-    public TokenDaoImpl(RedisConnection redisConnection) {
+    public TokenDaoImpl(RedisConnection redisConnection, Class<T> tokenClass) {
         this.redisConnection = redisConnection;
+        this.tokenClass = tokenClass;
     }
 
     @Override
@@ -49,7 +51,7 @@ public class TokenDaoImpl<T extends Token> implements TokenDao<T> {
 
         String key = getKey(token);
         if (jedis.exists(key)) {
-            return Optional.of(buildTokenFromRedis(key, jedis));
+            return buildTokenFromRedis(key, jedis);
         } else {
             return Optional.empty();
         }
@@ -68,14 +70,15 @@ public class TokenDaoImpl<T extends Token> implements TokenDao<T> {
         Set<String> keys = jedis.keys("token:*");
         for (String key : keys) {
             if (userIdMatches(jedis, key, userId)) {
-                tokens.add(buildTokenFromRedis(key, jedis));
+                buildTokenFromRedis(key, jedis).ifPresent((tokenObj) -> {
+                    tokens.add(tokenObj);
+                });
             }
         }
         return tokens;
     }
 
-    @SuppressWarnings("unchecked")
-    private T buildTokenFromRedis(String key, JedisPooled jedis) {
+    private Optional<T> buildTokenFromRedis(String key, JedisPooled jedis) {
         String token = jedis.hget(key, "token");
         String tokenCategoryStr = jedis.hget(key, "tokenCategory");
         String tokenTypeStr = jedis.hget(key, "tokenType");
@@ -85,19 +88,17 @@ public class TokenDaoImpl<T extends Token> implements TokenDao<T> {
 
         Tokens.Category tokenCategory = Tokens.Category.valueOf(tokenCategoryStr.toUpperCase());
 
-        Tokens.Type tokenType = switch (tokenCategory) {
+        Token tokenObj = switch (tokenCategory) {
             case AUTH ->
-                Tokens.Auth.valueOf(tokenTypeStr.toUpperCase());
+                new AuthToken(token, Tokens.Auth.valueOf(tokenTypeStr.toUpperCase()), tokenVersion, expires, userId);
             case JWT ->
-                Tokens.Jwt.valueOf(tokenTypeStr.toUpperCase());
+                new JsonWebToken(token, Tokens.Jwt.valueOf(tokenTypeStr.toUpperCase()), tokenVersion, expires, userId);
         };
 
-        return switch (tokenCategory) {
-            case AUTH ->
-                (T) new AuthToken(token, (Tokens.Auth) tokenType, tokenVersion, expires, userId);
-            case JWT ->
-                (T) new JsonWebToken(token, (Tokens.Jwt) tokenType, tokenVersion, expires, userId);
-        };
+        if (tokenClass.isInstance(tokenObj)) {
+            return Optional.of(tokenClass.cast(tokenObj));
+        }
+        return Optional.empty();
     }
 
     private boolean userIdMatches(JedisPooled jedis, String key, int userId) {
