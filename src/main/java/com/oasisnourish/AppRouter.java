@@ -34,7 +34,7 @@ public class AppRouter {
                 delete("/signout", CONFIG.AUTH_CONTROLLER::signOutUser, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
                 post("/refresh", CONFIG.AUTH_CONTROLLER::refreshToken, Role.UNVERIFIED_USER, Role.USER, Role.ADMIN);
                 path("/confirm-account", () -> {
-                    post(CONFIG.AUTH_CONTROLLER::generateConfirmationToken, Role.UNVERIFIED_USER);
+                    post("/{userId}", CONFIG.AUTH_CONTROLLER::generateConfirmationToken, Role.UNVERIFIED_USER);
                     patch("/{token}", CONFIG.AUTH_CONTROLLER::confirmAccountToken, Role.UNVERIFIED_USER);
                 });
                 path("/reset-password", () -> {

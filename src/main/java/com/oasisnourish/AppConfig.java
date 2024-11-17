@@ -21,6 +21,8 @@ import com.oasisnourish.db.JdbcConnection;
 import com.oasisnourish.db.RedisConnection;
 import com.oasisnourish.db.impl.JdbcConnectionImpl;
 import com.oasisnourish.db.impl.RedisConnectionImpl;
+import com.oasisnourish.models.AuthToken;
+import com.oasisnourish.models.JsonWebToken;
 import com.oasisnourish.seeds.UserSeed;
 import com.oasisnourish.services.impl.AuthServiceImpl;
 import com.oasisnourish.services.impl.AuthTokenServiceImpl;
@@ -72,12 +74,12 @@ public class AppConfig {
                 EMAIL_EXECUTOR_SERVICE);
 
         JWTServiceImpl jwtService = new JWTServiceImpl(
-                new TokenDaoImpl<>(redisConnection),
+                new TokenDaoImpl<>(redisConnection, JsonWebToken.class),
                 tokenVersionDao,
                 new JWTProvider(new JWTGenerator(), new JWTConfig(dotenv)));
 
         AuthTokenServiceImpl authTokenService = new AuthTokenServiceImpl(
-                new TokenDaoImpl<>(redisConnection),
+                new TokenDaoImpl<>(redisConnection, AuthToken.class),
                 tokenVersionDao,
                 new TokenRateLimitDaoImpl(redisConnection),
                 new AuthTokenConfig(dotenv));
