@@ -13,7 +13,7 @@ import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.exceptions.TooManyRequestsException;
 import com.oasisnourish.models.AuthToken;
 import com.oasisnourish.services.AuthTokenService;
-import static com.oasisnourish.util.TimeFormatter.format;
+import com.oasisnourish.util.TimeFormatter;
 
 public class AuthTokenServiceImpl extends TokenServiceImpl<AuthToken> implements AuthTokenService {
 
@@ -32,7 +32,7 @@ public class AuthTokenServiceImpl extends TokenServiceImpl<AuthToken> implements
     public AuthToken createToken(int userId, Tokens.Auth tokenType) {
         long tokenRequestCount = tokenRateLimitDao.find(userId);
         if (tokenRequestCount > tokenConfig.getMaxTokensPerWindow()) {
-            throw new TooManyRequestsException("Too many requests. Try again after " + format(tokenRateLimitDao.ttl(userId)) + ".");
+            throw new TooManyRequestsException("Too many requests. Try again after " + new TimeFormatter().format(tokenRateLimitDao.ttl(userId)) + ".");
         }
 
         List<AuthToken> previousTokens = tokenDao.findTokensByUserId(userId)

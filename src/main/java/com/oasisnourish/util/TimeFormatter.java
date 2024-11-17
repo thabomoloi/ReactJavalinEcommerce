@@ -2,7 +2,7 @@ package com.oasisnourish.util;
 
 public class TimeFormatter {
 
-    public static String format(long seconds) {
+    public String format(long seconds) {
         long days = seconds / 86400;
         seconds %= 86400;
 

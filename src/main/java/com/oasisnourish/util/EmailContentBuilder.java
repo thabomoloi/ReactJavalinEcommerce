@@ -3,6 +3,7 @@ package com.oasisnourish.util;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.context.IContext;
 
+import com.oasisnourish.config.AuthTokenConfig;
 import com.oasisnourish.models.Token;
 import com.oasisnourish.models.User;
 
@@ -24,7 +25,9 @@ public class EmailContentBuilder {
         context.setVariable("user", user);
         context.setVariable("token", token);
         context.setVariable("baseUrl", dotenv.get("BASE_URL", "http://localhost:7070"));
-        context.setVariable("TimeFormatter", TimeFormatter.class);
+
+        context.setVariable("timeFormatter", new TimeFormatter());
+        context.setVariable("authTokenConfig", new AuthTokenConfig(dotenv));
         return context;
     }
 
