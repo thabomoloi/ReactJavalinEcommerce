@@ -1,15 +1,14 @@
 package com.oasisnourish.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
-
 import java.time.Instant;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.thymeleaf.context.IContext;
 
@@ -43,6 +42,7 @@ public class EmailContentBuilderTest {
         assertEquals(user, ((User) context.getVariable("user")));
         assertEquals(token, ((Token) context.getVariable("token")));
         assertEquals("http://testurl.com", context.getVariable("baseUrl"));
-        assertNotNull(context.getVariable("TimeFormatter")); // Checking if TimeFormatter class is set
+        assertNotNull(context.getVariable("timeFormatter"));
+        assertNotNull(context.getVariable("authTokenConfig"));
     }
 }
