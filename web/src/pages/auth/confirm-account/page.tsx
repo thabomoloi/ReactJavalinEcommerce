@@ -14,7 +14,7 @@ import { useEffect } from "react";
 
 export default function ConfirmAccountPage() {
   const { currentUser } = useAuth();
-  const { isLoading, sendConfirmationLink, confirmAccount } = useAccount();
+  const { isPending, sendConfirmationLink, confirmAccount } = useAccount();
   const params = useParams();
   const navigate = useNavigate();
 
@@ -42,10 +42,10 @@ export default function ConfirmAccountPage() {
       </CardContent>
       <CardFooter className="justify-end">
         <Button
-          disabled={isLoading}
+          disabled={isPending}
           onClick={() => sendConfirmationLink(currentUser.id)}
         >
-          {isLoading && <LoaderCircleIcon className="animate-spin mr-2" />}
+          {isPending && <LoaderCircleIcon className="animate-spin mr-2" />}
           Resend Link
         </Button>
       </CardFooter>
