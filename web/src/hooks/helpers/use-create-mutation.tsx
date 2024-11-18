@@ -15,7 +15,11 @@ export function useCreateMutation<T extends (...args: any) => any>(
 ) {
   const { toast } = useToast();
 
-  return useMutation<Awaited<ReturnType<T>>, AxiosError, Parameters<T>[0]>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type ParamType<V extends (...args: any[]) => any> =
+    Parameters<V>[0] extends undefined ? void : Parameters<V>[0];
+
+  return useMutation<Awaited<ReturnType<T>>, AxiosError, ParamType<T>>({
     mutationFn,
     onSuccess: (message) => {
       callbackFn();
