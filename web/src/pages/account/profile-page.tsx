@@ -17,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Trash2 } from "lucide-react";
+import { LoaderCircleIcon, Trash2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -39,7 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function ProfilePage() {
   const { currentUser } = useAuth();
-  const { updateAccount, deleteAccount, isLoading } = useAccount();
+  const { updateAccount, deleteAccount, isPending } = useAccount();
 
   const form = useForm<UserUpdateSchemaType>({
     resolver: zodResolver(UserUpdateSchema),
@@ -81,7 +81,7 @@ export default function ProfilePage() {
                           type="text"
                           className="bg-secondary"
                           autoComplete="name"
-                          disabled={isLoading}
+                          disabled={isPending}
                         />
                       </FormControl>
                       <FormMessage />
@@ -101,7 +101,7 @@ export default function ProfilePage() {
                           type="email"
                           className="bg-secondary"
                           autoComplete="email"
-                          disabled={isLoading}
+                          disabled={isPending}
                         />
                       </FormControl>
                       <FormMessage />
@@ -113,8 +113,11 @@ export default function ProfilePage() {
               <Button
                 type="submit"
                 className="w-full mt-6"
-                disabled={isLoading}
+                disabled={isPending}
               >
+                {isPending && (
+                  <LoaderCircleIcon className="animate-spin mr-2" />
+                )}
                 Save
               </Button>
             </form>
@@ -132,7 +135,7 @@ export default function ProfilePage() {
               <Button
                 variant="outline"
                 className="w-full text-destructive hover:text-destructive/80"
-                disabled={isLoading}
+                disabled={isPending}
               >
                 <Trash2 /> Delete Account
               </Button>

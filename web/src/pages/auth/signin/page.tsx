@@ -24,7 +24,7 @@ import { useForm } from "react-hook-form";
 import { Link, Navigate } from "react-router-dom";
 
 export default function SignInPage() {
-  const { signIn, isLoading, isAuthenticated } = useAuth();
+  const { signIn, isLoading, isPending, isAuthenticated } = useAuth();
 
   const form = useForm<SignInSchemaType>({
     resolver: zodResolver(SignInSchema),
@@ -64,7 +64,7 @@ export default function SignInPage() {
                         type="email"
                         className="bg-secondary"
                         autoComplete="email"
-                        disabled={isLoading}
+                        disabled={isLoading || isPending}
                       />
                     </FormControl>
                     <FormMessage />
@@ -85,7 +85,7 @@ export default function SignInPage() {
                           type="password"
                           className="bg-secondary"
                           autoComplete="current-password"
-                          disabled={isLoading}
+                          disabled={isLoading || isPending}
                         />
                       </PasswordField>
                     </FormControl>
@@ -94,8 +94,12 @@ export default function SignInPage() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full mt-6" disabled={isLoading}>
-              {isLoading && <LoaderCircleIcon className="animate-spin mr-2" />}
+            <Button
+              type="submit"
+              className="w-full mt-6"
+              disabled={isLoading || isPending}
+            >
+              {isPending && <LoaderCircleIcon className="animate-spin mr-2" />}
               Sign in
             </Button>
           </form>

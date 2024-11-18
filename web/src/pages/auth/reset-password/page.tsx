@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordField } from "@/components/ui/password-field";
-import { useLoading } from "@/hooks/use-loading";
-import { useToast } from "@/hooks/use-toast";
+import { useAccount } from "@/hooks/use-account";
 import {
   ResetPasswordSchema,
   ResetPasswordSchemaType,
@@ -20,23 +19,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  useActionData,
-  useNavigate,
-  useParams,
-  useSubmit,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ResetPasswordPage() {
-  const { toast } = useToast();
-  const loading = useLoading();
   const params = useParams();
   const navigate = useNavigate();
-  const submit = useSubmit();
 
-  const actionData = useActionData() as
-    | undefined
-    | { error: boolean; message: string };
+  const { resetPassword, isPending } = useAccount();
 
   const form = useForm<ResetPasswordSchemaType>({
     resolver: zodResolver(ResetPasswordSchema),
@@ -44,25 +33,15 @@ export default function ResetPasswordPage() {
   });
 
   const onSubmit = (data: ResetPasswordSchemaType) => {
-    submit(data, {
-      method: "post",
-      action: `/auth/reset-password/${params.userId}/${params.token}`,
-      encType: "application/json",
-    });
+    if (params.token) {
+      resetPassword(
+        { token: params.token, data },
+        { onSuccess: () => navigate("/auth/signin") }
+      );
+    }
   };
 
-  useEffect(() => {
-    if (actionData) {
-      toast({
-        title: actionData.message,
-        variant: actionData.error ? "destructive" : "success",
-      });
-
-      if (!actionData.error) {
-        navigate("/auth/signin");
-      }
-    }
-  }, [actionData, navigate, toast]);
+  useEffect(() => {}, []);
 
   return (
     <Card className="max-w-md w-full">
@@ -86,7 +65,7 @@ export default function ResetPasswordPage() {
                         type="password"
                         className="bg-secondary"
                         autoComplete="current-password"
-                        disabled={loading.isLoading}
+                        disabled={isPending}
                       />
                     </PasswordField>
                   </FormControl>
@@ -94,14 +73,8 @@ export default function ResetPasswordPage() {
                 </FormItem>
               )}
             />
-            <Button
-              type="submit"
-              className="w-full mt-6"
-              disabled={loading.isLoading}
-            >
-              {loading.isSubmitting && (
-                <LoaderCircleIcon className="animate-spin mr-2" />
-              )}
+            <Button type="submit" className="w-full mt-6" disabled={isPending}>
+              {isPending && <LoaderCircleIcon className="animate-spin mr-2" />}
               Reset password
             </Button>
           </form>

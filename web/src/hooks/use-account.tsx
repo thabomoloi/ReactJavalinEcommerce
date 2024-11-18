@@ -54,16 +54,14 @@ export function useAccount() {
     "Failed to send password reset link."
   );
 
-  console.log(confirmAccountMutation);
-
   return {
     updateAccount: updateAccMutation.mutate,
     deleteAccount: deleteAccMutation.mutate,
     resetPassword: resetPasswordMutation.mutate,
     sendConfirmationLink: sendConfirmationLinkMutation.mutate,
     confirmAccount: confirmAccountMutation.mutate,
-    sendResetPasswordLink: sendPasswordResetLinkMutation,
-    isLoading:
+    sendResetPasswordLink: sendPasswordResetLinkMutation.mutate,
+    isPending:
       updateAccMutation.isPending ||
       deleteAccMutation.isPending ||
       resetPasswordMutation.isPending ||

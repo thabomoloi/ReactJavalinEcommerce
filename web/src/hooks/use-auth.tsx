@@ -89,8 +89,9 @@ export function useAuth() {
     signIn: authMutations.signInMutation.mutate,
     signUp: authMutations.signUpMutation.mutate,
     signOut: authMutations.signOutMutation.mutate,
-    isLoading:
-      authQuery.isLoading ||
-      Object.values(authMutations).some((mutation) => mutation.isPending),
+    isLoading: authQuery.isLoading,
+    isPending: Object.values(authMutations).some(
+      (mutation) => mutation.isPending
+    ),
   };
 }

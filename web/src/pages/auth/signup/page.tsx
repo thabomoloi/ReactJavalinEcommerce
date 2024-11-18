@@ -24,7 +24,7 @@ import { useForm } from "react-hook-form";
 import { Link, Navigate } from "react-router-dom";
 
 export default function SignUpPage() {
-  const { signUp, isAuthenticated, isLoading } = useAuth();
+  const { signUp, isAuthenticated, isLoading, isPending } = useAuth();
 
   const form = useForm<SignUpSchemaType>({
     resolver: zodResolver(SignUpSchema),
@@ -64,7 +64,7 @@ export default function SignUpPage() {
                         type="text"
                         className="bg-secondary"
                         autoComplete="name"
-                        disabled={isLoading}
+                        disabled={isLoading || isPending}
                       />
                     </FormControl>
                     <FormMessage />
@@ -84,7 +84,7 @@ export default function SignUpPage() {
                         type="email"
                         className="bg-secondary"
                         autoComplete="email"
-                        disabled={isLoading}
+                        disabled={isLoading || isPending}
                       />
                     </FormControl>
                     <FormMessage />
@@ -104,7 +104,7 @@ export default function SignUpPage() {
                           {...field}
                           type="password"
                           className="bg-secondary"
-                          disabled={isLoading}
+                          disabled={isLoading || isPending}
                         />
                       </PasswordField>
                     </FormControl>
@@ -114,8 +114,12 @@ export default function SignUpPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full mt-6" disabled={isLoading}>
-              {isLoading && <LoaderCircleIcon className="animate-spin mr-2" />}
+            <Button
+              type="submit"
+              className="w-full mt-6"
+              disabled={isLoading || isPending}
+            >
+              {isPending && <LoaderCircleIcon className="animate-spin mr-2" />}
               Sign up
             </Button>
           </form>

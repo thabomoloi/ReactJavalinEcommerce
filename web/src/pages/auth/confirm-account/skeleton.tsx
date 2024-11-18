@@ -3,7 +3,6 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -11,7 +10,7 @@ export default function ConfirmAccountPageSkeleton() {
   return (
     <Card className="w-full max-w-lg">
       <CardHeader>
-        <CardTitle>Confirm Account</CardTitle>
+        <Skeleton className="skeleton h-6 w-1/3" />
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
