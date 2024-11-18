@@ -1,68 +1,74 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "./use-toast";
-import { AxiosError } from "axios";
-import { handleMutationError } from "./helpers";
+import { useQueryClient } from "@tanstack/react-query";
 import {
+  confirmAccount,
   deleteAccount,
   resetPassword,
+  sendConfirmationLink,
+  sendResetPasswordLink,
   updateProfile,
 } from "@/lib/data/api/user";
-import { UserUpdateSchemaType } from "@/lib/data/schemas/user";
-
-// Custom hook for creating authentication mutations
-function useCreateAccMutation<T = unknown, V = void>(
-  mutationFn: (variables: V) => Promise<T>,
-  successMessage: string,
-  errorMessage: string
-) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  return useMutation<T, AxiosError, V>({
-    mutationFn,
-    onSuccess: (message) => {
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-      toast({
-        variant: "success",
-        title:
-          typeof message === "string" && message.trim().length != 0
-            ? message
-            : successMessage,
-      });
-    },
-    onError: (error) => handleMutationError(error, errorMessage, toast),
-  });
-}
+import { useCreateMutation } from "./helpers/use-create-mutation";
 
 export function useAccount() {
-  const updateAccMutation = useCreateAccMutation<string, UserUpdateSchemaType>(
+  const queryClient = useQueryClient();
+
+  const invalidateCurrentUser = () => {
+    queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+  };
+
+  const updateAccMutation = useCreateMutation(
     updateProfile,
     "Account has been updated successfully.",
     "Failed to update account."
   );
 
-  const deleteAccMutation = useCreateAccMutation<string, number>(
+  const deleteAccMutation = useCreateMutation(
     deleteAccount,
     "Account has been deleted successfully.",
-    "Failed to delete account."
+    "Failed to delete account.",
+    invalidateCurrentUser
   );
 
-  const resetPasswordMutation = useCreateAccMutation<
-    string,
-    Parameters<typeof resetPassword>[0]
-  >(
+  const resetPasswordMutation = useCreateMutation(
     resetPassword,
     "Account has been deleted successfully.",
     "Failed to delete account."
   );
 
+  const sendConfirmationLinkMutation = useCreateMutation(
+    sendConfirmationLink,
+    "The confirmation link has been sent to your email.",
+    "Failed to send confirmation link."
+  );
+
+  const confirmAccountMutation = useCreateMutation(
+    confirmAccount,
+    "Your account has been verified.",
+    "Failed to verify account.",
+    invalidateCurrentUser
+  );
+
+  const sendPasswordResetLinkMutation = useCreateMutation(
+    sendResetPasswordLink,
+    "The password reset link has been sent to your email.",
+    "Failed to send password reset link."
+  );
+
+  console.log(confirmAccountMutation);
+
   return {
     updateAccount: updateAccMutation.mutate,
     deleteAccount: deleteAccMutation.mutate,
     resetPassword: resetPasswordMutation.mutate,
+    sendConfirmationLink: sendConfirmationLinkMutation.mutate,
+    confirmAccount: confirmAccountMutation.mutate,
+    sendResetPasswordLink: sendPasswordResetLinkMutation,
     isLoading:
       updateAccMutation.isPending ||
       deleteAccMutation.isPending ||
-      resetPasswordMutation.isPending,
+      resetPasswordMutation.isPending ||
+      sendConfirmationLinkMutation.isPending ||
+      (confirmAccountMutation.isPending && !confirmAccountMutation.isPaused) ||
+      sendPasswordResetLinkMutation.isPending,
   };
 }

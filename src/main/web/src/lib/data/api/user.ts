@@ -67,7 +67,7 @@ async function sendConfirmationLink(userId: number) {
   return response.data as string;
 }
 
-async function verifyAccount(token: string) {
+async function confirmAccount(token: string) {
   const response = await axios.patch(CONFIRM_URL + "/" + token);
   return response.data as string;
 }
@@ -97,7 +97,7 @@ export {
   updateProfile,
   deleteAccount,
   sendConfirmationLink,
-  verifyAccount,
+  confirmAccount,
   sendResetPasswordLink,
   resetPassword,
 };
