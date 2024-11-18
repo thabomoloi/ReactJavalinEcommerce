@@ -1,7 +1,21 @@
 import { AxiosError } from "axios";
 import { useToast } from "../use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { handleMutationError } from ".";
+import { getErrorMessage } from "@/lib/data/api/error-message";
+
+// Reusable helper to handle errors and display toast messages
+export function handleMutationError(
+  error: Error,
+  defaultMessage: string,
+  toast: ReturnType<typeof useToast>["toast"]
+): void {
+  const message = getErrorMessage(error, defaultMessage);
+  console.error(error);
+  toast({
+    variant: "destructive",
+    title: message,
+  });
+}
 
 /**
  * Custom hook for creating a mutations
