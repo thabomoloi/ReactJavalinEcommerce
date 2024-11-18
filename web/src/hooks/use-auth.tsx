@@ -46,16 +46,10 @@ function useAuthMutations() {
 }
 
 function useAuthQuery() {
-  // TOBE REMOVED
-  const delay = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
-
   const { data: currentUser, isLoading } = useQuery<User | null>({
     queryKey: ["currentUser"] as QueryKey,
     queryFn: async () => {
       try {
-        // TOBE REMOVED
-        await delay(2000);
         return await getCurrentUser();
       } catch (error) {
         if (error instanceof AxiosError && error.response?.status === 401) {
