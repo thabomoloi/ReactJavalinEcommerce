@@ -16,7 +16,6 @@ import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
@@ -40,12 +39,13 @@ public class TokenDaoImplTest {
     @Mock
     private JedisPooled jedis;
 
-    @InjectMocks
-    private TokenDaoImpl<AuthToken> tokenDao;
+    private TokenDaoImpl<AuthToken> authTokenDao;
 
     @BeforeEach
     public void setUp() {
         lenient().when(redisConnection.getJedis()).thenReturn(jedis);
+
+        authTokenDao = new TokenDaoImpl<>(redisConnection, AuthToken.class);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class TokenDaoImplTest {
         AuthToken authToken = new AuthToken("testToken", Tokens.Auth.PASSWORD_RESET_TOKEN, 1L, Instant.now().plusSeconds(60L), 1);
         String key = "token:" + authToken.getToken();
 
-        tokenDao.saveToken(authToken);
+        authTokenDao.saveToken(authToken);
         verifyTokenFields(key, authToken);
 
         ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
@@ -66,7 +66,7 @@ public class TokenDaoImplTest {
     void testSaveToken_TokenExpired() {
         AuthToken authToken = new AuthToken("expiredToken", Tokens.Auth.PASSWORD_RESET_TOKEN, 1L, Instant.now().minusSeconds(10L), 1);
 
-        tokenDao.saveToken(authToken);
+        authTokenDao.saveToken(authToken);
 
         verify(jedis, never()).hset(anyString(), anyString(), anyString());
         verify(jedis, never()).expire(anyString(), anyInt());
@@ -82,7 +82,7 @@ public class TokenDaoImplTest {
         when(jedis.exists(key)).thenReturn(true);
         mockRedisTokenFields(key, expectedToken);
 
-        Optional<AuthToken> result = tokenDao.findToken(token);
+        Optional<AuthToken> result = authTokenDao.findToken(token);
 
         assertTrue(result.isPresent());
         assertEquals(AuthToken.class, result.get().getClass());
@@ -97,7 +97,7 @@ public class TokenDaoImplTest {
 
         when(jedis.exists(key)).thenReturn(false);
 
-        Optional<AuthToken> result = tokenDao.findToken(token);
+        Optional<AuthToken> result = authTokenDao.findToken(token);
 
         assertTrue(result.isEmpty());
         verify(jedis, never()).hget(anyString(), anyString());
@@ -108,7 +108,7 @@ public class TokenDaoImplTest {
         String token = "deleteToken";
         String key = "token:" + token;
 
-        tokenDao.deleteToken(token);
+        authTokenDao.deleteToken(token);
 
         verify(jedis).del(key);
     }
@@ -129,7 +129,7 @@ public class TokenDaoImplTest {
         mockRedisTokenFields("token:" + token1.getToken(), token1);
         mockRedisTokenFields("token:" + token2.getToken(), token2);
 
-        List<AuthToken> tokens = tokenDao.findTokensByUserId(userId);
+        List<AuthToken> tokens = authTokenDao.findTokensByUserId(userId);
 
         assertEquals(Arrays.asList(token1, token2), tokens);
     }

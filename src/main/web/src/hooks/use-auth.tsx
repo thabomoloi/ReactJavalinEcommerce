@@ -5,61 +5,37 @@ import {
   signOut,
   signUp,
 } from "@/lib/data/api/user";
-import { User } from "@/lib/data/models/types";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  QueryKey,
-} from "@tanstack/react-query";
+import { useQuery, useQueryClient, QueryKey } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { useToast } from "./use-toast";
-import { SignInSchemaType, SignUpSchemaType } from "@/lib/data/schemas/user";
-import { handleMutationError } from "./helpers";
-
-// Custom hook for creating authentication mutations
-function useCreateAuthMutation<T = unknown, V = void>(
-  mutationFn: (variables: V) => Promise<T>,
-  successMessage: string,
-  errorMessage: string
-) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  return useMutation<T, AxiosError, V>({
-    mutationFn,
-    onSuccess: (message) => {
-      console.log(message);
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-      toast({
-        variant: "success",
-        title:
-          typeof message === "string" && message.trim().length != 0
-            ? message
-            : successMessage,
-      });
-    },
-    onError: (error) => handleMutationError(error, errorMessage, toast),
-  });
-}
+import { useCreateMutation } from "./helpers/use-create-mutation";
+import { User } from "@/lib/data/models/types";
 
 function useAuthMutations() {
-  const signOutMutation = useCreateAuthMutation<string, void>(
+  const queryClient = useQueryClient();
+
+  const invalidateCurrentUser = () => {
+    queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+  };
+
+  const signOutMutation = useCreateMutation(
     signOut,
     "Successfully signed out.",
-    "Failed to sign out."
+    "Failed to sign out.",
+    invalidateCurrentUser
   );
 
-  const signInMutation = useCreateAuthMutation<string, SignInSchemaType>(
+  const signInMutation = useCreateMutation(
     signIn,
     "Successfully signed in.",
-    "Failed to sign in."
+    "Failed to sign in.",
+    invalidateCurrentUser
   );
 
-  const signUpMutation = useCreateAuthMutation<string, SignUpSchemaType>(
+  const signUpMutation = useCreateMutation(
     signUp,
     "Successfully signed up.",
-    "Failed to sign up. Please try again."
+    "Failed to sign up. Please try again.",
+    invalidateCurrentUser
   );
 
   return {
@@ -70,10 +46,16 @@ function useAuthMutations() {
 }
 
 function useAuthQuery() {
+  // TOBE REMOVED
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
   const { data: currentUser, isLoading } = useQuery<User | null>({
     queryKey: ["currentUser"] as QueryKey,
     queryFn: async () => {
       try {
+        // TOBE REMOVED
+        await delay(2000);
         return await getCurrentUser();
       } catch (error) {
         if (error instanceof AxiosError && error.response?.status === 401) {

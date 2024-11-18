@@ -41,7 +41,7 @@ export function Page({
   if (
     isAuthenticated &&
     role != Role.UNVERIFIED_USER &&
-    ("/auth/unverified" == pathname || pathname.startsWith("/auth/confirm"))
+    pathname.startsWith("/auth/confirm-account")
   ) {
     return <Navigate to="/account/profile" replace />;
   }
@@ -51,7 +51,7 @@ export function Page({
   }
 
   if (role == Role.UNVERIFIED_USER) {
-    return <Navigate to="/auth/confirm" replace />;
+    return <Navigate to="/auth/confirm-account" replace />;
   }
 
   return (

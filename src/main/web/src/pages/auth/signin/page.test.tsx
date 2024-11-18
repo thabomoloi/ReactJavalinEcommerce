@@ -5,8 +5,8 @@ import {
   useSubmit,
 } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import SignUpPage from "./signup-page";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import SignInPage from "./page";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 vi.mock(import("react-router-dom"), async (importOriginal) => {
@@ -33,7 +33,7 @@ vi.mock(import("@/hooks/use-toast"), async (importOriginal) => {
   };
 });
 
-describe("SignUpPage", () => {
+describe("SignInPage", () => {
   let navigateMock: typeof vi.fn;
   beforeEach(() => {
     navigateMock = vi.fn();
@@ -46,109 +46,97 @@ describe("SignUpPage", () => {
     cleanup();
   });
 
-  it("displays links to terms and privacy policy", () => {
+  it("displays a link to sign in if the user does not have an account", () => {
     render(
       <Router>
-        <SignUpPage />
+        <SignInPage />
       </Router>
     );
-    expect(screen.getByText(/Terms of Service/i)).toBeInTheDocument();
-    expect(screen.getByText(/Privacy Policy/i)).toBeInTheDocument();
+    expect(screen.getByText(/Forgot Password?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Don't have an account?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sign up/i)).toBeInTheDocument();
   });
 
-  it("displays a link to sign in if the user already has an account", () => {
+  it("renders the sign-in form with inputs", () => {
     render(
       <Router>
-        <SignUpPage />
+        <SignInPage />
       </Router>
     );
-    expect(screen.getByText(/Already have an account?/i)).toBeInTheDocument();
-    expect(screen.getByText(/Sign in/i)).toBeInTheDocument();
-  });
-
-  it("renders the sign-up form with inputs", () => {
-    render(
-      <Router>
-        <SignUpPage />
-      </Router>
-    );
-    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /sign up/i })
+      screen.getByRole("button", { name: /sign in/i })
     ).toBeInTheDocument();
   });
 
   it("submits the form with valid inputs", async () => {
     render(
       <Router>
-        <SignUpPage />
+        <SignInPage />
       </Router>
     );
     const mockSubmit = vi.fn();
     vi.mocked(useSubmit).mockImplementation(() => mockSubmit);
 
     const user = userEvent.setup();
-    await user.type(screen.getByLabelText(/name/i), "John Doe");
     await user.type(screen.getByLabelText(/email/i), "john.doe@example.com");
     await user.type(screen.getByLabelText(/password/i), "Password123@");
 
     // Submit the form
-    await user.click(screen.getByRole("button", { name: /sign up/i }));
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {
       expect(mockSubmit).toHaveBeenCalledWith(
         {
-          name: "John Doe",
           email: "john.doe@example.com",
           password: "Password123@",
         },
         {
           method: "post",
-          action: "/auth/signup",
+          action: "/auth/signin",
           encType: "application/json",
         }
       );
     });
   });
 
-  it("displays a success toast and navigates on successful sign-up", async () => {
+  it("displays a success toast and navigates on successful sign-in", async () => {
     vi.mocked(useActionData).mockReturnValue({
       error: false,
-      message: "Sign-up successful!",
+      message: "Sign-in successful!",
     });
 
     render(
       <Router>
-        <SignUpPage />
+        <SignInPage />
       </Router>
     );
 
     await waitFor(() => {
       expect(toastMock).toHaveBeenCalledWith({
-        title: "Sign-up successful!",
+        title: "Sign-in successful!",
         variant: "success",
       });
-      expect(navigateMock).toHaveBeenCalledWith("/auth/signin");
+      expect(navigateMock).toHaveBeenCalledWith("/");
     });
   });
 
-  it("displays an error toast on sign-up failure", async () => {
+  it("displays an error toast on sign-in failure", async () => {
     vi.mocked(useActionData).mockReturnValue({
       error: true,
-      message: "Sign-up failed",
+      message: "Sign-in failed",
     });
 
     render(
       <Router>
-        <SignUpPage />
+        <SignInPage />
       </Router>
     );
 
     await waitFor(() => {
       expect(toastMock).toHaveBeenCalledWith({
-        title: "Sign-up failed",
+        title: "Sign-in failed",
         variant: "destructive",
       });
       expect(navigateMock).not.toHaveBeenCalledWith();
