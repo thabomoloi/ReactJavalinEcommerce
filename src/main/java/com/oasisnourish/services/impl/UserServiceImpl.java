@@ -7,7 +7,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.oasisnourish.dao.UserDao;
 import com.oasisnourish.dto.UserInputDto;
-import com.oasisnourish.enums.Role;
 import com.oasisnourish.exceptions.EmailExistsException;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.User;
@@ -52,12 +51,7 @@ public class UserServiceImpl implements UserService {
     public void updateUser(UserInputDto userDto) {
         User user = userDao.find(userDto.getId()).orElseThrow(() -> new NotFoundException("User does not exist."));
 
-        if (!user.getEmail().equals(userDto.getEmail())) {
-            user.setRole(Role.UNVERIFIED_USER);
-            user.setEmailVerified(null);
-            user.setEmail(userDto.getEmail());
-        }
-
+        user.setEmail(userDto.getEmail());
         user.setName(userDto.getName());
 
         if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
