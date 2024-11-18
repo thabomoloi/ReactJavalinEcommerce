@@ -1,7 +1,7 @@
 import { Page } from "@/components/page";
 import AccountLayout from "@/pages/account/account-layout";
-import ProfilePage from "@/pages/account/profile-page";
-import ProfilePageSkeleton from "@/pages/account/profile-page-skeleton";
+import ProfilePage from "@/pages/account/profile/page";
+import ProfilePageSkeleton from "@/pages/account/profile/skeleton";
 import HomePage from "@/pages/home/home-page";
 import RootLayout from "@/pages/root-layout";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
