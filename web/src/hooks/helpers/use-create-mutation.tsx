@@ -23,8 +23,8 @@ export function handleMutationError(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useCreateMutation<T extends (...args: any) => any>(
   mutationFn: T,
-  successMessage: string,
-  errorMessage: string,
+  defaultSuccessMessage: string,
+  defaultErrorMessage: string,
   callbackFn: () => void = () => {}
 ) {
   const { toast } = useToast();
@@ -42,9 +42,9 @@ export function useCreateMutation<T extends (...args: any) => any>(
         title:
           typeof message === "string" && message.trim().length !== 0
             ? message
-            : successMessage,
+            : defaultSuccessMessage,
       });
     },
-    onError: (error) => handleMutationError(error, errorMessage, toast),
+    onError: (error) => handleMutationError(error, defaultErrorMessage, toast),
   });
 }
