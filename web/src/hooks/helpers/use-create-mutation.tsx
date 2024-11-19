@@ -10,7 +10,6 @@ export function handleMutationError(
   toast: ReturnType<typeof useToast>["toast"]
 ): void {
   const message = getErrorMessage(error, defaultMessage);
-  console.error(error);
   toast({
     variant: "destructive",
     title: message,

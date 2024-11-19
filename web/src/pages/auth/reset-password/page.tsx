@@ -17,7 +17,6 @@ import {
 } from "@/lib/data/schemas/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -40,8 +39,6 @@ export default function ResetPasswordPage() {
       );
     }
   };
-
-  useEffect(() => {}, []);
 
   return (
     <Card className="max-w-md w-full">
