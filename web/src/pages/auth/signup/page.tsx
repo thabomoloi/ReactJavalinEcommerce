@@ -21,9 +21,10 @@ import { SignUpSchema, SignUpSchemaType } from "@/lib/data/schemas/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 export default function SignUpPage() {
+  const navigate = useNavigate();
   const { signUp, isAuthenticated, isLoading, isPending } = useAuth();
 
   const form = useForm<SignUpSchemaType>({
@@ -36,7 +37,7 @@ export default function SignUpPage() {
   });
 
   const onSubmit = (data: SignUpSchemaType) => {
-    signUp(data);
+    signUp(data, { onSuccess: () => navigate("/auth/signin") });
   };
 
   if (isAuthenticated) {
