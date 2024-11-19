@@ -1,12 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, useNavigate } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SignUpPage from "./page";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useAuth } from "@/hooks/use-auth";
 
 vi.mock("@/hooks/use-auth");
+
+vi.mock(import("react-router-dom"), async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
 
 describe("SignUpPage", () => {
   const mockSignUp = vi.fn();
@@ -71,6 +79,9 @@ describe("SignUpPage", () => {
   });
 
   it("submits the form with valid inputs", async () => {
+    const mockNavigate = vi.fn();
+    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+
     renderComponent();
 
     const user = userEvent.setup();
@@ -82,5 +93,8 @@ describe("SignUpPage", () => {
     await user.click(screen.getByRole("button", { name: /sign up/i }));
 
     expect(mockSignUp).toHaveBeenCalled();
+    waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith("/auth/signin");
+    });
   });
 });

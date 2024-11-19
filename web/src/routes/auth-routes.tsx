@@ -49,7 +49,9 @@ export default function AuthRoutes() {
               <ConfirmAccountPage />
             </Page>
           }
-        />
+        >
+          <Route path=":token" element={null} />
+        </Route>
         <Route
           path="forgot-password"
           element={
