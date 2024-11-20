@@ -60,7 +60,7 @@ function useAuthQuery() {
             return null;
           }
         }
-        throw error;
+        return null;
       }
     },
     retry: 1,
