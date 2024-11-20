@@ -6,7 +6,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import React from "react";
 import { Logo } from "../logo";
 import {
   Tooltip,
@@ -15,8 +14,9 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { IoMenu } from "react-icons/io5";
 
-export function MobileNavSidebar({ children }: { children: React.ReactNode }) {
+export function MobileNavSidebar() {
   return (
     <Sheet>
       <TooltipProvider>
@@ -24,7 +24,7 @@ export function MobileNavSidebar({ children }: { children: React.ReactNode }) {
           <TooltipTrigger asChild>
             <SheetTrigger>
               <span className="sr-only">Open menu</span>
-              {children}
+              <IoMenu className="w-6 h-6" />
             </SheetTrigger>
           </TooltipTrigger>
           <TooltipContent>Main menu</TooltipContent>
