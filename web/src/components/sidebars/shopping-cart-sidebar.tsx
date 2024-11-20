@@ -1,6 +1,7 @@
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -15,6 +16,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { MdShoppingCart } from "react-icons/md";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 const ShoppingCartButton = React.forwardRef<
   HTMLButtonElement,
@@ -60,7 +62,9 @@ export function ShoppingCartSidebar() {
       <SheetContent>
         <SheetHeader>
           <SheetTitle>My Shopping Cart</SheetTitle>
-          {/* <SheetDescription>Shopping Card Description</SheetDescription> */}
+          <VisuallyHidden.Root>
+            <SheetDescription>Shopping Cart</SheetDescription>
+          </VisuallyHidden.Root>
         </SheetHeader>
       </SheetContent>
     </Sheet>
