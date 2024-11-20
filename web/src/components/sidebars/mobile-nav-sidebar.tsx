@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 export function MobileNavSidebar({ children }: { children: React.ReactNode }) {
   return (
@@ -34,7 +35,9 @@ export function MobileNavSidebar({ children }: { children: React.ReactNode }) {
           <SheetTitle>
             <Logo className="w-40 mx-auto sm:mx-0" />
           </SheetTitle>
-          <SheetDescription>Main Menu</SheetDescription>
+          <VisuallyHidden.Root>
+            <SheetDescription>Main Menu</SheetDescription>
+          </VisuallyHidden.Root>
         </SheetHeader>
       </SheetContent>
     </Sheet>
