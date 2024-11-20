@@ -6,31 +6,6 @@ import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { ShoppingCartSidebar } from "../sidebars/shopping-cart-sidebar";
 import { MobileNavSidebar } from "../sidebars/mobile-nav-sidebar";
-import { IoMenu } from "react-icons/io5";
-
-function MenuButton() {
-  return (
-    <MobileNavSidebar>
-      <IoMenu className="w-6 h-6" />
-    </MobileNavSidebar>
-  );
-}
-
-// function AccountButton({ isMobile }: { isMobile: boolean }) {
-//   return (
-//     <AccountDropdownMenu>
-//       {isMobile && <FaUserCircle className="w-6 h-6" />}
-//       {!isMobile && (
-//         <React.Fragment>
-//           <button>
-//             {" "}
-//             <FaUserCircle className="w-6 h-6" /> My Account
-//           </button>
-//         </React.Fragment>
-//       )}
-//     </AccountDropdownMenu>
-//   );
-// }
 
 export function Header({ widthClassName }: { widthClassName: string }) {
   const isMobile = useIsMobile();
@@ -45,7 +20,7 @@ export function Header({ widthClassName }: { widthClassName: string }) {
               "py-4"
             )}
           >
-            <MenuButton />
+            <MobileNavSidebar />
             <Link to="/">
               <Logo className="w-40" />
             </Link>
