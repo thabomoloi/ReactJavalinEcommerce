@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         });
 
         var password = passwordEncoder.encode(userDto.getPassword());
-        User user = new User(userDto.getName(), userDto.getEmail(), password);
+        User user = new User(0, userDto.getName(), userDto.getEmail(), password);
 
         userDao.save(user);
     }
