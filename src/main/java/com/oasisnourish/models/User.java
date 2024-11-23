@@ -1,6 +1,5 @@
 package com.oasisnourish.models;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 import com.oasisnourish.enums.Role;
@@ -16,7 +15,6 @@ public class User {
     private String email;
     private String password;
     private Role role;
-    private LocalDateTime emailVerified;
 
     /**
      * Default constructor initializing a user with empty name, email, and
@@ -50,13 +48,12 @@ public class User {
         return id == user.id
                 && Objects.equals(name, user.name)
                 && Objects.equals(email, user.email)
-                && role == user.role
-                && Objects.equals(emailVerified, user.emailVerified);
+                && role == user.role;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, role, emailVerified);
+        return Objects.hash(id, name, email, role);
     }
 
     /**
@@ -150,26 +147,6 @@ public class User {
     }
 
     /**
-     * Gets the user's email verification timestamp.
-     *
-     * @return the timestamp when the user's email was verified, or null if not
-     * verified
-     */
-    public LocalDateTime getEmailVerified() {
-        return emailVerified;
-    }
-
-    /**
-     * Sets the user's email verification timestamp.
-     *
-     * @param emailVerified the timestamp to set when the user's email was
-     * verified
-     */
-    public void setEmailVerified(LocalDateTime emailVerified) {
-        this.emailVerified = emailVerified;
-    }
-
-    /**
      * Returns a string representation of the User object.
      *
      * @return a string representation of the user, including ID, name, email,
@@ -182,7 +159,6 @@ public class User {
                 + ", name='" + name + '\''
                 + ", email='" + email + '\''
                 + ", role=" + role
-                + ", emailVerified=" + (emailVerified != null ? emailVerified.toString() : "not verified")
                 + '}';
     }
 }

@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -85,7 +84,6 @@ public class UserDaoImplTest {
     public void testFindById() throws SQLException {
         int userId = 1;
         User mockUser = new User(userId, "John Doe", "john.doe@test.com", "password123", Role.USER);
-        mockUser.setEmailVerified(LocalDateTime.of(2024, 1, 1, 0, 0));
 
         when(connection.prepareStatement(FIND_USER_BY_ID)).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
@@ -186,7 +184,6 @@ public class UserDaoImplTest {
     @Test
     public void testFindByEmail() throws SQLException {
         User mockUser = new User(1, "John Doe", "john.doe@test.com", "password123", Role.USER);
-        mockUser.setEmailVerified(LocalDateTime.of(2024, 1, 1, 0, 0));
 
         when(connection.prepareStatement(FIND_USER_BY_EMAIL)).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);

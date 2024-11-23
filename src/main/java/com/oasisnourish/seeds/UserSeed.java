@@ -1,7 +1,5 @@
 package com.oasisnourish.seeds;
 
-import java.time.LocalDateTime;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.oasisnourish.dao.UserDao;
@@ -37,9 +35,6 @@ public class UserSeed implements DatabaseSeed {
             // Check if user already exists
             if (userDao.findByEmail(email).isEmpty()) {
                 User user = new User(0, name, email, password, role);
-                if (user.getRole() != Role.GUEST && user.getRole() != Role.UNVERIFIED_USER) {
-                    user.setEmailVerified(LocalDateTime.now());
-                }
                 userDao.save(user);
 
             }
