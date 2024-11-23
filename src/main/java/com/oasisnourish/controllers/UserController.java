@@ -41,7 +41,7 @@ public class UserController {
      */
     public void findAllUsers(Context ctx) {
         List<UserResponseDto> users = userService.findAllUsers().stream()
-                .map(UserResponseDto::fromModel)
+                .map(UserResponseDto::new)
                 .collect(Collectors.toList());
         ctx.status(HttpStatus.OK);
         ctx.json(users);
@@ -60,7 +60,7 @@ public class UserController {
                 .orElseThrow(() -> new NotFoundException("User does not exist."));
 
         ctx.status(HttpStatus.OK);
-        ctx.json(UserResponseDto.fromModel(user));
+        ctx.json(new UserResponseDto(user));
     }
 
     /**

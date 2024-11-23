@@ -3,7 +3,6 @@ package com.oasisnourish.dao.mappers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.models.User;
@@ -16,10 +15,9 @@ public class UserRowMapper implements EntityRowMapper<User> {
         statement.setString(2, user.getEmail());
         statement.setString(3, user.getPassword());
         statement.setString(4, user.getRole().name());
-        statement.setTimestamp(5, user.getEmailVerified() == null ? null : Timestamp.valueOf(user.getEmailVerified()));
 
         if (includeId) {
-            statement.setInt(6, user.getId());
+            statement.setInt(5, user.getId());
         }
     }
 
@@ -31,12 +29,6 @@ public class UserRowMapper implements EntityRowMapper<User> {
         user.setEmail(resultSet.getString("email"));
         user.setPassword(resultSet.getString("password"));
         user.setRole(Role.valueOf(resultSet.getString("role")));
-
-        Timestamp emailVerifiedTs = resultSet.getTimestamp("email_verified");
-        if (emailVerifiedTs != null) {
-            user.setEmailVerified(emailVerifiedTs.toLocalDateTime());
-        }
-
         return user;
     }
 }

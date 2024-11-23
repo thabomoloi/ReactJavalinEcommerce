@@ -63,7 +63,7 @@ public class UserControllerTest {
         userController.findAllUsers(ctx);
 
         verify(ctx).status(HttpStatus.OK);
-        verify(ctx).json(usersList.stream().map(UserResponseDto::fromModel).collect(Collectors.toList()));
+        verify(ctx).json(usersList.stream().map(UserResponseDto::new).collect(Collectors.toList()));
     }
 
     /**
@@ -78,7 +78,7 @@ public class UserControllerTest {
 
         userController.findUserById(ctx);
 
-        verify(ctx).json(UserResponseDto.fromModel(user));
+        verify(ctx).json(new UserResponseDto(user));
         verify(ctx).status(HttpStatus.OK);
     }
 
