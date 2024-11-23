@@ -16,6 +16,7 @@ import com.oasisnourish.db.JdbcConnection;
 import com.oasisnourish.exceptions.DatabaseAccessException;
 
 public abstract class AbstractDao<T> {
+
     protected final JdbcConnection jdbcConnection;
     protected final EntityRowMapper<T> entityRowMapper;
 
@@ -25,8 +26,7 @@ public abstract class AbstractDao<T> {
     }
 
     protected Optional<T> querySingle(String sql, PreparedStatementConsumer consumer) {
-        try (Connection connection = jdbcConnection.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (Connection connection = jdbcConnection.getConnection(); PreparedStatement ps = connection.prepareStatement(sql)) {
             consumer.accept(ps); // Invokes lambda with ps as argument
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(entityRowMapper.mapToEntity(rs)) : Optional.empty();
@@ -38,8 +38,7 @@ public abstract class AbstractDao<T> {
 
     protected List<T> queryList(String sql, PreparedStatementConsumer consumer) {
         List<T> result = new ArrayList<>();
-        try (Connection connection = jdbcConnection.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (Connection connection = jdbcConnection.getConnection(); PreparedStatement ps = connection.prepareStatement(sql)) {
             consumer.accept(ps);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -53,8 +52,7 @@ public abstract class AbstractDao<T> {
     }
 
     protected void executeUpdate(String sql, PreparedStatementConsumer consumer, ResultSetConsumer resultSetConsumer) {
-        try (Connection connection = jdbcConnection.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = jdbcConnection.getConnection(); PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             // Set parameters using the provided consumer (lambda)
             consumer.accept(ps);
