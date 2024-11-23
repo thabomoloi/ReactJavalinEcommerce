@@ -1,5 +1,7 @@
 package com.oasisnourish.models.products;
 
+import java.util.Objects;
+
 public class ProductImage {
 
     private int id;
@@ -16,6 +18,26 @@ public class ProductImage {
         this.url = url;
         this.number = number;
         this.productId = productId;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ProductImage image = (ProductImage) obj;
+        return id == image.id
+                && Objects.equals(url, image.url)
+                && number == image.number
+                && productId == image.productId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, url, number, productId);
     }
 
     public int getId() {
