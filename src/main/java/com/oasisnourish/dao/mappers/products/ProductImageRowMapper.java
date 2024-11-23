@@ -14,7 +14,7 @@ public class ProductImageRowMapper implements EntityRowMapper<ProductImage> {
         ProductImage productImage = new ProductImage();
         productImage.setId(resultSet.getInt("id"));
         productImage.setUrl(resultSet.getString("url"));
-        productImage.setOrder(resultSet.getInt("order"));
+        productImage.setNumber(resultSet.getInt("number"));
         productImage.setProductId(resultSet.getInt("product_id"));
         return productImage;
     }
@@ -22,12 +22,12 @@ public class ProductImageRowMapper implements EntityRowMapper<ProductImage> {
     @Override
     public void mapToRow(PreparedStatement statement, ProductImage image, boolean includeId) throws SQLException {
         if (includeId) { // Update
-            statement.setInt(1, image.getOrder());
+            statement.setInt(1, image.getNumber());
             statement.setInt(2, image.getId());
         } else { // Save
             statement.setInt(1, image.getId());
             statement.setString(2, image.getUrl());
-            statement.setInt(3, image.getOrder());
+            statement.setInt(3, image.getNumber());
             statement.setInt(4, image.getProductId());
         }
     }
