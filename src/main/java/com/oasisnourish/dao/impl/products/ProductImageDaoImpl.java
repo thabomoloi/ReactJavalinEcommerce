@@ -15,8 +15,8 @@ public class ProductImageDaoImpl extends AbstractDao<ProductImage> implements Pr
     private static final String FIND_BY_PRODUCT_ID = "SELECT * FROM product_images WHERE product_id = ?";
     private static final String FIND_BY_URL = "SELECT * FROM product_images WHERE url = ?";
     private static final String FIND_ALL = "SELECT * FROM product_images";
-    private static final String INSERT = "INSERT INTO product_images (url, order, product_id) VALUES (?, ?, ?)";
-    private static final String UPDATE = "UPDATE product_images SET order = ? WHERE id = ?";
+    private static final String INSERT = "INSERT INTO product_images (url, number, product_id) VALUES (?, ?, ?)";
+    private static final String UPDATE = "UPDATE product_images SET number = ? WHERE id = ?";
     private static final String DELETE = "DELETE FROM product_images WHERE id = ?";
 
     public ProductImageDaoImpl(JdbcConnection jdbcConnection, EntityRowMapper<ProductImage> entityRowMapper) {
