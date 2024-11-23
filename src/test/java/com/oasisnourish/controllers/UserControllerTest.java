@@ -9,11 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -72,8 +71,7 @@ public class UserControllerTest {
      */
     @Test
     public void testFindUserById_UserFound() {
-        User user = new User("Alice", "alice@test.com", "Password123!");
-        user.setId(1);
+        User user = new User(1, "Alice", "alice@test.com", "Password123!");
         when(ctx.pathParamAsClass("userId", Integer.class)).thenReturn(paramValidator);
         when(paramValidator.get()).thenReturn(1);
         when(userService.findUserById(1)).thenReturn(Optional.of(user));

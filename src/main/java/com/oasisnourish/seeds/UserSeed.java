@@ -21,11 +21,11 @@ public class UserSeed implements DatabaseSeed {
     @Override
     public void seed() {
         String[][] users = {
-                { "Alice", "alice@test.com", "Password123!", "UNVERIFIED_USER" },
-                { "Bob", "bob@test.com", "Password456!", "USER" },
-                { "Charlie", "charlie@test.com", "Password789!", "ADMIN" },
-                { "David", "david@test.com", "Password135!", "USER" },
-                { "Emily", "emily@test.com", "Password246!", "USER" }
+            {"Alice", "alice@test.com", "Password123!", "UNVERIFIED_USER"},
+            {"Bob", "bob@test.com", "Password456!", "USER"},
+            {"Charlie", "charlie@test.com", "Password789!", "ADMIN"},
+            {"David", "david@test.com", "Password135!", "USER"},
+            {"Emily", "emily@test.com", "Password246!", "USER"}
         };
 
         for (String[] userData : users) {
@@ -36,7 +36,7 @@ public class UserSeed implements DatabaseSeed {
 
             // Check if user already exists
             if (userDao.findByEmail(email).isEmpty()) {
-                User user = new User(name, email, password, role);
+                User user = new User(0, name, email, password, role);
                 if (user.getRole() != Role.GUEST && user.getRole() != Role.UNVERIFIED_USER) {
                     user.setEmailVerified(LocalDateTime.now());
                 }

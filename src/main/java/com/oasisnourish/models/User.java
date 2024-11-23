@@ -10,6 +10,7 @@ import com.oasisnourish.enums.Role;
  * password, role, and email verification status.
  */
 public class User {
+
     private int id;
     private String name;
     private String email;
@@ -18,36 +19,11 @@ public class User {
     private LocalDateTime emailVerified;
 
     /**
-     * Default constructor initializing a user with empty name, email, and password.
+     * Default constructor initializing a user with empty name, email, and
+     * password.
      */
     public User() {
         this(0, "", "", "");
-    }
-
-    /**
-     * Constructs a User with the specified name, email, and password.
-     *
-     * @param name     the name of the user
-     * @param email    the email of the user
-     * @param password the password of the user
-     */
-    public User(String name, String email, String password) {
-        this(name, email, password, Role.UNVERIFIED_USER);
-    }
-
-    /**
-     * Constructs a User with the specified name, email, password, and role.
-     *
-     * @param name     the name of the user
-     * @param email    the email of the user
-     * @param password the password of the user
-     * @param role     the role of the user
-     */
-    public User(String name, String email, String password, Role role) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
     }
 
     public User(int id, String name, String email, String password) {
@@ -64,16 +40,18 @@ public class User {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null || getClass() != obj.getClass())
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
+        }
         User user = (User) obj;
-        return id == user.id &&
-                Objects.equals(name, user.name) &&
-                Objects.equals(email, user.email) &&
-                role == user.role &&
-                Objects.equals(emailVerified, user.emailVerified);
+        return id == user.id
+                && Objects.equals(name, user.name)
+                && Objects.equals(email, user.email)
+                && role == user.role
+                && Objects.equals(emailVerified, user.emailVerified);
     }
 
     @Override
@@ -175,7 +153,7 @@ public class User {
      * Gets the user's email verification timestamp.
      *
      * @return the timestamp when the user's email was verified, or null if not
-     *         verified
+     * verified
      */
     public LocalDateTime getEmailVerified() {
         return emailVerified;
@@ -184,7 +162,8 @@ public class User {
     /**
      * Sets the user's email verification timestamp.
      *
-     * @param emailVerified the timestamp to set when the user's email was verified
+     * @param emailVerified the timestamp to set when the user's email was
+     * verified
      */
     public void setEmailVerified(LocalDateTime emailVerified) {
         this.emailVerified = emailVerified;
@@ -193,17 +172,17 @@ public class User {
     /**
      * Returns a string representation of the User object.
      *
-     * @return a string representation of the user, including ID, name, email, role,
-     *         and email verification status
+     * @return a string representation of the user, including ID, name, email,
+     * role, and email verification status
      */
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", role=" + role +
-                ", emailVerified=" + (emailVerified != null ? emailVerified.toString() : "not verified") +
-                '}';
+        return "User{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", email='" + email + '\''
+                + ", role=" + role
+                + ", emailVerified=" + (emailVerified != null ? emailVerified.toString() : "not verified")
+                + '}';
     }
 }
