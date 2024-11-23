@@ -25,10 +25,9 @@ public class ProductImageRowMapper implements EntityRowMapper<ProductImage> {
             statement.setInt(1, image.getNumber());
             statement.setInt(2, image.getId());
         } else { // Save
-            statement.setInt(1, image.getId());
-            statement.setString(2, image.getUrl());
-            statement.setInt(3, image.getNumber());
-            statement.setInt(4, image.getProductId());
+            statement.setString(1, image.getUrl());
+            statement.setInt(2, image.getNumber());
+            statement.setInt(3, image.getProductId());
         }
     }
 
