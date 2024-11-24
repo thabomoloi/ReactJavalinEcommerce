@@ -90,7 +90,7 @@ public class ProductImageDaoImplTest extends DaoTestHelper<ProductImage> {
     }
 
     @Test
-    void testFindByProduct_DoesNotExist() throws SQLException {
+    void testFindByProductId_DoesNotExist() throws SQLException {
         mockEntityEmpyList(FIND_BY_PRODUCT_ID);
         assertEntityListEquals(Arrays.asList(), productImageDao.findByProductId(123));
     }
