@@ -17,8 +17,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.oasisnourish.dto.UserInputDto;
-import com.oasisnourish.dto.UserResponseDto;
+import com.oasisnourish.dto.users.UserInputDto;
+import com.oasisnourish.dto.users.UserResponseDto;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.users.User;
 import com.oasisnourish.services.users.UserService;

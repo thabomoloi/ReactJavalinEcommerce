@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.oasisnourish.dao.users.UserDao;
-import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.dto.users.UserInputDto;
 import com.oasisnourish.exceptions.EmailExistsException;
 import com.oasisnourish.exceptions.NotFoundException;
 import com.oasisnourish.models.users.User;

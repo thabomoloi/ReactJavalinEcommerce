@@ -1,6 +1,6 @@
-package com.oasisnourish.dto.validation;
+package com.oasisnourish.dto.users;
 
-import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.dto.validation.DtoValidator;
 
 /**
  * Validator for {@link UserInputDto} objects, extending

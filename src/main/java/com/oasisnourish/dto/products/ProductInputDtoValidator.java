@@ -1,6 +1,5 @@
-package com.oasisnourish.dto.validation.products;
+package com.oasisnourish.dto.products;
 
-import com.oasisnourish.dto.products.ProductInputDto;
 import com.oasisnourish.dto.validation.DtoValidator;
 
 public class ProductInputDtoValidator {

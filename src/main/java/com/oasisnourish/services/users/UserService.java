@@ -3,7 +3,7 @@ package com.oasisnourish.services.users;
 import java.util.List;
 import java.util.Optional;
 
-import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.dto.users.UserInputDto;
 import com.oasisnourish.models.users.User;
 
 /**

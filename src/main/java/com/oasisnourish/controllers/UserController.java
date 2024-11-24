@@ -3,8 +3,8 @@ package com.oasisnourish.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.oasisnourish.dto.UserInputDto;
-import com.oasisnourish.dto.UserResponseDto;
+import com.oasisnourish.dto.users.UserInputDto;
+import com.oasisnourish.dto.users.UserResponseDto;
 import com.oasisnourish.dto.validation.ValidatorFactory;
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.exceptions.NotFoundException;
