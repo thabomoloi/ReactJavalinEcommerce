@@ -3,7 +3,7 @@ package com.oasisnourish.dto;
 import java.util.Objects;
 
 import com.oasisnourish.enums.Role;
-import com.oasisnourish.models.User;
+import com.oasisnourish.models.users.User;
 
 public class UserResponseDto {
 

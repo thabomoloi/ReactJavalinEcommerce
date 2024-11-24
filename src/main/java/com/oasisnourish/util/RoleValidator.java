@@ -5,8 +5,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.oasisnourish.enums.Role;
+import com.oasisnourish.services.tokens.JWTService;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.oasisnourish.services.JWTService;
 
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;

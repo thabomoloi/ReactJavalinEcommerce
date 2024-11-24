@@ -32,11 +32,11 @@ public class UserInputDtoValidator {
      * Checks if the name field is required and non-empty.
      *
      * @return the current instance of {@link UserInputDtoValidator} for method
-     *         chaining
+     * chaining
      */
     public UserInputDtoValidator isNameRequired() {
         validator.check("name", (user) -> {
-            String name = user.getName(); // Assuming UserInputDto has a getName() method
+            String name = user.getName();
             return name != null && !name.trim().isEmpty();
         }, "Name is required.");
         return this;
@@ -46,7 +46,7 @@ public class UserInputDtoValidator {
      * Checks if the email field is required and non-empty.
      *
      * @return the current instance of {@link UserInputDtoValidator} for method
-     *         chaining
+     * chaining
      */
     public UserInputDtoValidator isEmailRequired() {
         validator.check("email", (user) -> {
@@ -60,7 +60,7 @@ public class UserInputDtoValidator {
      * Validates the format of the email address.
      *
      * @return the current instance of {@link UserInputDtoValidator} for method
-     *         chaining
+     * chaining
      */
     public UserInputDtoValidator isEmailValid() {
         validator.check("email", (user) -> {
@@ -74,7 +74,7 @@ public class UserInputDtoValidator {
      * Checks if the password field is required and non-empty.
      *
      * @return the current instance of {@link UserInputDtoValidator} for method
-     *         chaining
+     * chaining
      */
     public UserInputDtoValidator isPasswordRequired() {
         validator.check("password", (user) -> {
@@ -88,7 +88,7 @@ public class UserInputDtoValidator {
      * Validates the length of the password.
      *
      * @return the current instance of {@link UserInputDtoValidator} for method
-     *         chaining
+     * chaining
      */
     public UserInputDtoValidator isPasswordLengthValid() {
         validator.check("password", (user) -> {
@@ -102,7 +102,7 @@ public class UserInputDtoValidator {
      * Validates the format of the password.
      *
      * @return the current instance of {@link UserInputDtoValidator} for method
-     *         chaining
+     * chaining
      */
     public UserInputDtoValidator isPasswordPatternValid() {
         validator.check("password", (user) -> {

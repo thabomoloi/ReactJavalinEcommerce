@@ -20,8 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.UserResponseDto;
 import com.oasisnourish.exceptions.NotFoundException;
-import com.oasisnourish.models.User;
-import com.oasisnourish.services.UserService;
+import com.oasisnourish.models.users.User;
+import com.oasisnourish.services.users.UserService;
 
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;

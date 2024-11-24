@@ -3,7 +3,7 @@ package com.oasisnourish.util;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.enums.Role;
-import com.oasisnourish.services.JWTService;
+import com.oasisnourish.services.tokens.JWTService;
 
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;

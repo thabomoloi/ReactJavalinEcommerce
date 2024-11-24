@@ -14,9 +14,9 @@ import org.thymeleaf.context.IContext;
 
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.enums.Tokens;
-import com.oasisnourish.models.AuthToken;
-import com.oasisnourish.models.Token;
-import com.oasisnourish.models.User;
+import com.oasisnourish.models.tokens.AuthToken;
+import com.oasisnourish.models.tokens.Token;
+import com.oasisnourish.models.users.User;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
