@@ -1,10 +1,11 @@
-package com.oasisnourish.dto;
+package com.oasisnourish.dto.users;
 
 /**
  * A Data Transfer Object (DTO) representing user input data for creating or
  * updating a user.
  */
 public class UserInputDto {
+
     private int id;
     private String name;
     private String email;
@@ -12,8 +13,8 @@ public class UserInputDto {
 
     /**
      * No-argument constructor for creating a {@link UserInputDto} instance.
-     * This constructor allows for the creation of an empty DTO, which can
-     * be populated using setter methods.
+     * This constructor allows for the creation of an empty DTO, which can be
+     * populated using setter methods.
      */
     public UserInputDto() {
     }
@@ -22,9 +23,9 @@ public class UserInputDto {
      * Parameterized constructor for creating a {@link UserInputDto} instance
      * with specified values for all fields.
      *
-     * @param id       the user's id
-     * @param name     the user's name.
-     * @param email    the user's email.
+     * @param id the user's id
+     * @param name the user's name.
+     * @param email the user's email.
      * @param password the user's password.
      */
     public UserInputDto(int id, String name, String email, String password) {

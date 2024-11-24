@@ -1,4 +1,4 @@
-package com.oasisnourish.dto;
+package com.oasisnourish.dto.users;
 
 import java.util.Objects;
 

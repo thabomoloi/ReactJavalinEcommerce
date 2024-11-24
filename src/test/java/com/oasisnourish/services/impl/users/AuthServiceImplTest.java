@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.thymeleaf.context.IContext;
 
-import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.dto.users.UserInputDto;
 import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.exceptions.InvalidTokenException;
 import com.oasisnourish.exceptions.NotFoundException;

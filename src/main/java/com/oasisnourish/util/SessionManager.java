@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.oasisnourish.dto.UserResponseDto;
+import com.oasisnourish.dto.users.UserResponseDto;
 import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.tokens.JsonWebToken;
 import com.oasisnourish.models.users.User;

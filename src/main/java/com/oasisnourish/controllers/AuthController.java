@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.dto.users.UserInputDto;
 import com.oasisnourish.dto.validation.ValidatorFactory;
 import com.oasisnourish.exceptions.EmailExistsException;
 import com.oasisnourish.models.tokens.JsonWebToken;

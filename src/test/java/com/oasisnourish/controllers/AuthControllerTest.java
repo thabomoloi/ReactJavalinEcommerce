@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.oasisnourish.dto.UserInputDto;
+import com.oasisnourish.dto.users.UserInputDto;
 import com.oasisnourish.enums.Tokens;
 import com.oasisnourish.models.tokens.JsonWebToken;
 import com.oasisnourish.models.users.User;
