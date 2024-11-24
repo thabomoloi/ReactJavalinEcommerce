@@ -22,7 +22,7 @@ public class Product {
         this.code = code;
     }
 
-     @Override
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -32,7 +32,7 @@ public class Product {
         }
         Product product = (Product) obj;
         return id == product.id
-                && Objects.equals(name, product.name) 
+                && Objects.equals(name, product.name)
                 && Objects.equals(code, product.code)
                 && Objects.equals(description, product.description)
                 && Objects.equals(ribbon, ribbon);
@@ -81,6 +81,17 @@ public class Product {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{"
+                + "id=" + id
+                + ", code=" + code
+                + ", name=" + name
+                + ", descritipion=" + description
+                + ", ribbon=" + ribbon
+                + "}";
     }
 
 }
