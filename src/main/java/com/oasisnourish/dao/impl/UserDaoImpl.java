@@ -1,7 +1,5 @@
 package com.oasisnourish.dao.impl;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,11 +17,11 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
 
     private static final String FIND_BY_ID = "SELECT * FROM users WHERE id = ?";
     private static final String FIND_ALL = "SELECT * FROM users";
-    private static final String INSERT = "INSERT INTO users (name, email, password, role, email_verified) VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE users SET name = ?, email = ?, password = ?, role = ?, email_verified = ? WHERE id = ?";
+    private static final String INSERT = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE users SET name = ?, email = ?, password = ?, role = ? WHERE id = ?";
     private static final String DELETE = "DELETE FROM users WHERE id = ?";
     private static final String FIND_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
-    private static final String VERIFY_EMAIL = "UPDATE users SET role = ?, email_verified = ? WHERE email = ?";
+    private static final String VERIFY_EMAIL = "UPDATE users SET role = ? WHERE email = ?";
 
     /**
      * Constructs a {@link UserDaoImpl} with the given database connection.
@@ -69,8 +67,7 @@ public class UserDaoImpl extends AbstractDao<User> implements UserDao {
     public void verifyEmail(String email) {
         executeUpdate(VERIFY_EMAIL, ps -> {
             ps.setString(1, Role.USER.name());
-            ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setString(3, email);
+            ps.setString(2, email);
         }, null);
     }
 }
