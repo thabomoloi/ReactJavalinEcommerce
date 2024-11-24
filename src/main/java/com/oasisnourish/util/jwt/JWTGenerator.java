@@ -7,7 +7,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.oasisnourish.enums.Tokens;
-import com.oasisnourish.models.User;
+import com.oasisnourish.models.users.User;
 
 public class JWTGenerator {
 

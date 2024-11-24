@@ -8,8 +8,8 @@ import com.oasisnourish.dto.UserResponseDto;
 import com.oasisnourish.dto.validation.ValidatorFactory;
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.exceptions.NotFoundException;
-import com.oasisnourish.models.User;
-import com.oasisnourish.services.UserService;
+import com.oasisnourish.models.users.User;
+import com.oasisnourish.services.users.UserService;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;

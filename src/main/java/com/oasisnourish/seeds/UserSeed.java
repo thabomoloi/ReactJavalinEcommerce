@@ -2,9 +2,9 @@ package com.oasisnourish.seeds;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.oasisnourish.dao.UserDao;
+import com.oasisnourish.dao.users.UserDao;
 import com.oasisnourish.enums.Role;
-import com.oasisnourish.models.User;
+import com.oasisnourish.models.users.User;
 
 public class UserSeed implements DatabaseSeed {
 

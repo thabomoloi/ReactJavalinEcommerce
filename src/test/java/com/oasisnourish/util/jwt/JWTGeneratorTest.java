@@ -14,7 +14,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.enums.Role;
 import com.oasisnourish.enums.Tokens;
-import com.oasisnourish.models.User;
+import com.oasisnourish.models.users.User;
 
 public class JWTGeneratorTest {
 

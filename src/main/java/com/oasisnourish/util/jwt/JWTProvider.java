@@ -7,8 +7,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.oasisnourish.config.JWTConfig;
 import com.oasisnourish.enums.Tokens;
-import com.oasisnourish.models.JsonWebToken;
-import com.oasisnourish.models.User;
+import com.oasisnourish.models.tokens.JsonWebToken;
+import com.oasisnourish.models.users.User;
 
 public class JWTProvider {
 

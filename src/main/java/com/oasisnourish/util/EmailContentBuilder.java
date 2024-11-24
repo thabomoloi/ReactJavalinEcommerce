@@ -4,8 +4,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.context.IContext;
 
 import com.oasisnourish.config.AuthTokenConfig;
-import com.oasisnourish.models.Token;
-import com.oasisnourish.models.User;
+import com.oasisnourish.models.tokens.Token;
+import com.oasisnourish.models.users.User;
 
 import io.github.cdimascio.dotenv.Dotenv;
 

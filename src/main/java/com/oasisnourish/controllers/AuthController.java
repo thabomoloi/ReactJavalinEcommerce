@@ -7,11 +7,11 @@ import org.jetbrains.annotations.NotNull;
 import com.oasisnourish.dto.UserInputDto;
 import com.oasisnourish.dto.validation.ValidatorFactory;
 import com.oasisnourish.exceptions.EmailExistsException;
-import com.oasisnourish.models.JsonWebToken;
-import com.oasisnourish.models.User;
-import com.oasisnourish.services.AuthService;
-import com.oasisnourish.services.JWTService;
-import com.oasisnourish.services.UserService;
+import com.oasisnourish.models.tokens.JsonWebToken;
+import com.oasisnourish.models.users.User;
+import com.oasisnourish.services.tokens.JWTService;
+import com.oasisnourish.services.users.AuthService;
+import com.oasisnourish.services.users.UserService;
 import com.oasisnourish.util.RoleValidator;
 import com.oasisnourish.util.SessionManager;
 
