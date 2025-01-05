@@ -2,6 +2,7 @@ package com.oasisnourish;
 
 import com.oasisnourish.enums.Role;
 
+import static io.javalin.apibuilder.ApiBuilder.crud;
 import static io.javalin.apibuilder.ApiBuilder.delete;
 import static io.javalin.apibuilder.ApiBuilder.get;
 import static io.javalin.apibuilder.ApiBuilder.patch;
@@ -41,6 +42,11 @@ public class AppRouter {
                     post(CONFIG.AUTH_CONTROLLER::generateResetPasswordToken, Role.GUEST);
                     patch("/{token}", CONFIG.AUTH_CONTROLLER::resetPassword, Role.GUEST);
                 });
+            });
+
+            // Admin Routes
+            path("/admin", () -> {
+                crud("/products/{productId}", CONFIG.PRODUCT_CONTROLLER, Role.GUEST, Role.ADMIN);
             });
         });
     }

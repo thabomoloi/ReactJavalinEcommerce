@@ -90,7 +90,7 @@ public class AuthController implements Handler {
      * @throws EmailExistsException if the email is already registered.
      */
     public void signUpUser(Context ctx) throws EmailExistsException {
-        UserInputDto userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+        UserInputDto userDto = ValidatorFactory.userInputDtoValidator(ctx.bodyValidator(UserInputDto.class))
                 .isNameRequired()
                 .isEmailRequired()
                 .isEmailValid()
@@ -112,7 +112,7 @@ public class AuthController implements Handler {
      * @throws UnauthorizedResponse if authentication fails.
      */
     public void signInUser(Context ctx) throws UnauthorizedResponse {
-        UserInputDto userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+        UserInputDto userDto = ValidatorFactory.userInputDtoValidator(ctx.bodyValidator(UserInputDto.class))
                 .isEmailRequired()
                 .isEmailValid()
                 .isPasswordRequired()
@@ -160,7 +160,7 @@ public class AuthController implements Handler {
     }
 
     public void generateResetPasswordToken(Context ctx) {
-        var userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+        var userDto = ValidatorFactory.userInputDtoValidator(ctx.bodyValidator(UserInputDto.class))
                 .isEmailRequired()
                 .isEmailValid()
                 .get();
@@ -173,7 +173,7 @@ public class AuthController implements Handler {
     public void resetPassword(Context ctx) {
         String token = ctx.pathParam("token");
 
-        var userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+        var userDto = ValidatorFactory.userInputDtoValidator(ctx.bodyValidator(UserInputDto.class))
                 .isPasswordRequired()
                 .isPasswordLengthValid()
                 .isPasswordPatternValid()

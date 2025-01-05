@@ -11,11 +11,14 @@ import com.oasisnourish.config.EnvConfig;
 import com.oasisnourish.config.JWTConfig;
 import com.oasisnourish.config.TemplateEngineConfig;
 import com.oasisnourish.controllers.AuthController;
+import com.oasisnourish.controllers.ProductController;
 import com.oasisnourish.controllers.UserController;
+import com.oasisnourish.dao.impl.products.ProductDaoImpl;
 import com.oasisnourish.dao.impl.tokens.TokenDaoImpl;
 import com.oasisnourish.dao.impl.tokens.TokenRateLimitDaoImpl;
 import com.oasisnourish.dao.impl.tokens.TokenVersionDaoImpl;
 import com.oasisnourish.dao.impl.users.UserDaoImpl;
+import com.oasisnourish.dao.mappers.products.ProductRowMapper;
 import com.oasisnourish.dao.mappers.users.UserRowMapper;
 import com.oasisnourish.db.JdbcConnection;
 import com.oasisnourish.db.RedisConnection;
@@ -25,6 +28,7 @@ import com.oasisnourish.models.tokens.AuthToken;
 import com.oasisnourish.models.tokens.JsonWebToken;
 import com.oasisnourish.seeds.UserSeed;
 import com.oasisnourish.services.impl.EmailServiceImpl;
+import com.oasisnourish.services.impl.products.ProductServiceImpl;
 import com.oasisnourish.services.impl.tokens.AuthTokenServiceImpl;
 import com.oasisnourish.services.impl.tokens.JWTServiceImpl;
 import com.oasisnourish.services.impl.users.AuthServiceImpl;
@@ -42,6 +46,7 @@ public class AppConfig {
     public final ExecutorService EMAIL_EXECUTOR_SERVICE;
     public final UserController USER_CONTROLLER;
     public final AuthController AUTH_CONTROLLER;
+    public final ProductController PRODUCT_CONTROLLER;
 
     public AppConfig() {
         // Database Connections
@@ -62,6 +67,7 @@ public class AppConfig {
         // DAOs
         UserDaoImpl userDao = new UserDaoImpl(jdbcConnection, new UserRowMapper());
         TokenVersionDaoImpl tokenVersionDao = new TokenVersionDaoImpl(redisConnection);
+        ProductDaoImpl productDao = new ProductDaoImpl(jdbcConnection, new ProductRowMapper());
 
         // Services
         EMAIL_EXECUTOR_SERVICE = Executors.newFixedThreadPool(10);
@@ -92,6 +98,8 @@ public class AppConfig {
                 passwordEncoder,
                 emailContentBuilder);
 
+        ProductServiceImpl productService = new ProductServiceImpl(productDao);
+
         // Controllers
         USER_CONTROLLER = new UserController(userService);
 
@@ -101,6 +109,8 @@ public class AppConfig {
                 jwtService,
                 sessionManager,
                 roleValidator);
+
+        PRODUCT_CONTROLLER = new ProductController(productService);
 
         // Seed data for development environment
         if ("development".equals(dotenv.get("ENV", "development"))) {

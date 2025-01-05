@@ -70,7 +70,7 @@ public class UserController {
      * and response.
      */
     public void createUser(Context ctx) {
-        UserInputDto userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+        UserInputDto userDto = ValidatorFactory.userInputDtoValidator(ctx.bodyValidator(UserInputDto.class))
                 .isNameRequired()
                 .isEmailRequired()
                 .isEmailValid()
@@ -98,7 +98,7 @@ public class UserController {
             throw new UnauthorizedResponse("You have no permission to update this user.");
         }
 
-        var userDto = ValidatorFactory.getValidator(ctx.bodyValidator(UserInputDto.class))
+        var userDto = ValidatorFactory.userInputDtoValidator(ctx.bodyValidator(UserInputDto.class))
                 .isNameRequired()
                 .isEmailRequired()
                 .isEmailValid()
