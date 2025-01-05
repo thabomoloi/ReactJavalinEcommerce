@@ -1,8 +1,24 @@
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,                     -- Auto-incremented unique identifier
-  name VARCHAR(255) NOT NULL,                -- User's name, adjusted size as needed
-  role VARCHAR(50) NOT NULL,                 -- User's role, to store enum values
-  email VARCHAR(255) UNIQUE NOT NULL,        -- User's email, must be unique
-  email_verified TIMESTAMP,                  -- Date and time when the email was verified
-  password VARCHAR(255) NOT NULL             -- User's password (hashed)
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  email_verified TIMESTAMP,
+  password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(20) NOT NULL UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  ribbon VARCHAR(64)
+);
+
+CREATE TABLE IF NOT EXISTS product_images (
+  id SERIAL PRIMARY KEY,
+  url VARCHAR(255) NOT NULL,
+  number SMALLINT NOT NULL,
+  product_id INT NOT NULL,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
